@@ -7,8 +7,9 @@ const studentSchema = mongoose.Schema({
   gender: String,
   address: String,
   phoneNumber: String,
-  classId: String,
   status: String,
+  classId: String,
+  exemptId: String,
 });
 
 const Student = mongoose.model('Student', studentSchema);

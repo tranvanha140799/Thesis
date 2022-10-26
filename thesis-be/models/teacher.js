@@ -8,11 +8,11 @@ const teacherSchema = mongoose.Schema({
   email: String,
   address: String,
   phoneNumber: String,
-  degree: String,
-  position: String,
-  subjectId: String,
-  status: String,
-  salaryRankId: String,
+  position: String, // Vị trí công việc: trợ giảng, gv chính
+  workType: String, // Kiểu làm việc: parttime, fulltime,...
+  status: String, // Trạng thái: đã nghỉ, đang làm, tạm nghỉ,...
+  contractSalary: Number, // Lương hợp đồng
+  salaryFactorId: String, // Mã hệ số lương
 });
 
 const Teacher = mongoose.model('Teacher', teacherSchema);

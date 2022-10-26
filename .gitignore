@@ -1,6 +1,8 @@
 # dependencies
 /thesis-be/node_modules
 /thesis-fe/node_modules
+/thesis-be/.yarn
+/thesis-fe/.yarn
 /.pnp
 .pnp.js
 
@@ -12,6 +14,8 @@
 
 # misc
 /thesis-be/.env
+/thesis-be/.yarnrc.yml
+/thesis-fe/.yarnrc.yml
 .DS_Store
 .env.local
 .env.development.local
