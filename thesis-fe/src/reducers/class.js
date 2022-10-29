@@ -32,3 +32,5 @@ const classesReducer = (state = initState, action) =>
         return draft;
     }
   });
+
+export default classesReducer;

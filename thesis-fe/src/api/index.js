@@ -13,8 +13,8 @@ API.interceptors.request.use((req) => {
 });
 
 // AUTH
-export const signIn = (formData) => API.post("/user/signin", formData);
-export const signUp = (formData) => API.post("/user/signup", formData);
+export const signIn = (formData) => API.post("/users/signin", formData);
+export const signUp = (formData) => API.post("/users/signup", formData);
 
 // TEACHERS
 export const getTeachers = () => API.get("/teachers");

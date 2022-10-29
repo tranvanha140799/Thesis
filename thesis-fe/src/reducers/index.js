@@ -1,11 +1,12 @@
-import { combineReducers } from 'redux';
+import { combineReducers } from "redux";
 
-import authReducer from './auth';
-import studentsReducer from './students';
-import teachersReducer from './teachers';
-import salaryChartReducer from './salaryChart';
-import teacherPaymentReducer from './teacherPayment';
-import expenseOfMonthSheetReducer from './expenseOfMonthSheet';
+import authReducer from "./auth";
+import studentsReducer from "./students";
+import teachersReducer from "./teachers";
+import salaryChartReducer from "./salaryChart";
+import teacherPaymentReducer from "./teacherPayment";
+import expenseOfMonthSheetReducer from "./expenseOfMonthSheet";
+import classesReducer from "./class";
 
 export default combineReducers({
   authReducer,
@@ -14,4 +15,5 @@ export default combineReducers({
   salaryChartReducer,
   teacherPaymentReducer,
   expenseOfMonthSheetReducer,
+  classesReducer,
 });
