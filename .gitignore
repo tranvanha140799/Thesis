@@ -1,6 +1,7 @@
 # dependencies
 /thesis-be/node_modules
 /thesis-fe/node_modules
+/thesis-fe/package.json
 /thesis-be/.yarn
 /thesis-fe/.yarn
 /.pnp
