@@ -64,7 +64,7 @@ const AddClass = ({ id }) => {
     if (clasS) {
       set_Id(clasS._id);
       setClassId(clasS.classId);
-      setClassname(clasS.classname);
+      setClassname(clasS.name);
       setStudentQuantity(clasS.studentQuantity);
       setStatus(clasS.status);
       setFromTeacherId(clasS.formTeacherId);
@@ -74,7 +74,7 @@ const AddClass = ({ id }) => {
   const onFinish = async (values) => {
     const clasS = {
       classId,
-      classname,
+      name:classname,
       studentQuantity,
       formTeacherId,
       status,

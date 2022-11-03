@@ -14,16 +14,16 @@ const classesReducer = (state = initState, action) =>
         draft.classes = action.payload;
         draft.totalClasses = Object.keys(action.payload)?.length;
         break;
-      case actionTypes.CREATE_TEACHER:
-        draft.classes.push(action.newTeacher);
+      case actionTypes.CREATE_CLASS:
+        draft.classes.push(action.newClass);
         break;
-      case actionTypes.UPDATE_TEACHER:
+      case actionTypes.UPDATE_CLASS:
         draft.classes.map((clasS) => {
           if (clasS.id === clasS.id) clasS = action.clasS;
         });
         break;
-      case actionTypes.DELETE_TEACHER:
-        draft.classes = draft.teachers.filter(
+      case actionTypes.DELETE_CLASS:
+        draft.classes = draft.classes.filter(
           (clasS) => clasS._id !== action.payload
         );
         --draft.totalClasses;
