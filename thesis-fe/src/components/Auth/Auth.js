@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom'; // useNavigate belong to react-reouter v6 and has replaced useHistory of v5
 import { GoogleLogin } from 'react-google-login';
-import { signIn, signUp } from '../../actions/auth';
 
 import * as actionTypes from '../../constants/actionTypes';
 import Icon from './icon';
@@ -11,6 +10,8 @@ import useStyles from './styles';
 
 import { Avatar, Button, Paper, Grid, Typography, Container } from '@material-ui/core';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
+import { authActions } from '../../redux/authSlice';
+const { signIn, signUp } = authActions;
 
 const initState = {
   firstName: '',

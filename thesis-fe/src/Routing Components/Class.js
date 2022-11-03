@@ -1,11 +1,11 @@
-import React from "react";
-import { Outlet, Route, Routes } from "react-router-dom";
+import React from 'react';
+import { Outlet, Route, Routes } from 'react-router-dom';
 
-import ClassPage from "../components/Class";
-import AddClass from "../components/Class/add";
-import EditCLass from "../components/Class/edit";
+import ClassPage from '../components/Class';
+import AddClass from '../components/Class/add';
+import EditCLass from '../components/Class/edit';
 
-const Students = () => (
+const Classes = () => (
   <>
     <Routes>
       <Route exact path="/classes" element={<ClassPage />} />
@@ -16,4 +16,4 @@ const Students = () => (
     <Outlet />
   </>
 );
-export default Students;
+export default Classes;

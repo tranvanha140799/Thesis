@@ -1,16 +1,18 @@
-import React, { useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import React, { useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 
-import { Table, Space, Button } from "antd";
+import { Table, Space, Button } from 'antd';
 // import ColumnGroup from 'antd/lib/table/ColumnGroup';
-import Column from "antd/lib/table/Column";
+import Column from 'antd/lib/table/Column';
 
-import "antd/dist/antd.css";
-import "./index.css";
-import { Link, useNavigate, useRoutes } from "react-router-dom";
-import { deleteStudent, getStudents } from "../../actions/students";
-import AddBtn from "../Common/AddBtn";
-import DeleteBtn from "../Common/DeleteBtn";
+import 'antd/dist/antd.css';
+import './index.css';
+import { Link, useNavigate, useRoutes } from 'react-router-dom';
+import AddBtn from '../Common/AddBtn';
+import DeleteBtn from '../Common/DeleteBtn';
+import { studentActions } from '../../redux/studentSlice';
+
+const { deleteStudent, getStudents } = studentActions;
 
 const StudentPage = () => {
   const dispatch = useDispatch();
@@ -22,7 +24,7 @@ const StudentPage = () => {
   }, []);
 
   const gotoAdd = () => {
-    navigate("./add");
+    navigate('./add');
   };
 
   const deleteStu = (id) => {
@@ -40,9 +42,7 @@ const StudentPage = () => {
           key="key"
           render={(text, record) => (
             <Space size="middle">
-              <Link to={`/students/${record.studentId}`}>
-                {record.fullname}
-              </Link>
+              <Link to={`/students/${record.studentId}`}>{record.fullname}</Link>
             </Space>
           )}
         />
@@ -52,9 +52,9 @@ const StudentPage = () => {
           key="key"
           render={(birthday) => {
             const date = new Date(birthday);
-            let string = "";
-            string += date.getDate().toString() + "/";
-            string += (date.getMonth() + 1).toString() + "/";
+            let string = '';
+            string += date.getDate().toString() + '/';
+            string += (date.getMonth() + 1).toString() + '/';
             string += date.getFullYear().toString();
             return string;
           }}
@@ -64,9 +64,9 @@ const StudentPage = () => {
           dataIndex="gender"
           key="key"
           render={(gender) => {
-            if (gender === "male") return "Nam";
-            else if (gender === "female") return "Nữ";
-            else return "Khác";
+            if (gender === 'male') return 'Nam';
+            else if (gender === 'female') return 'Nữ';
+            else return 'Khác';
           }}
         />
         <Column title="Địa Chỉ" dataIndex="address" key="key" />
@@ -81,16 +81,16 @@ const StudentPage = () => {
           key="key"
           render={(text) => {
             switch (text) {
-              case "1":
-                return "Đang học";
-              case "2":
-                return "Bảo lưu";
-              case "3":
-                return "Đã nghỉ học";
-              case "4":
-                return "Đã tốt nghiệp";
+              case '1':
+                return 'Đang học';
+              case '2':
+                return 'Bảo lưu';
+              case '3':
+                return 'Đã nghỉ học';
+              case '4':
+                return 'Đã tốt nghiệp';
               default:
-                return "";
+                return '';
             }
           }}
         />

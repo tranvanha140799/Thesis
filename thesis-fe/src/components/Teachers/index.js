@@ -8,52 +8,46 @@ import Column from 'antd/lib/table/Column';
 import 'antd/dist/antd.css';
 import './index.css';
 import { Link } from 'react-router-dom';
-import { deleteTeacher, getTeachers } from '../../actions/teachers';
-import { getTeacherPayments } from '../../actions/teacherPayment';
-import { getSalaries } from '../../actions/salaryChart';
+import { teacherActions } from '../../redux/teacherSlice';
+
+const { deleteTeacher, getTeachers } = teacherActions;
 
 const TeacherPage = () => {
   const dispatch = useDispatch();
   const teachers = useSelector((state) => state.teachersReducer.teachers);
-  const teacherPayments = useSelector(
-    (state) => state.teacherPaymentReducer.teacherPayments
-  );
-  const salaries = useSelector((state) => state.salaryChartReducer.salaries);
 
   let data = [];
 
-  if (teachers.length > 0 && salaries.length > 0) {
-    var editTeachers = teachers;
-    // var editTeacherPayments = teacherPayments;
-    for (let teacher of editTeachers) {
-      if (teacher.salaryRankId) {
-        for (let salary of salaries) {
-          if (teacher.salaryRankId === salary.salaryRankId) {
-            teacher = {
-              ...teacher,
-              salaryAmount: salary.basicSalary * salary.coefficient + salary.allowance,
-            };
-            // console.log(teacher);
-            break;
-          }
-        }
-      }
-      if (!teacher.salaryAmount) {
-        // console.log('here');
-        teacher = {
-          ...teacher,
-          salaryAmount: 0,
-        };
-      }
-      data.push(teacher);
-    }
-    // console.log(data);
-  }
+  // if (teachers.length > 0 && salaries.length > 0) {
+  //   var editTeachers = teachers;
+  //   // var editTeacherPayments = teacherPayments;
+  //   for (let teacher of editTeachers) {
+  //     if (teacher.salaryRankId) {
+  //       for (let salary of salaries) {
+  //         if (teacher.salaryRankId === salary.salaryRankId) {
+  //           teacher = {
+  //             ...teacher,
+  //             salaryAmount: salary.basicSalary * salary.coefficient + salary.allowance,
+  //           };
+  //           // console.log(teacher);
+  //           break;
+  //         }
+  //       }
+  //     }
+  //     if (!teacher.salaryAmount) {
+  //       // console.log('here');
+  //       teacher = {
+  //         ...teacher,
+  //         salaryAmount: 0,
+  //       };
+  //     }
+  //     data.push(teacher);
+  //   }
+  //   // console.log(data);
+  // }
 
   useEffect(() => {
     dispatch(getTeachers());
-    dispatch(getTeacherPayments());
-    if (salaries.length === 0) dispatch(getSalaries());
   }, []);
 
   return (

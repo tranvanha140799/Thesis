@@ -7,20 +7,12 @@ import Column from 'antd/lib/table/Column';
 import 'antd/dist/antd.css';
 import './index.css';
 import { Link } from 'react-router-dom';
-import {
-  deleteExpenseOfMonthSheet,
-  getExpenseOfMonthSheets,
-} from '../../actions/expenseOfMonthSheet';
 
 const TeachersSalaryChartPage = () => {
   const dispatch = useDispatch();
   const data = useSelector(
     (state) => state.expenseOfMonthSheetReducer.expenseOfMonthSheets
   );
-
-  useEffect(() => {
-    dispatch(getExpenseOfMonthSheets());
-  }, []);
 
   return (
     <Table dataSource={data} rowKey="expenseOfMonthSheetId">
@@ -55,9 +47,9 @@ const TeachersSalaryChartPage = () => {
         key="action"
         render={(text, record) => (
           <Space size="middle">
-            <Button onClick={() => dispatch(deleteExpenseOfMonthSheet(record._id))}>
+            {/* <Button onClick={() => dispatch(deleteExpenseOfMonthSheet(record._id))}>
               Xoá
-            </Button>
+            </Button> */}
           </Space>
         )}
       />

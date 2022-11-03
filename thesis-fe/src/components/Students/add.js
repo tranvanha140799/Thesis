@@ -2,13 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import moment from 'moment';
 
-import { createStudent, getStudents, updateStudent } from '../../actions/students';
-
 import 'antd/dist/antd.css';
 import './index.css';
 
 import { Form, Input, Select, Button, DatePicker } from 'antd';
 import { useNavigate } from 'react-router-dom';
+import { studentActions } from '../../redux/studentSlice';
+
+const { createStudent, getStudents, updateStudent } = studentActions;
 const { Option } = Select;
 
 const formItemLayout = {

@@ -1,16 +1,18 @@
-import React, { useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import React, { useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
 
-import { Table, Space, Button } from "antd";
+import { Table, Space, Button } from 'antd';
 // import ColumnGroup from 'antd/lib/table/ColumnGroup';
-import Column from "antd/lib/table/Column";
+import Column from 'antd/lib/table/Column';
 
-import "antd/dist/antd.css";
+import 'antd/dist/antd.css';
 // import "./index.css";
-import { Link, useNavigate } from "react-router-dom";
-import { deleteClass, getClass } from "../../actions/class";
-import AddBtn from "../Common/AddBtn";
-import DeleteBtn from "../Common/DeleteBtn";
+import AddBtn from '../Common/AddBtn';
+import DeleteBtn from '../Common/DeleteBtn';
+import { classActions } from '../../redux/classSlice';
+
+const { deleteClass, getClass } = classActions;
 
 const ClassPage = () => {
   const dispatch = useDispatch();
@@ -22,7 +24,7 @@ const ClassPage = () => {
   }, []);
 
   const gotoAdd = () => {
-    navigate("./add");
+    navigate('./add');
   };
 
   const deleteStu = (id) => {
@@ -44,11 +46,7 @@ const ClassPage = () => {
             </Space>
           )}
         />
-        <Column
-          title="Số lượng học sinh"
-          dataIndex="studentQuantity"
-          key="key"
-        />
+        <Column title="Số lượng học sinh" dataIndex="studentQuantity" key="key" />
         <Column title="Giới Tính" dataIndex="formTeacherId" key="key" />
         <Column
           title="Action"

@@ -2,14 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import moment from 'moment';
 
-import { createTeacher, getTeachers, updateTeacher } from '../../actions/teachers';
-
 import 'antd/dist/antd.css';
 import './index.css';
 
 import { Form, Input, Select, Button, DatePicker } from 'antd';
 import { useNavigate } from 'react-router-dom';
-import { getSalaries } from '../../actions/salaryChart';
+import { teacherActions } from '../../redux/teacherSlice';
+
+const { createTeacher, getTeachers, updateTeacher } = teacherActions;
 const { Option } = Select;
 
 const formItemLayout = {
@@ -68,7 +68,6 @@ const AddTeacher = ({ id }) => {
   const [salaryRankId, setSalaryRankId] = useState('');
 
   useEffect(() => {
-    dispatch(getSalaries());
     if (totalTeachers === 0) dispatch(getTeachers());
     if (teacher) {
       set_Id(teacher._id);
