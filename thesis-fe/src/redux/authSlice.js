@@ -14,13 +14,7 @@ export const authActions = {
     }
   },
 
-  isSignedIn: () => async (dispatch) => {
-    try {
-      dispatch(actions.isSignedIn());
-    } catch (error) {
-      console.log(error);
-    }
-  },
+  isSignedIn: () => async (dispatch) => dispatch(actions.isSignedIn()),
 
   signUp: (formData, navigate) => async (dispatch) => {
     console.log(formData);
@@ -48,7 +42,9 @@ const authSlice = createSlice({
   reducers: {
     isSignedIn: (state, action) => {
       const user = JSON.parse(localStorage.getItem('user'));
+      console.log(user);
       state.authData = user;
+      return state;
     },
     auth: (state, action) => {
       localStorage.setItem('user', JSON.stringify({ ...action?.payload.data }));

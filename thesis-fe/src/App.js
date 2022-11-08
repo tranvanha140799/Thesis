@@ -4,10 +4,12 @@ import { Route, Routes, Navigate } from 'react-router-dom';
 
 import Home from './Routing Components';
 import Auth from './components/Auth/Auth';
-import { isSignedIn } from './actions/auth';
+import { authActions } from './redux/authSlice';
 
 import './App.css';
 import 'antd/dist/antd.css';
+
+const { isSignedIn } = authActions;
 
 function App() {
   const dispatch = useDispatch();

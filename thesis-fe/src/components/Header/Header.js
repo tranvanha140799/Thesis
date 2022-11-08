@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import decode from 'jwt-decode';
-import { LOGOUT } from '../../constants/actionTypes';
 import { AppBar, Avatar, Button, Toolbar, Typography } from '@material-ui/core';
 import useStyles from './styles';
+import { authActions } from '../../redux/authSlice';
 
 const Header = () => {
   const dispatch = useDispatch();
@@ -27,7 +27,7 @@ const Header = () => {
   }, [location]);
 
   const logOut = () => {
-    dispatch({ type: LOGOUT });
+    dispatch(authActions.logOut());
     navigate('/auth');
     setUser(null);
   };
