@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import moment from 'moment';
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import moment from "moment";
 
-import 'antd/dist/antd.css';
-import './index.css';
+import "antd/dist/antd.css";
+import "./index.css";
 
-import { Form, Input, Select, Button, DatePicker } from 'antd';
-import { useNavigate } from 'react-router-dom';
-import { teacherActions } from '../../redux/teacherSlice';
+import { Form, Input, Select, Button, DatePicker } from "antd";
+import { useNavigate } from "react-router-dom";
+import { teacherActions } from "../../redux/teacherSlice";
 
 const { createTeacher, getTeachers, updateTeacher } = teacherActions;
 const { Option } = Select;
@@ -48,24 +48,26 @@ const AddTeacher = ({ id }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [form] = Form.useForm();
-  const salaryRank = useSelector((state) => state.salaryChartReducer.salaries);
-  const totalTeachers = useSelector((state) => state.teachersReducer.totalTeachers);
+  // const salaryRank =
+  //   useSelector((state) => state.salaryChartReducer.salaries) || null;
+  const totalTeachers =
+    useSelector((state) => state.teachersReducer.totalTeachers) || null;
   const teacher = useSelector((state) =>
     id ? state.teachersReducer.teachers.find((p) => p.teacherId === id) : null
   );
-  const [_id, set_Id] = useState('');
-  const [teacherId, setTeacherId] = useState('');
-  const [fullname, setFullname] = useState('');
-  const [gender, setGender] = useState('');
-  const [birthday, setBirtday] = useState('');
-  const [email, setEmail] = useState('');
-  const [address, setAddress] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [degree, setDegree] = useState('');
-  const [position, setPosition] = useState('');
-  const [subjectId, setSubjectId] = useState('');
-  const [status, setStatus] = useState('');
-  const [salaryRankId, setSalaryRankId] = useState('');
+  const [_id, set_Id] = useState("");
+  const [teacherId, setTeacherId] = useState("");
+  const [fullname, setFullname] = useState("");
+  const [gender, setGender] = useState("");
+  const [birthday, setBirtday] = useState("");
+  const [email, setEmail] = useState("");
+  const [address, setAddress] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [degree, setDegree] = useState("");
+  const [position, setPosition] = useState("");
+  const [subjectId, setSubjectId] = useState("");
+  const [status, setStatus] = useState("");
+  const [salaryRankId, setSalaryRankId] = useState("");
 
   useEffect(() => {
     if (totalTeachers === 0) dispatch(getTeachers());
@@ -91,7 +93,7 @@ const AddTeacher = ({ id }) => {
       teacherId,
       fullname,
       gender: values.gender,
-      birthday: moment(values.birthday, 'DD/MM/YYYY'),
+      birthday: moment(values.birthday, "DD/MM/YYYY"),
       email,
       address,
       phoneNumber,
@@ -101,10 +103,10 @@ const AddTeacher = ({ id }) => {
       status,
       salaryRankId,
     };
-    if (typeof id === 'string') await dispatch(updateTeacher(_id, teacher));
+    if (typeof id === "string") await dispatch(updateTeacher(_id, teacher));
     else await dispatch(createTeacher(teacher));
 
-    navigate('/teachers');
+    navigate("/teachers");
   };
 
   const prefixSelector = (
@@ -128,25 +130,25 @@ const AddTeacher = ({ id }) => {
       onFinish={onFinish}
       initialValues={{
         residence: [],
-        prefix: '84',
+        prefix: "84",
         // salaryRank: teacher?.salaryRankId ? teacher?.salaryRankId : '',
       }}
       fields={[
-        { name: ['teacherId'], value: teacherId },
-        { name: ['fullname'], value: fullname },
-        { name: ['gender'], value: gender },
+        { name: ["teacherId"], value: teacherId },
+        { name: ["fullname"], value: fullname },
+        { name: ["gender"], value: gender },
         {
-          name: ['birthday'],
-          value: birthday ? moment(birthday, 'YYYY-MM-DDTHH:00:00[Z]') : '',
+          name: ["birthday"],
+          value: birthday ? moment(birthday, "YYYY-MM-DDTHH:00:00[Z]") : "",
         },
-        { name: ['email'], value: email },
-        { name: ['address'], value: address },
-        { name: ['phoneNumber'], value: phoneNumber },
-        { name: ['degree'], value: degree },
-        { name: ['position'], value: position },
-        { name: ['subjectId'], value: subjectId },
-        { name: ['status'], value: status },
-        { name: ['salaryRank'], value: salaryRankId },
+        { name: ["email"], value: email },
+        { name: ["address"], value: address },
+        { name: ["phoneNumber"], value: phoneNumber },
+        { name: ["degree"], value: degree },
+        { name: ["position"], value: position },
+        { name: ["subjectId"], value: subjectId },
+        { name: ["status"], value: status },
+        // { name: ["salaryRank"], value: salaryRankId },
       ]}
       scrollToFirstError
     >
@@ -158,7 +160,7 @@ const AddTeacher = ({ id }) => {
         rules={[
           {
             required: true,
-            message: 'Hãy nhập mã giáo viên!',
+            message: "Hãy nhập mã giáo viên!",
             whitespace: false,
           },
         ]}
@@ -174,7 +176,7 @@ const AddTeacher = ({ id }) => {
         rules={[
           {
             required: true,
-            message: 'Hãy nhập tên giáo viên!',
+            message: "Hãy nhập tên giáo viên!",
             whitespace: true,
           },
         ]}
@@ -189,7 +191,7 @@ const AddTeacher = ({ id }) => {
         rules={[
           {
             required: true,
-            message: 'Chọn giới tính của giáo viên!',
+            message: "Chọn giới tính của giáo viên!",
           },
         ]}
       >
@@ -206,7 +208,7 @@ const AddTeacher = ({ id }) => {
         rules={[
           {
             required: true,
-            message: 'Nhập ngày sinh của giáo viên!',
+            message: "Nhập ngày sinh của giáo viên!",
           },
         ]}
       >
@@ -224,12 +226,12 @@ const AddTeacher = ({ id }) => {
         onChange={(e) => setEmail(e.target.value)}
         rules={[
           {
-            type: 'email',
-            message: 'Email chưa đúng định dạng!',
+            type: "email",
+            message: "Email chưa đúng định dạng!",
           },
           {
             required: true,
-            message: 'Vui lòng nhập email của bạn!',
+            message: "Vui lòng nhập email của bạn!",
           },
         ]}
       >
@@ -243,7 +245,7 @@ const AddTeacher = ({ id }) => {
         rules={[
           {
             required: true,
-            message: 'Nhập địa chỉ!',
+            message: "Nhập địa chỉ!",
           },
         ]}
       >
@@ -257,14 +259,14 @@ const AddTeacher = ({ id }) => {
         rules={[
           {
             required: true,
-            message: 'Nhập số điện thoại!',
+            message: "Nhập số điện thoại!",
           },
         ]}
       >
         <Input
           addonBefore={prefixSelector}
           style={{
-            width: '100%',
+            width: "100%",
           }}
         />
       </Form.Item>
@@ -275,7 +277,7 @@ const AddTeacher = ({ id }) => {
         rules={[
           {
             required: false,
-            message: '',
+            message: "",
           },
         ]}
       >
@@ -302,7 +304,7 @@ const AddTeacher = ({ id }) => {
         rules={[
           {
             required: false,
-            message: '',
+            message: "",
           },
         ]}
       >
@@ -332,7 +334,7 @@ const AddTeacher = ({ id }) => {
         rules={[
           {
             required: false,
-            message: '',
+            message: "",
           },
         ]}
       >
@@ -370,7 +372,7 @@ const AddTeacher = ({ id }) => {
         rules={[
           {
             required: false,
-            message: '',
+            message: "",
           },
         ]}
       >
@@ -387,13 +389,13 @@ const AddTeacher = ({ id }) => {
         </Select>
       </Form.Item>
 
-      <Form.Item
+      {/* <Form.Item
         name="salaryRank"
         label="Mức lương"
         rules={[
           {
             required: false,
-            message: '',
+            message: "",
           },
         ]}
       >
@@ -406,16 +408,16 @@ const AddTeacher = ({ id }) => {
             );
           })}
         </Select>
-      </Form.Item>
+      </Form.Item> */}
 
       <Form.Item {...tailFormItemLayout}>
         <Button type="primary" htmlType="submit">
-          {id ? 'Sửa Thông Tin' : 'Thêm Giáo Viên'}
+          {id ? "Sửa Thông Tin" : "Thêm Giáo Viên"}
         </Button>
         <Button
           type="ghost"
-          style={{ marginLeft: '10px' }}
-          onClick={() => navigate('/teachers')}
+          style={{ marginLeft: "10px" }}
+          onClick={() => navigate("/teachers")}
         >
           Huỷ Bỏ
         </Button>
