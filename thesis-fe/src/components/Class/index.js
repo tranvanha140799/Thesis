@@ -12,7 +12,7 @@ import AddBtn from "../Common/AddBtn";
 import DeleteBtn from "../Common/DeleteBtn";
 import { classActions } from "../../redux/classSlice";
 
-const { deleteClass, getClass } = classActions;
+const { deleteClass, getClasses } = classActions;
 
 const ClassPage = () => {
   const dispatch = useDispatch();
@@ -20,16 +20,14 @@ const ClassPage = () => {
   const data = useSelector((state) => state.classesReducer.classes);
   console.log(data);
   useEffect(() => {
-    dispatch(getClass());
+    dispatch(getClasses());
   }, []);
 
   const gotoAdd = () => {
-    navigate("./add");
+    navigate('./add');
   };
 
-  const deleteStu = (id) => {
-    dispatch(deleteClass(id));
-  };
+  const deleteStu = (id) => dispatch(deleteClass(id));
 
   return (
     <div>

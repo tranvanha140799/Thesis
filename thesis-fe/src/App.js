@@ -17,7 +17,6 @@ function App() {
   dispatch(isSignedIn());
   const user = useSelector((state) => state.authReducer.authData);
 
-  console.log(user);
   // useEffect(() => {
   //   dispatch(isSignedIn());
   // }, [user]);

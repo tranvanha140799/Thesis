@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import moment from 'moment';
+import { Form, Input, Select, Button, DatePicker } from 'antd';
 
 import 'antd/dist/antd.css';
 import './index.css';
 
-import { Form, Input, Select, Button, DatePicker } from 'antd';
-import { useNavigate } from 'react-router-dom';
+import { validatePhoneNumber } from '../Common/utilities';
 import { studentActions } from '../../redux/studentSlice';
 
 const { createStudent, getStudents, updateStudent } = studentActions;
@@ -60,10 +61,8 @@ const AddStudent = ({ id }) => {
   const [email, setEmail] = useState('');
   const [address, setAddress] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
-  // const [degree, setDegree] = useState('');
-  // const [position, setPosition] = useState('');
-  // const [subject, setSubject] = useState('');
   const [classId, setClassId] = useState('');
+  const [excemptId, setExcemptId] = useState('');
   const [status, setStatus] = useState('');
 
   useEffect(() => {
@@ -77,11 +76,9 @@ const AddStudent = ({ id }) => {
       setEmail(student.email);
       setAddress(student.address);
       setPhoneNumber(student.phoneNumber);
-      // setDegree(student.degree);
-      // setPosition(student.position);
-      // setSubject(student.subject);
-      setClassId(student.classId);
       setStatus(student.status);
+      setClassId(student.classId);
+      setExcemptId(student.excemptId);
     }
   }, [dispatch, student]);
 
@@ -94,11 +91,9 @@ const AddStudent = ({ id }) => {
       email,
       address,
       phoneNumber,
-      // degree,
-      // position,
-      // subject,
-      classId,
       status,
+      classId,
+      excemptId,
     };
     if (typeof id === 'string') await dispatch(updateStudent(_id, student));
     else await dispatch(createStudent(student));
@@ -106,45 +101,25 @@ const AddStudent = ({ id }) => {
     navigate('/students');
   };
 
-  const prefixSelector = (
-    <Form.Item name="prefix" noStyle>
-      <Select
-        style={{
-          width: 70,
-        }}
-      >
-        <Option value="84">+84</Option>
-        <Option value="1">+1</Option>
-      </Select>
-    </Form.Item>
-  );
-
   return (
     <Form
       {...formItemLayout}
       form={form}
       name="register"
       onFinish={onFinish}
-      initialValues={{
-        residence: [],
-        prefix: '84',
-      }}
       fields={[
         { name: ['studentId'], value: studentId },
         { name: ['fullname'], value: fullname },
-        { name: ['gender'], value: gender },
         {
           name: ['birthday'],
           value: birthday ? moment(birthday, 'YYYY-MM-DDTHH:00:00[Z]') : '',
         },
-        { name: ['email'], value: email },
+        { name: ['gender'], value: gender },
         { name: ['address'], value: address },
         { name: ['phoneNumber'], value: phoneNumber },
-        // { name: ['degree'], value: degree },
-        // { name: ['position'], value: position },
-        // { name: ['subject'], value: subject },
-        { name: ['classId'], value: classId },
         { name: ['status'], value: status },
+        { name: ['classId'], value: classId },
+        { name: ['excemptId'], value: excemptId },
       ]}
       scrollToFirstError
     >
@@ -192,6 +167,7 @@ const AddStudent = ({ id }) => {
       >
         <DatePicker
           format="DD/MM/YYYY"
+          placeholder="Chọn ngày"
           onChange={(e) => {
             // setBirtday(e);
           }}
@@ -216,24 +192,6 @@ const AddStudent = ({ id }) => {
         </Select>
       </Form.Item>
 
-      {/* <Form.Item
-        name="email"
-        label="E-mail"
-        onChange={(e) => setEmail(e.target.value)}
-        rules={[
-          {
-            type: 'email',
-            message: 'Email chưa đúng định dạng!',
-          },
-          {
-            required: true,
-            message: 'Vui lòng nhập email của bạn!',
-          },
-        ]}
-      >
-        <Input />
-      </Form.Item> */}
-
       <Form.Item
         name="address"
         label="Địa Chỉ"
@@ -257,10 +215,10 @@ const AddStudent = ({ id }) => {
             required: true,
             message: 'Nhập số điện thoại!',
           },
+          { validator: validatePhoneNumber },
         ]}
       >
         <Input
-          addonBefore={prefixSelector}
           style={{
             width: '100%',
           }}
@@ -269,7 +227,7 @@ const AddStudent = ({ id }) => {
 
       <Form.Item
         name="classId"
-        label="Mã Lớp"
+        label="Lớp đang học"
         onChange={(e) => setClassId(e.target.value)}
         rules={[
           {
@@ -281,38 +239,9 @@ const AddStudent = ({ id }) => {
         <Input />
       </Form.Item>
 
-      {/* <Form.Item
-        name="position"
-        label="Chức Vụ"
-        onChange={(e) => setPosition(e.target.value)}
-        rules={[
-          {
-            required: false,
-            message: '',
-          },
-        ]}
-      >
-        <Input />
-      </Form.Item>
-
-      <Form.Item
-        name="subject"
-        label="Môn Giảng Dạy"
-        onChange={(e) => setSubject(e.target.value)}
-        rules={[
-          {
-            required: false,
-            message: '',
-          },
-        ]}
-      >
-        <Input />
-      </Form.Item> */}
-
       <Form.Item
         name="status"
         label="Trạng Thái"
-        onChange={(e) => setStatus(e.target.value)}
         rules={[
           {
             required: false,
@@ -320,7 +249,18 @@ const AddStudent = ({ id }) => {
           },
         ]}
       >
-        <Input />
+        {/* <Input /> */}
+        <Select value={status} onChange={(e) => setStatus(e)}>
+          <Select.Option key="learning" value="learning">
+            Đang học
+          </Select.Option>
+          <Select.Option key="paused" value="paused">
+            Bảo lưu
+          </Select.Option>
+          <Select.Option key="leaved" value="leaved">
+            Đã nghỉ học
+          </Select.Option>
+        </Select>
       </Form.Item>
 
       <Form.Item {...tailFormItemLayout}>

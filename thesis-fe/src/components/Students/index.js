@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 
@@ -11,8 +12,10 @@ import { Link, useNavigate, useRoutes } from 'react-router-dom';
 import AddBtn from '../Common/AddBtn';
 import DeleteBtn from '../Common/DeleteBtn';
 import { studentActions } from '../../redux/studentSlice';
+import { classActions } from '../../redux/classSlice';
 
 const { deleteStudent, getStudents } = studentActions;
+const { getClasses } = classActions;
 
 const StudentPage = () => {
   const dispatch = useDispatch();
@@ -21,18 +24,15 @@ const StudentPage = () => {
 
   useEffect(() => {
     dispatch(getStudents());
+    dispatch(getClasses());
   }, []);
 
-  const gotoAdd = () => {
-    navigate('./add');
-  };
+  const gotoAdd = () => navigate('./add');
 
-  const deleteStu = (id) => {
-    dispatch(deleteStudent(id));
-  };
+  const deleteStu = (id) => dispatch(deleteStudent(id));
 
   return (
-    <div>
+    <>
       <AddBtn add={gotoAdd} />
       <Table dataSource={data} rowKey="studentId">
         <Column title="Mã Học Sinh" dataIndex="studentId" key="key" />
@@ -71,9 +71,6 @@ const StudentPage = () => {
         />
         <Column title="Địa Chỉ" dataIndex="address" key="key" />
         <Column title="Số Điện Thoại" dataIndex="phoneNumber" key="key" />
-        {/* <Column title="Học Vị" dataIndex="degree" key="key" />
-        <Column title="Chức Vụ" dataIndex="position" key="key" />
-        <Column title="Môn Giảng Dạy" dataIndex="subject" key="key" /> */}
         <Column title="Mã Lớp" dataIndex="classId" key="key" />
         <Column
           title="Trạng Thái"
@@ -81,14 +78,12 @@ const StudentPage = () => {
           key="key"
           render={(text) => {
             switch (text) {
-              case '1':
+              case 'learning':
                 return 'Đang học';
-              case '2':
+              case 'paused':
                 return 'Bảo lưu';
-              case '3':
+              case 'leaved':
                 return 'Đã nghỉ học';
-              case '4':
-                return 'Đã tốt nghiệp';
               default:
                 return '';
             }
@@ -99,15 +94,12 @@ const StudentPage = () => {
           key="action"
           render={(text, record) => (
             <Space size="middle">
-              {/* <Button onClick={() => dispatch(deleteStudent(record._id))}>
-                Xoá
-              </Button> */}
               <DeleteBtn deletE={() => deleteStu(record._id)} />
             </Space>
           )}
         />
       </Table>
-    </div>
+    </>
   );
 };
 
