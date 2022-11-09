@@ -2,7 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 import * as api from '../api';
 
 export const classActions = {
-  getClass: () => async (dispatch) => {
+  getClasses: () => async (dispatch) => {
     try {
       const { data } = await api.getClasses();
 

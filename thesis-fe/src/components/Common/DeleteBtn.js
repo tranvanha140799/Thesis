@@ -1,12 +1,17 @@
-import React from "react";
-import { Button } from "antd";
+import React from 'react';
+import { Button } from 'antd';
+import { DeleteOutlined } from '@ant-design/icons';
 
-const DeleteBtn = ({ deletE }) => {
-  return (
-    <Button type="primary" danger shape="round" onClick={deletE}>
-      Xóa
-    </Button>
-  );
-};
+const DeleteBtn = ({ deletE }) => (
+  <Button
+    type="primary"
+    danger
+    shape="round"
+    onClick={deletE}
+    icon={<DeleteOutlined />}
+  >
+    Xoá
+  </Button>
+);
 
 export default DeleteBtn;
