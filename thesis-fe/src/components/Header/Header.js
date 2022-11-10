@@ -42,7 +42,7 @@ const Header = () => {
           variant="h2"
           align="center"
         >
-          Quản Lý Thu Chi
+          Hệ Thống Quản Lý Thu Chi
         </Typography>
         {/* <img className={classes.image} src={memories} alt="memories" height={60} /> */}
       </div>

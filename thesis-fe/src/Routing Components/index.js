@@ -10,16 +10,20 @@ import {
   BookOutlined,
   MoneyCollectOutlined,
   HomeOutlined,
-  AppleOutlined,
-  DollarCircleOutlined,
+  DollarOutlined,
+  PicCenterOutlined,
+  PicLeftOutlined,
+  SnippetsOutlined,
+  CopyrightOutlined,
 } from '@ant-design/icons';
 
 import 'antd/dist/antd.css';
 // import './index.css';
-import Teachers from './Teachers';
-import Students from './Students';
-import TeachersSalaryChart from './TeachersSalaryChart';
 import Classes from './Class';
+import HomePage from './Home';
+import Students from './Students';
+import Teachers from './Teachers';
+import TeachersSalaryChart from './TeachersSalaryChart';
 
 const { Content, Footer, Sider } = Layout;
 const { SubMenu } = Menu;
@@ -27,12 +31,11 @@ const { SubMenu } = Menu;
 function Home() {
   const [collapsed, setCollapsed] = useState(false);
 
-  const onCollapse = () => {
-    setCollapsed(!collapsed);
-  };
+  const onCollapse = () => setCollapsed(!collapsed);
 
   // const temp = useParams();
   const route = useLocation();
+  // console.log(route);
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
@@ -46,7 +49,7 @@ function Home() {
           <Menu.Item key="" icon={<HomeOutlined />}>
             <Link to="/">Trang Chủ</Link>
           </Menu.Item>
-          <SubMenu key="salary" icon={<DollarCircleOutlined />} title="Lương">
+          <SubMenu key="salary" icon={<DollarOutlined />} title="Lương">
             <Menu.Item key="salary-chart" icon={<BookOutlined />}>
               <Link to="/salary-chart">Bảng Bậc Lương</Link>
             </Menu.Item>
@@ -55,20 +58,31 @@ function Home() {
             </Menu.Item>
           </SubMenu>
           <Menu.Item key="teachers" icon={<TeamOutlined />}>
-            <Link to="/teachers">Giáo Viên</Link>
+            <Link to="/teachers">Giảng Viên</Link>
           </Menu.Item>
           <Menu.Item key="students" icon={<TeamOutlined />}>
-            <Link to="/students">Học Sinh</Link>
+            <Link to="/students">Học Viên</Link>
           </Menu.Item>
-          <Menu.Item key="classes" icon={<AppleOutlined />}>
-            <Link to="/classes">Lớp Giảng Dạy</Link>
+          <Menu.Item key="courses" icon={<PicLeftOutlined />}>
+            <Link to="/courses">Khoá Học</Link>
           </Menu.Item>
-          <Menu.Item key="expense-of-month-sheets" icon={<BookOutlined />}>
-            <Link to="/expense-of-month-sheets">Phiếu Chi Tháng</Link>
+          <Menu.Item key="classes" icon={<PicCenterOutlined />}>
+            <Link to="/classes">Lớp Học</Link>
+          </Menu.Item>
+          <Menu.Item key="pay-salaries" icon={<MoneyCollectOutlined />}>
+            <Link to="/pay-salaries">Chi Lương</Link>
           </Menu.Item>
           <Menu.Item key="tuition-fees" icon={<MoneyCollectOutlined />}>
             <Link to="/tuition-fees">Thu Học Phí</Link>
           </Menu.Item>
+          <SubMenu key="reports" icon={<BookOutlined />} title="Báo Cáo">
+            <Menu.Item key="pay-reports" icon={<SnippetsOutlined />}>
+              <Link to="/pay-reports">Chi Lương</Link>
+            </Menu.Item>
+            <Menu.Item key="tuition-reports" icon={<SnippetsOutlined />}>
+              <Link to="/tuition-reports">Thu Học Phí</Link>
+            </Menu.Item>
+          </SubMenu>
         </Menu>
       </Sider>
       <Layout className="site-layout">
@@ -77,22 +91,15 @@ function Home() {
           style={{ position: 'fixed', zIndex: 1, width: '100%' }}
         />
         <Content style={{ margin: '0 16px' }}>
-          {/* <Breadcrumb style={{ margin: '16px 0' }}>
-            <Breadcrumb.Item>User</Breadcrumb.Item>
-            <Breadcrumb.Item>Bill</Breadcrumb.Item>
-          </Breadcrumb> */}
-          {/* <div
-            className="site-layout-background"
-            style={{ padding: 24, minHeight: 360 }}
-          >
-            Trang này chưa có dữ liệu.
-          </div> */}
+          <HomePage />
           <Teachers />
           <Students />
           <Classes />
           <TeachersSalaryChart />
         </Content>
-        <Footer style={{ textAlign: 'center' }}>Hệ Thống Quản Lý Thu Chi</Footer>
+        <Footer style={{ textAlign: 'center' }}>
+          Hệ Thống Quản Lý Thu Chi <CopyrightOutlined /> 2022
+        </Footer>
       </Layout>
     </Layout>
   );
