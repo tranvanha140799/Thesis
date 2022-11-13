@@ -1,8 +1,9 @@
 import mongoose from 'mongoose';
 
 const classStudentSchema = mongoose.Schema({
-  classId: String,
-  studentId: String,
+  class_id: String,
+  student_id: String,
+  classId: String, // Mã lớp public
   paidTuitionFee: Number,
   lastestDatePaid: String,
   expiryDatePayTuitionFee: String,

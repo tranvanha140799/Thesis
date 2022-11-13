@@ -1,5 +1,7 @@
+/* eslint-disable array-callback-return */
 import { createSlice } from '@reduxjs/toolkit';
 import * as api from '../api';
+import { changeStringToNormalizeString } from '../components/Common/utilities';
 
 export const studentActions = {
   getStudents: () => async (dispatch) => {
@@ -10,6 +12,12 @@ export const studentActions = {
     } catch (error) {
       console.log(error);
     }
+  },
+
+  searchStudent: (str) => (dispatch) => {
+    if (!str) dispatch(studentActions.getStudents());
+
+    dispatch(actions.searchStudent({ str: str || '', dispatch }));
   },
 
   // getStudentsBySearch: (searchQuery) => async (dispatch) => {
@@ -26,7 +34,7 @@ export const studentActions = {
 
   createStudent: (student) => async (dispatch) => {
     try {
-      const { data } = await api.createStudent(student);
+      // const { data } = await api.createStudent(student);
 
       dispatch(actions.createStudent({ newStudent: student }));
     } catch (error) {
@@ -68,8 +76,20 @@ const studentSlice = createSlice({
       state.students = action.payload.data;
       state.totalStudents = Object.keys(action.payload.data)?.length;
     },
+    searchStudent: (state, action) => {
+      if (action.payload.str) {
+        const str = changeStringToNormalizeString(action.payload.str).toLowerCase();
+        state.students = state.students.filter(
+          (student) =>
+            student.studentId.includes(str) ||
+            changeStringToNormalizeString(student.fullname).toLowerCase().includes(str)
+        );
+      }
+      state.totalStudents = state.students.length;
+    },
     createStudent: (state, action) => {
       state.students.push(action.payload.newStudent);
+      state.totalStudents = state.totalStudents + 1;
     },
     updateStudent: (state, action) => {
       state.students.map((student) => {

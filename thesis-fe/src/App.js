@@ -1,6 +1,8 @@
 // import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Route, Routes, Navigate } from 'react-router-dom';
+import moment from 'moment';
+import 'moment/locale/vi';
 
 import Home from './Routing Components';
 import Auth from './components/Auth/Auth';
@@ -8,6 +10,8 @@ import { authActions } from './redux/authSlice';
 
 import './App.css';
 import 'antd/dist/antd.css';
+
+moment.locale('vi');
 
 const { isSignedIn } = authActions;
 

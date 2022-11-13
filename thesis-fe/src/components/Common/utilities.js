@@ -8,3 +8,15 @@ export const validatePhoneNumber = (rule, value, callback) => {
     callback('Đầu số không tồn tại!');
   else callback();
 };
+
+export const numberToVnd = (number) =>
+  new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(
+    number
+  );
+
+export const changeStringToNormalizeString = (str) =>
+  str
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/đ/g, 'd')
+    .replace(/Đ/g, 'D');

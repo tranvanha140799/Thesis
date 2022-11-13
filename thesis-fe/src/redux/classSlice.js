@@ -1,3 +1,4 @@
+/* eslint-disable array-callback-return */
 import { createSlice } from '@reduxjs/toolkit';
 import * as api from '../api';
 
@@ -26,7 +27,7 @@ export const classActions = {
 
   createClass: (clasS) => async (dispatch) => {
     try {
-      const { data } = await api.createClasses(clasS);
+      // const { data } = await api.createClasses(clasS);
 
       dispatch(
         actions.createClass({
@@ -40,7 +41,7 @@ export const classActions = {
 
   updateClass: (id, clasS) => async (dispatch) => {
     try {
-      const { data } = await api.updateClasses(id, clasS);
+      // const { data } = await api.updateClasses(id, clasS);
 
       dispatch(
         actions.updateClass({
