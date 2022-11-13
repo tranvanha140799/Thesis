@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
-import { Link, useLocation, useParams } from 'react-router-dom';
+import React, { useState } from "react";
+import { Link, useLocation, useParams } from "react-router-dom";
 
-import Header from '../components/Header/Header';
+import Header from "../components/Header/Header";
 
-import logo from '../images/logo.jpg';
-import { Layout, Menu, Breadcrumb } from 'antd';
+import logo from "../images/logo.jpg";
+import { Layout, Menu, Breadcrumb } from "antd";
 import {
   TeamOutlined,
   BookOutlined,
@@ -15,15 +15,16 @@ import {
   PicLeftOutlined,
   SnippetsOutlined,
   CopyrightOutlined,
-} from '@ant-design/icons';
+} from "@ant-design/icons";
 
-import 'antd/dist/antd.css';
+import "antd/dist/antd.css";
 // import './index.css';
-import Classes from './Class';
-import HomePage from './Home';
-import Students from './Students';
-import Teachers from './Teachers';
-import TeachersSalaryChart from './TeachersSalaryChart';
+import Classes from "./Class";
+import HomePage from "./Home";
+import Students from "./Students";
+import Teachers from "./Teachers";
+import TeachersSalaryChart from "./TeachersSalaryChart";
+import Courses from "./Course";
 
 const { Content, Footer, Sider } = Layout;
 const { SubMenu } = Menu;
@@ -38,12 +39,12 @@ function Home() {
   // console.log(route);
 
   return (
-    <Layout style={{ minHeight: '100vh' }}>
+    <Layout style={{ minHeight: "100vh" }}>
       <Sider collapsible collapsed={collapsed} onCollapse={onCollapse}>
-        <img className="logo" src={logo} alt="Logo" style={{ width: '70%' }} />
+        <img className="logo" src={logo} alt="Logo" style={{ width: "70%" }} />
         <Menu
           theme="dark"
-          defaultSelectedKeys={[route.pathname.split('/')[1]]}
+          defaultSelectedKeys={[route.pathname.split("/")[1]]}
           mode="inline"
         >
           <Menu.Item key="" icon={<HomeOutlined />}>
@@ -54,7 +55,9 @@ function Home() {
               <Link to="/salary-chart">Bảng Bậc Lương</Link>
             </Menu.Item>
             <Menu.Item key="teachers-salary-chart" icon={<BookOutlined />}>
-              <Link to="/teachers-salary-chart">Bảng Lương Tháng Giáo Viên</Link>
+              <Link to="/teachers-salary-chart">
+                Bảng Lương Tháng Giáo Viên
+              </Link>
             </Menu.Item>
           </SubMenu>
           <Menu.Item key="teachers" icon={<TeamOutlined />}>
@@ -88,16 +91,17 @@ function Home() {
       <Layout className="site-layout">
         <Header
           className="site-layout-background"
-          style={{ position: 'fixed', zIndex: 1, width: '100%' }}
+          style={{ position: "fixed", zIndex: 1, width: "100%" }}
         />
-        <Content style={{ margin: '0 16px' }}>
+        <Content style={{ margin: "0 16px" }}>
           <HomePage />
           <Teachers />
           <Students />
+          <Courses />
           <Classes />
           <TeachersSalaryChart />
         </Content>
-        <Footer style={{ textAlign: 'center' }}>
+        <Footer style={{ textAlign: "center" }}>
           Hệ Thống Quản Lý Thu Chi <CopyrightOutlined /> 2022
         </Footer>
       </Layout>
