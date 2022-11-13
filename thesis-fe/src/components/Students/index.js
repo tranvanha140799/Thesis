@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 
 import { Table, Space, Row, Col } from 'antd';
@@ -14,6 +14,8 @@ import DeleteBtn from '../Common/DeleteBtn';
 import { studentActions } from '../../redux/studentSlice';
 import { classActions } from '../../redux/classSlice';
 import SearchBox from '../Common/SearchBox';
+import { showNotification } from '../Common/utilities';
+import ConfirmDeleteModal from '../Common/ConfirmDeleteModal';
 
 const { deleteStudent, getStudents, searchStudent } = studentActions;
 const { getClasses } = classActions;
@@ -21,13 +23,27 @@ const { getClasses } = classActions;
 const StudentPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const data = useSelector((state) => state.studentsReducer.students);
-  const classes = useSelector((state) => state.classesReducer.classes);
+  const data = useSelector((state) => state.studentReducer.students);
+  const classes = useSelector((state) => state.classReducer.classes);
+  const [openConfirmDeleteModal, setOpenConfirmDeleteModal] = useState(false);
+  const [editingRecordId, setEditingRecordId] = useState('');
 
   useEffect(() => {
     dispatch(getStudents());
     dispatch(getClasses());
   }, []);
+
+  const onDeleteStudent = () => {
+    dispatch(
+      deleteStudent(editingRecordId, {
+        onSuccess: () => showNotification('success', 'Xoá học viên thành công.'),
+        onError: () => showNotification('error', 'Xoá học viên thất bại!'),
+      })
+    );
+
+    setEditingRecordId('');
+    setOpenConfirmDeleteModal(false);
+  };
 
   return (
     <>
@@ -117,11 +133,21 @@ const StudentPage = () => {
           key="action"
           render={(text, record) => (
             <Space size="middle">
-              <DeleteBtn deletE={() => dispatch(deleteStudent(record._id))} />
+              <DeleteBtn
+                deletE={() => {
+                  setOpenConfirmDeleteModal(true);
+                  setEditingRecordId(record._id);
+                }}
+              />
             </Space>
           )}
         />
       </Table>
+      <ConfirmDeleteModal
+        open={openConfirmDeleteModal}
+        onOk={onDeleteStudent}
+        onCancel={() => setOpenConfirmDeleteModal(false)}
+      />
     </>
   );
 };

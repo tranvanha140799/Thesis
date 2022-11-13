@@ -32,33 +32,42 @@ export const studentActions = {
   //   }
   // },
 
-  createStudent: (student) => async (dispatch) => {
+  createStudent: (student, meta) => async (dispatch) => {
     try {
-      // const { data } = await api.createStudent(student);
-
-      dispatch(actions.createStudent({ newStudent: student }));
+      const response = await api.createStudent(student);
+      if (response.status === 200 || response.status === 201) {
+        dispatch(actions.createStudent({ newStudent: response.data }));
+        if (meta.onSuccess) meta.onSuccess();
+      }
     } catch (error) {
       console.log(error);
+      if (meta.onError) meta.onError();
     }
   },
 
-  updateStudent: (id, student) => async (dispatch) => {
+  updateStudent: (id, student, meta) => async (dispatch) => {
     try {
-      const { data } = await api.updateStudent(id, student);
-
-      dispatch(actions.updateStudent({ payload: data, id, student }));
+      const response = await api.updateStudent(id, student);
+      if (response.status === 200 || response.status === 201) {
+        dispatch(actions.updateStudent({ data: response.data, id }));
+        if (meta.onSuccess) meta.onSuccess();
+      }
     } catch (error) {
-      console.log(error.messsage);
+      console.log(error);
+      if (meta.onError) meta.onError();
     }
   },
 
-  deleteStudent: (id) => async (dispatch) => {
+  deleteStudent: (id, meta) => async (dispatch) => {
     try {
-      await api.deleteStudent(id);
-
-      dispatch(actions.deleteStudent({ id }));
+      const response = await api.deleteStudent(id);
+      if (response.status === 200 || response.status === 201) {
+        dispatch(actions.deleteStudent({ id }));
+        if (meta.onSuccess) meta.onSuccess();
+      }
     } catch (error) {
       console.log(error);
+      if (meta.onError) meta.onError();
     }
   },
 };
@@ -92,9 +101,9 @@ const studentSlice = createSlice({
       state.totalStudents = state.totalStudents + 1;
     },
     updateStudent: (state, action) => {
-      state.students.map((student) => {
-        if (student.id === action.payload.id) student = action.payload.student;
-      });
+      state.students = state.students.map((student) =>
+        student._id === action.payload.id ? (student = action.payload.data) : student
+      );
     },
     deleteStudent: (state, action) => {
       state.students = state.students.filter(

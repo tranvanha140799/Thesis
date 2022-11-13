@@ -27,7 +27,7 @@ export const classActions = {
 
   createClass: (clasS) => async (dispatch) => {
     try {
-      // const { data } = await api.createClasses(clasS);
+      const { data } = await api.createClass(clasS);
 
       dispatch(
         actions.createClass({
@@ -41,7 +41,7 @@ export const classActions = {
 
   updateClass: (id, clasS) => async (dispatch) => {
     try {
-      // const { data } = await api.updateClasses(id, clasS);
+      const { data } = await api.updateClass(id, clasS);
 
       dispatch(
         actions.updateClass({
@@ -87,9 +87,7 @@ const classSlice = createSlice({
       });
     },
     deleteClass: (state, action) => {
-      state.classes = state.teachers.filter(
-        (clasS) => clasS._id !== action.payload.id
-      );
+      state.classes = state.classes.filter((clasS) => clasS._id !== action.payload.id);
       --state.totalClasses;
     },
   },

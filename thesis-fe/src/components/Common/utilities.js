@@ -1,3 +1,5 @@
+import { notification } from 'antd';
+
 export const validatePhoneNumber = (rule, value, callback) => {
   const test1 = /^(0|\+84)[1-9]([0-9]{8})\d?\b/;
   const test2 = /(03|05|07|08|09|01[2|6|8|9])+([0-9]{8})\b/;
@@ -20,3 +22,9 @@ export const changeStringToNormalizeString = (str) =>
     .replace(/[\u0300-\u036f]/g, '')
     .replace(/đ/g, 'd')
     .replace(/Đ/g, 'D');
+
+export const showNotification = (status, msg) =>
+  notification[status]({
+    message: msg,
+    placement: 'bottomRight',
+  });
