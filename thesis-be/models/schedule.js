@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 
 const scheduleSchema = mongoose.Schema({
   name: String,
+  dayOfWeek: String,
   timeStart: String,
   timeEnd: String,
 });

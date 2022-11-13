@@ -23,20 +23,20 @@ const Info = ({ id }) => {
   const navigate = useNavigate();
   const [form] = Form.useForm();
 
-  const classes = useSelector((state) => state.classesReducer.classes);
+  const classes = useSelector((state) => state.classReducer.classes);
   const currentClassStudent = useSelector(
     (state) => state.classStudentReducer.currentClassStudent
   );
   const allClassStudents = useSelector(
     (state) => state.classStudentReducer.allClassStudents
   );
-  const totalStudents = useSelector((state) => state.studentsReducer.totalStudents);
+  const totalStudents = useSelector((state) => state.studentReducer.totalStudents);
   const student = useSelector((state) =>
-    id ? state.studentsReducer.students.find((p) => p.studentId === id) : null
+    id ? state.studentReducer.students.find((p) => p.studentId === id) : null
   );
   const clasS = useSelector((state) =>
     currentClassStudent
-      ? state.classesReducer.classes.find(
+      ? state.classReducer.classes.find(
           (clasS) => clasS._id === currentClassStudent?.class_id
         )
       : null

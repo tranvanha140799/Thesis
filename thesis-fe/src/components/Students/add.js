@@ -8,9 +8,8 @@ import { Form, Input, Select, Button, DatePicker, Row, Col } from 'antd';
 import 'antd/dist/antd.css';
 import './index.css';
 
-import { validatePhoneNumber } from '../Common/utilities';
+import { showNotification, validatePhoneNumber } from '../Common/utilities';
 import { studentActions } from '../../redux/studentSlice';
-import { SettingFilled } from '@ant-design/icons';
 import Avatar from '../Common/Avatar';
 
 const { createStudent, getStudents, updateStudent } = studentActions;
@@ -52,9 +51,9 @@ const AddStudent = ({ id }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [form] = Form.useForm();
-  const totalStudents = useSelector((state) => state.studentsReducer.totalStudents);
+  const totalStudents = useSelector((state) => state.studentReducer.totalStudents);
   const student = useSelector((state) =>
-    id ? state.studentsReducer.students.find((p) => p.studentId === id) : null
+    id ? state.studentReducer.students.find((st) => st.studentId === id) : null
   );
   const [_id, set_Id] = useState('');
   const [studentId, setStudentId] = useState('');
@@ -101,8 +100,21 @@ const AddStudent = ({ id }) => {
       excemptId,
       image,
     };
-    if (typeof id === 'string') await dispatch(updateStudent(_id, student));
-    else await dispatch(createStudent(student));
+    if (typeof id === 'string')
+      await dispatch(
+        updateStudent(_id, student, {
+          onSuccess: () =>
+            showNotification('success', 'Sửa thông tin học viên thành công.'),
+          onError: () => showNotification('error', 'Sửa thông tin học viên thất bại!'),
+        })
+      );
+    else
+      await dispatch(
+        createStudent(student, {
+          onSuccess: () => showNotification('success', 'Thêm học viên thành công.'),
+          onError: () => showNotification('error', 'Thêm học viên thất bại!'),
+        })
+      );
 
     navigate('/students');
   };

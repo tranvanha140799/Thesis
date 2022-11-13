@@ -14,6 +14,7 @@ import DeleteBtn from '../Common/DeleteBtn';
 import { studentActions } from '../../redux/studentSlice';
 import { classActions } from '../../redux/classSlice';
 import SearchBox from '../Common/SearchBox';
+import { showNotification } from '../Common/utilities';
 
 const { deleteStudent, getStudents, searchStudent } = studentActions;
 const { getClasses } = classActions;
@@ -21,8 +22,8 @@ const { getClasses } = classActions;
 const StudentPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const data = useSelector((state) => state.studentsReducer.students);
-  const classes = useSelector((state) => state.classesReducer.classes);
+  const data = useSelector((state) => state.studentReducer.students);
+  const classes = useSelector((state) => state.classReducer.classes);
 
   useEffect(() => {
     dispatch(getStudents());
@@ -117,7 +118,18 @@ const StudentPage = () => {
           key="action"
           render={(text, record) => (
             <Space size="middle">
-              <DeleteBtn deletE={() => dispatch(deleteStudent(record._id))} />
+              <DeleteBtn
+                deletE={() =>
+                  dispatch(
+                    deleteStudent(record._id, {
+                      onSuccess: () =>
+                        showNotification('success', 'Xoá học viên thành công.'),
+                      onError: () =>
+                        showNotification('error', 'Xoá học viên thất bại!'),
+                    })
+                  )
+                }
+              />
             </Space>
           )}
         />

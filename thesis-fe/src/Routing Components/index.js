@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { Link, useLocation, useParams } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 import Header from '../components/Header/Header';
 
 import logo from '../images/logo.jpg';
-import { Layout, Menu, Breadcrumb } from 'antd';
+import { Layout, Menu } from 'antd';
 import {
   TeamOutlined,
   BookOutlined,
@@ -15,15 +15,17 @@ import {
   PicLeftOutlined,
   SnippetsOutlined,
   CopyrightOutlined,
+  ClockCircleOutlined,
+  DollarCircleOutlined,
 } from '@ant-design/icons';
 
 import 'antd/dist/antd.css';
-// import './index.css';
 import Classes from './Class';
 import HomePage from './Home';
 import Students from './Students';
 import Teachers from './Teachers';
 import TeachersSalaryChart from './TeachersSalaryChart';
+import Schedule from './Schedule';
 
 const { Content, Footer, Sider } = Layout;
 const { SubMenu } = Menu;
@@ -69,6 +71,12 @@ function Home() {
           <Menu.Item key="classes" icon={<PicCenterOutlined />}>
             <Link to="/classes">Lớp Học</Link>
           </Menu.Item>
+          <Menu.Item key="schedules" icon={<ClockCircleOutlined />}>
+            <Link to="/schedules">Khung Giờ Học</Link>
+          </Menu.Item>
+          <Menu.Item key="discounts" icon={<DollarCircleOutlined />}>
+            <Link to="/discounts">Khuyến Mãi</Link>
+          </Menu.Item>
           <Menu.Item key="pay-salaries" icon={<MoneyCollectOutlined />}>
             <Link to="/pay-salaries">Chi Lương</Link>
           </Menu.Item>
@@ -95,6 +103,7 @@ function Home() {
           <Teachers />
           <Students />
           <Classes />
+          <Schedule />
           <TeachersSalaryChart />
         </Content>
         <Footer style={{ textAlign: 'center' }}>

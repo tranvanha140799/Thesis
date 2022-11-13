@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import moment from "moment";
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import moment from 'moment';
 
-import "antd/dist/antd.css";
+import 'antd/dist/antd.css';
 
-import { Form, Input, Select, Button, DatePicker } from "antd";
-import { useNavigate } from "react-router-dom";
-import { classActions } from "../../redux/classSlice";
+import { Form, Input, Select, Button, DatePicker } from 'antd';
+import { useNavigate } from 'react-router-dom';
+import { classActions } from '../../redux/classSlice';
 
 const { createClass, getClass, updateClass } = classActions;
 const { Option } = Select;
@@ -47,18 +47,16 @@ const AddClass = ({ id }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [form] = Form.useForm();
-  const totalClasses = useSelector(
-    (state) => state.classesReducer.totalClasses
-  );
+  const totalClasses = useSelector((state) => state.classReducer.totalClasses);
   const clasS = useSelector((state) =>
-    id ? state.classesReducer.classes.find((p) => p.classId === id) : null
+    id ? state.classReducer.classes.find((p) => p.classId === id) : null
   );
-  const [_id, set_Id] = useState("");
-  const [classId, setClassId] = useState("");
-  const [classname, setClassname] = useState("");
-  const [studentQuantity, setStudentQuantity] = useState("");
-  const [status, setStatus] = useState("");
-  const [formTeacherId, setFromTeacherId] = useState("");
+  const [_id, set_Id] = useState('');
+  const [classId, setClassId] = useState('');
+  const [classname, setClassname] = useState('');
+  const [studentQuantity, setStudentQuantity] = useState('');
+  const [status, setStatus] = useState('');
+  const [formTeacherId, setFromTeacherId] = useState('');
 
   useEffect(() => {
     // if (totalStudents === 0) dispatch(getStudents());
@@ -80,10 +78,10 @@ const AddClass = ({ id }) => {
       formTeacherId,
       status,
     };
-    if (typeof id === "string") await dispatch(updateClass(_id, clasS));
+    if (typeof id === 'string') await dispatch(updateClass(_id, clasS));
     else await dispatch(createClass(clasS));
 
-    navigate("/classes");
+    navigate('/classes');
   };
 
   const prefixSelector = (
@@ -107,14 +105,14 @@ const AddClass = ({ id }) => {
       onFinish={onFinish}
       initialValues={{
         residence: [],
-        prefix: "84",
+        prefix: '84',
       }}
       fields={[
-        { name: ["classId"], value: classId },
-        { name: ["classname"], value: classname },
-        { name: ["studentQuantity"], value: studentQuantity },
-        { name: ["formTeacherId"], value: formTeacherId },
-        { name: ["status"], value: status },
+        { name: ['classId'], value: classId },
+        { name: ['classname'], value: classname },
+        { name: ['studentQuantity'], value: studentQuantity },
+        { name: ['formTeacherId'], value: formTeacherId },
+        { name: ['status'], value: status },
       ]}
       scrollToFirstError
     >
@@ -126,7 +124,7 @@ const AddClass = ({ id }) => {
         rules={[
           {
             required: true,
-            message: "Hãy nhập mã lớp học!",
+            message: 'Hãy nhập mã lớp học!',
             whitespace: false,
           },
         ]}
@@ -142,7 +140,7 @@ const AddClass = ({ id }) => {
         rules={[
           {
             required: true,
-            message: "Hãy nhập tên lớp học!",
+            message: 'Hãy nhập tên lớp học!',
             whitespace: true,
           },
         ]}
@@ -185,7 +183,7 @@ const AddClass = ({ id }) => {
           rules={[
             {
               required: false,
-              message: "",
+              message: '',
             },
           ]}
         >
@@ -196,12 +194,12 @@ const AddClass = ({ id }) => {
 
       <Form.Item {...tailFormItemLayout}>
         <Button type="primary" htmlType="submit">
-          {id ? "Sửa Thông Tin" : "Thêm lớp học"}
+          {id ? 'Sửa Thông Tin' : 'Thêm lớp học'}
         </Button>
         <Button
           type="ghost"
-          style={{ marginLeft: "10px" }}
-          onClick={() => navigate("/classes")}
+          style={{ marginLeft: '10px' }}
+          onClick={() => navigate('/classes')}
         >
           Huỷ Bỏ
         </Button>

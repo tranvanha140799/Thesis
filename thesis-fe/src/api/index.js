@@ -32,8 +32,8 @@ export const deleteStudent = (id) => API.delete(`/students/${id}`);
 
 //CLASSES
 export const getClasses = () => API.get('/classes');
-export const createClasses = (clasS) => API.post('/classes', clasS);
-export const updateClasses = (id, updateClass) =>
+export const createClass = (clasS) => API.post('/classes', clasS);
+export const updateClass = (id, updateClass) =>
   API.patch(`/classes/${id}`, updateClass);
 export const deleteClass = (id) => API.delete(`/classes/${id}`);
 
@@ -44,6 +44,13 @@ export const createClassStudent = (classStudent) =>
 export const updateClassStudent = (id, updateClassStudent) =>
   API.patch(`/class-student/${id}`, updateClassStudent);
 export const deleteClassStudent = (id) => API.delete(`/class-student/${id}`);
+
+//SCHEDULES
+export const getSchedules = () => API.get('/schedules');
+export const createSchedule = (clasS) => API.post('/schedules', clasS);
+export const updateSchedule = (id, updateSchedule) =>
+  API.patch(`/schedules/${id}`, updateSchedule);
+export const deleteSchedule = (id) => API.delete(`/schedules/${id}`);
 
 // SALARIES
 export const getSalaries = () => API.get('/salaries');
