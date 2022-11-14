@@ -3,7 +3,7 @@ import { Outlet, Route, Routes } from 'react-router-dom';
 
 import SchedulePage from '../components/Schedule';
 
-const Classes = () => (
+const Schedules = () => (
   <>
     <Routes>
       <Route exact path="/schedules" element={<SchedulePage />} />
@@ -12,4 +12,4 @@ const Classes = () => (
     <Outlet />
   </>
 );
-export default Classes;
+export default Schedules;

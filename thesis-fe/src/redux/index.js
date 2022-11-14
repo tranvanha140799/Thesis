@@ -1,16 +1,22 @@
-import { configureStore } from "@reduxjs/toolkit";
+import { configureStore } from '@reduxjs/toolkit';
 
 import { reducer as authReducer } from './authSlice';
-import { reducer as classesReducer } from './classSlice';
+import { reducer as classReducer } from './classSlice';
 import { reducer as classStudentReducer } from './classStudentSlice';
-import { reducer as studentsReducer } from './studentSlice';
-import { reducer as teachersReducer } from './teacherSlice';
+import { reducer as courseReducer } from './courseSlice';
+import { reducer as scheduleReducer } from './scheduleSlice';
+import { reducer as studentReducer } from './studentSlice';
+import { reducer as teacherReducer } from './teacherSlice';
 
 export default configureStore({
   reducer: {
     authReducer,
     classReducer,
     classStudentReducer,
+    courseReducer,
+    scheduleReducer,
+    studentReducer,
+    teacherReducer,
   },
   middleware: (getDefaultMiddleware) => getDefaultMiddleware(),
 });
