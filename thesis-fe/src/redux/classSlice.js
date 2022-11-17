@@ -1,6 +1,7 @@
 /* eslint-disable array-callback-return */
 import { createSlice } from '@reduxjs/toolkit';
 import * as api from '../api';
+import { changeStringToNormalizeString } from '../components/Common/utilities';
 
 export const classActions = {
   getClasses: () => async (dispatch) => {
@@ -24,6 +25,11 @@ export const classActions = {
   //     console.log(error);
   //   }
   // },
+  searchClass :(str)=>(dispatch)=>{
+    if(!str) dispatch(classActions.getClasses());
+
+    dispatch(actions.searchClass({str:str ||'', dispatch}))
+  },
 
   createClass: (clasS) => async (dispatch) => {
     try {
@@ -89,6 +95,17 @@ const classSlice = createSlice({
     deleteClass: (state, action) => {
       state.classes = state.classes.filter((clasS) => clasS._id !== action.payload.id);
       --state.totalClasses;
+    },
+    searchClass: (state, action) => {
+      if (action.payload.str) {
+        const str = changeStringToNormalizeString(action.payload.str).toLowerCase();
+        state.classes = state.classes.filter(
+          (clasS) =>
+            clasS.classId.includes(str) ||
+            changeStringToNormalizeString(clasS.name).toLowerCase().includes(str)
+        );
+      }
+      state.totalClasses = state.classes.length;
     },
   },
 });
