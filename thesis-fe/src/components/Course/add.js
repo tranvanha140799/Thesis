@@ -1,15 +1,13 @@
-import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import moment from "moment";
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 
-import "antd/dist/antd.css";
+import 'antd/dist/antd.css';
 
-import { Form, Input, Select, Button, DatePicker } from "antd";
-import { useNavigate } from "react-router-dom";
-import { courseAction } from "../../redux/courseSlice";
+import { Form, Input, Button, InputNumber } from 'antd';
+import { useNavigate } from 'react-router-dom';
+import { courseActions } from '../../redux/courseSlice';
 
-const { createCourse, updateCourse } = courseAction;
-const { Option } = Select;
+const { getCourses, createCourse, updateCourse } = courseActions;
 
 const formItemLayout = {
   labelCol: {
@@ -47,51 +45,39 @@ const AddCourse = ({ id }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [form] = Form.useForm();
-  const totalCourse = useSelector(
-    (state) => state.courseReducer.totalCourse
-  );
+  const totalCourses = useSelector((state) => state.courseReducer.totalCourses);
   const course = useSelector((state) =>
-    id ? state.courseReducer.courses.find((p) => p._id === id) : null
+    id ? state.courseReducer.courses.find((p) => p.courseId === id) : null
   );
-  const [_id, set_Id] = useState("");
-  const [courseName, setCourseName] = useState("");
-  const [tuitionFee, setTuitionFee] = useState("");
-  const [desciption, setDesciption] = useState("");
+  const [_id, set_Id] = useState('');
+  const [courseId, setCourseId] = useState('');
+  const [courseName, setCourseName] = useState('');
+  const [tuitionFee, setTuitionFee] = useState(0);
+  const [description, setDescription] = useState('');
 
   useEffect(() => {
-    // if (totalStudents === 0) dispatch(getStudents());
+    if (totalCourses === 0) dispatch(getCourses());
     if (course) {
       set_Id(course._id);
+      setCourseId(course.courseId);
       setCourseName(course.name);
-      setTuitionFee(course.studentQuantity);
-      setDesciption(course.status);
+      setTuitionFee(course.tuitionFee);
+      setDescription(course.description);
     }
   }, [dispatch, course]);
 
   const onFinish = async (values) => {
     const course = {
+      courseId,
       name: courseName,
       tuitionFee,
-      desciption,
+      description,
     };
-    if (typeof id === "string") await dispatch(updateCourse(_id, course));
+    if (typeof id === 'string') await dispatch(updateCourse(_id, course));
     else await dispatch(createCourse(course));
 
-    navigate("/courses");
+    navigate('/courses');
   };
-
-  const prefixSelector = (
-    <Form.Item name="prefix" noStyle>
-      <Select
-        style={{
-          width: 70,
-        }}
-      >
-        <Option value="84">+84</Option>
-        <Option value="1">+1</Option>
-      </Select>
-    </Form.Item>
-  );
 
   return (
     <Form
@@ -99,42 +85,39 @@ const AddCourse = ({ id }) => {
       form={form}
       name="register"
       onFinish={onFinish}
-      initialValues={{
-        residence: [],
-        prefix: "84",
-      }}
       fields={[
-        { name: ["courseName"], value: courseName },
-        { name: ["tuitionFee"], value: tuitionFee },
-        { name: ["desciption"], value: desciption },
+        { name: ['courseId'], value: courseId },
+        { name: ['courseName'], value: courseName },
+        // { name: ['tuitionFee'], value: Number(tuitionFee) },
+        { name: ['desciption'], value: description },
       ]}
       scrollToFirstError
     >
-      {/* <Form.Item
-        name="studentId"
-        label="Mã Lớp học"
-        tooltip="Lớp học có mã là..?"
-        onChange={(e) => setClassId(e.target.value)}
+      <Form.Item
+        name="courseId"
+        label="Mã khoá học"
+        tooltip="Khoá học có mã là..?"
+        onChange={(e) => setCourseId(e.target.value)}
         rules={[
           {
             required: true,
-            message: "Hãy nhập mã lớp học!",
+            message: 'Hãy nhập mã khoá học!',
             whitespace: false,
           },
         ]}
       >
         <Input />
-      </Form.Item> */}
+      </Form.Item>
 
       <Form.Item
-        name="classname"
-        label="Tên lớp học"
-        tooltip="lớp học tên là..?"
+        name="courseName"
+        label="Tên khoá học"
+        tooltip="Khoá học tên là..?"
         onChange={(e) => setCourseName(e.target.value)}
         rules={[
           {
             required: true,
-            message: "Hãy nhập tên lớp học!",
+            message: 'Hãy nhập tên khoá học!',
             whitespace: true,
           },
         ]}
@@ -143,30 +126,27 @@ const AddCourse = ({ id }) => {
       </Form.Item>
       <Form.Item
         name="tuitionFee"
-        label="Tên lớp học"
-        tooltip="lớp học tên là..?"
-        onChange={(e) => setTuitionFee(e.target.value)}
-        rules={[
-          {
-            required: true,
-            message: "Hãy nhập tên lớp học!",
-            whitespace: true,
-          },
-        ]}
+        label="Học phí"
+        tooltip="Khoá học có học phí là..?"
+        onChange={(e) => setTuitionFee(Number(e.target.value))}
       >
-        <Input />
+        <InputNumber style={{ width: '200px' }} value={tuitionFee} /> VND
       </Form.Item>
-      <Form.Item name="desciption" label="Mô tả lớp học">
+      <Form.Item
+        name="desciption"
+        label="Mô tả khoá học"
+        onChange={(e) => setDescription(e.target.value)}
+      >
         <Input />
       </Form.Item>
       <Form.Item {...tailFormItemLayout}>
         <Button type="primary" htmlType="submit">
-          {id ? "Sửa Thông Tin" : "Thêm lớp học"}
+          {id ? 'Sửa Thông Tin' : 'Thêm khoá học'}
         </Button>
         <Button
           type="ghost"
-          style={{ marginLeft: "10px" }}
-          onClick={() => navigate("/classes")}
+          style={{ marginLeft: '10px' }}
+          onClick={() => navigate('/courses')}
         >
           Huỷ Bỏ
         </Button>

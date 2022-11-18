@@ -1,10 +1,11 @@
-import React from "react";
-import { useParams } from "react-router-dom";
-import AddStudent from "./add";
+import React from 'react';
+import { useParams } from 'react-router-dom';
+import AddCourse from './add';
 
 const EditCourse = () => {
   const { courseId } = useParams();
-  return <AddStudent id={courseId} />;
+
+  return <AddCourse id={courseId} />;
 };
 
 export default EditCourse;

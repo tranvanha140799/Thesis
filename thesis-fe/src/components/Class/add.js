@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import moment from 'moment';
 
 import 'antd/dist/antd.css';
 
-import { Form, Input, Select, Button, DatePicker } from 'antd';
+import { Form, Input, Select, Button } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { classActions } from '../../redux/classSlice';
 
-const { createClass, getClass, updateClass } = classActions;
+const { createClass, getClasses, updateClass } = classActions;
 const { Option } = Select;
 
 const formItemLayout = {
@@ -56,17 +55,17 @@ const AddClass = ({ id }) => {
   const [classname, setClassname] = useState('');
   const [studentQuantity, setStudentQuantity] = useState('');
   const [status, setStatus] = useState('');
-  const [formTeacherId, setFromTeacherId] = useState('');
+  const [formTeacherId, setFormTeacherId] = useState('');
 
   useEffect(() => {
-    // if (totalStudents === 0) dispatch(getStudents());
+    if (totalClasses === 0) dispatch(getClasses());
     if (clasS) {
       set_Id(clasS._id);
       setClassId(clasS.classId);
       setClassname(clasS.name);
       setStudentQuantity(clasS.studentQuantity);
       setStatus(clasS.status);
-      setFromTeacherId(clasS.formTeacherId);
+      setFormTeacherId(clasS.formTeacherId);
     }
   }, [dispatch, clasS]);
 
@@ -84,29 +83,12 @@ const AddClass = ({ id }) => {
     navigate('/classes');
   };
 
-  const prefixSelector = (
-    <Form.Item name="prefix" noStyle>
-      <Select
-        style={{
-          width: 70,
-        }}
-      >
-        <Option value="84">+84</Option>
-        <Option value="1">+1</Option>
-      </Select>
-    </Form.Item>
-  );
-
   return (
     <Form
       {...formItemLayout}
       form={form}
       name="register"
       onFinish={onFinish}
-      initialValues={{
-        residence: [],
-        prefix: '84',
-      }}
       fields={[
         { name: ['classId'], value: classId },
         { name: ['classname'], value: classname },
@@ -187,8 +169,9 @@ const AddClass = ({ id }) => {
             },
           ]}
         >
-          <Select.Option value="active">Đang giảng dạy</Select.Option>
-          <Select.Option value="stop ">Ngừng giảng dạy</Select.Option>
+          <Option value="active">Hoạt động</Option>
+          <Option value="paused">Tạm dừng</Option>
+          <Option value="closed">Đã đóng</Option>
         </Select>
       </Form.Item>
 

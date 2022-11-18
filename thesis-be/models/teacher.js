@@ -8,6 +8,7 @@ const teacherSchema = mongoose.Schema({
   email: String,
   address: String,
   phoneNumber: String,
+  image: String,
   position: String, // Vị trí công việc: trợ giảng, gv chính
   workType: String, // Kiểu làm việc: parttime, fulltime,...
   status: String, // Trạng thái: đã nghỉ, đang làm, tạm nghỉ,...

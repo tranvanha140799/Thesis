@@ -1,9 +1,9 @@
 /* eslint-disable array-callback-return */
-import { createSlice } from "@reduxjs/toolkit";
-import * as api from "../api";
-import { changeStringToNormalizeString } from "../components/Common/utilities";
+import { createSlice } from '@reduxjs/toolkit';
+import * as api from '../api';
+import { changeStringToNormalizeString } from '../components/Common/utilities';
 
-export const courseAction = {
+export const courseActions = {
   getCourses: () => async (dispatch) => {
     try {
       const { data } = await api.getCourses();
@@ -15,20 +15,16 @@ export const courseAction = {
   },
 
   searchCourse: (str) => (dispatch) => {
-    if (!str) dispatch(courseAction.getStudents());
+    if (!str) dispatch(courseActions.getCourses());
 
     dispatch(actions.searchCourse({ str: str || '', dispatch }));
   },
 
   createCourse: (course) => async (dispatch) => {
     try {
-      // const { data } = await api.createClasses(clasS);
+      const { data } = await api.createCourse(course);
 
-      dispatch(
-        actions.createClass({
-          newCourse: course,
-        })
-      );
+      dispatch(actions.createClass({ newCourse: data }));
     } catch (error) {
       console.log(error);
     }
@@ -36,16 +32,16 @@ export const courseAction = {
 
   updateCourse: (id, course) => async (dispatch) => {
     try {
-      // const { data } = await api.updateClasses(id, clasS);
+      const { data } = await api.updateCourse(id, course);
 
       dispatch(
         actions.updateCourse({
           id,
-          course: course,
+          course: data,
         })
       );
     } catch (error) {
-      console.log(error.messsage);
+      console.log(error);
     }
   },
 
@@ -66,7 +62,7 @@ const initialState = {
 };
 
 const courseSlice = createSlice({
-  name: "courseReducer",
+  name: 'courseReducer',
   initialState,
   reducers: {
     fetchCourses: (state, action) => {
@@ -77,9 +73,9 @@ const courseSlice = createSlice({
       state.courses.push(action.payload.newCourse);
     },
     updateCourse: (state, action) => {
-      state.courses = state.courses.map((course) => {
-        if (course.id === action.payload.course.id) course = action.course;
-      });
+      state.courses = state.courses.map((course) =>
+        course._id === action.payload.id ? (course = action.payload.course) : course
+      );
     },
     deleteCourse: (state, action) => {
       state.courses = state.courses.filter(

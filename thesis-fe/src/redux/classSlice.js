@@ -25,10 +25,10 @@ export const classActions = {
   //     console.log(error);
   //   }
   // },
-  searchClass :(str)=>(dispatch)=>{
-    if(!str) dispatch(classActions.getClasses());
+  searchClass: (str) => (dispatch) => {
+    if (!str) dispatch(classActions.getClasses());
 
-    dispatch(actions.searchClass({str:str ||'', dispatch}))
+    dispatch(actions.searchClass({ str: str || '', dispatch }));
   },
 
   createClass: (clasS) => async (dispatch) => {
@@ -37,7 +37,7 @@ export const classActions = {
 
       dispatch(
         actions.createClass({
-          newClass: clasS,
+          newClass: data,
         })
       );
     } catch (error) {
@@ -52,7 +52,7 @@ export const classActions = {
       dispatch(
         actions.updateClass({
           id,
-          class: clasS,
+          class: data,
         })
       );
     } catch (error) {
@@ -88,9 +88,9 @@ const classSlice = createSlice({
       state.classes.push(action.payload.newClass);
     },
     updateClass: (state, action) => {
-      state.classes = state.classes.map((clasS) => {
-        if (clasS.id === action.payload.clasS.id) clasS = action.clasS;
-      });
+      state.classes = state.classes.map((clasS) =>
+        clasS._id === action.payload.id ? (clasS = action.payload.class) : clasS
+      );
     },
     deleteClass: (state, action) => {
       state.classes = state.classes.filter((clasS) => clasS._id !== action.payload.id);
