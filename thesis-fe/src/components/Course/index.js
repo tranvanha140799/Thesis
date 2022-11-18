@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 
-import { Table, Space } from "antd";
+import { Table, Space, Row, Col } from "antd";
 // import ColumnGroup from 'antd/lib/table/ColumnGroup';
 import Column from "antd/lib/table/Column";
 
@@ -12,10 +12,11 @@ import AddBtn from "../Common/AddBtn";
 import DeleteBtn from "../Common/DeleteBtn";
 import { classActions } from "../../redux/classSlice";
 import { courseAction } from "../../redux/courseSlice";
+import SearchBox from "../Common/SearchBox";
 
-const { deleteCourse, getCourses } = courseAction;
+const { deleteCourse, getCourses , searchCourse} = courseAction;
 
-const ClassPage = () => {
+const CoursePage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const data = useSelector((state) => state.courseReducer.courses);
@@ -32,7 +33,18 @@ const ClassPage = () => {
 
   return (
     <div>
-      <AddBtn add={gotoAdd} />
+      <Row>
+      <Col >
+          <SearchBox
+            style={{ width: '50%' }}
+            placeholder="Tên hoặc mã học viên..."
+            onChange={(str) => dispatch(searchCourse(str))}
+          />
+        </Col>
+        <Col span={12}>
+          <AddBtn add={gotoAdd} />
+        </Col>
+      </Row>
       <Table dataSource={data} rowKey="classId">
         <Column title="Mã lớp học" dataIndex="classId" key="key" />
         <Column
@@ -69,4 +81,4 @@ const ClassPage = () => {
   );
 };
 
-export default ClassPage;
+export default CoursePage;

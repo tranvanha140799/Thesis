@@ -6,9 +6,9 @@ import "antd/dist/antd.css";
 
 import { Form, Input, Select, Button, DatePicker } from "antd";
 import { useNavigate } from "react-router-dom";
-import { classActions } from "../../redux/classSlice";
+import { courseAction } from "../../redux/courseSlice";
 
-const { createClass, getClass, updateClass } = classActions;
+const { createCourse, updateCourse } = courseAction;
 const { Option } = Select;
 
 const formItemLayout = {
@@ -43,47 +43,41 @@ const tailFormItemLayout = {
   },
 };
 
-const AddClass = ({ id }) => {
+const AddCourse = ({ id }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [form] = Form.useForm();
-  const totalClasses = useSelector(
-    (state) => state.classesReducer.totalClasses
+  const totalCourse = useSelector(
+    (state) => state.courseReducer.totalCourse
   );
-  const clasS = useSelector((state) =>
-    id ? state.classesReducer.classes.find((p) => p.classId === id) : null
+  const course = useSelector((state) =>
+    id ? state.courseReducer.courses.find((p) => p._id === id) : null
   );
   const [_id, set_Id] = useState("");
-  const [classId, setClassId] = useState("");
-  const [classname, setClassname] = useState("");
-  const [studentQuantity, setStudentQuantity] = useState("");
-  const [status, setStatus] = useState("");
-  const [formTeacherId, setFromTeacherId] = useState("");
+  const [courseName, setCourseName] = useState("");
+  const [tuitionFee, setTuitionFee] = useState("");
+  const [desciption, setDesciption] = useState("");
 
   useEffect(() => {
     // if (totalStudents === 0) dispatch(getStudents());
-    if (clasS) {
-      set_Id(clasS._id);
-      setClassId(clasS.classId);
-      setClassname(clasS.name);
-      setStudentQuantity(clasS.studentQuantity);
-      setStatus(clasS.status);
-      setFromTeacherId(clasS.formTeacherId);
+    if (course) {
+      set_Id(course._id);
+      setCourseName(course.name);
+      setTuitionFee(course.studentQuantity);
+      setDesciption(course.status);
     }
-  }, [dispatch, clasS]);
+  }, [dispatch, course]);
 
   const onFinish = async (values) => {
-    const clasS = {
-      classId,
-      name: classname,
-      studentQuantity,
-      formTeacherId,
-      status,
+    const course = {
+      name: courseName,
+      tuitionFee,
+      desciption,
     };
-    if (typeof id === "string") await dispatch(updateClass(_id, clasS));
-    else await dispatch(createClass(clasS));
+    if (typeof id === "string") await dispatch(updateCourse(_id, course));
+    else await dispatch(createCourse(course));
 
-    navigate("/classes");
+    navigate("/courses");
   };
 
   const prefixSelector = (
@@ -110,15 +104,13 @@ const AddClass = ({ id }) => {
         prefix: "84",
       }}
       fields={[
-        { name: ["classId"], value: classId },
-        { name: ["classname"], value: classname },
-        { name: ["studentQuantity"], value: studentQuantity },
-        { name: ["formTeacherId"], value: formTeacherId },
-        { name: ["status"], value: status },
+        { name: ["courseName"], value: courseName },
+        { name: ["tuitionFee"], value: tuitionFee },
+        { name: ["desciption"], value: desciption },
       ]}
       scrollToFirstError
     >
-      <Form.Item
+      {/* <Form.Item
         name="studentId"
         label="Mã Lớp học"
         tooltip="Lớp học có mã là..?"
@@ -132,13 +124,13 @@ const AddClass = ({ id }) => {
         ]}
       >
         <Input />
-      </Form.Item>
+      </Form.Item> */}
 
       <Form.Item
         name="classname"
         label="Tên lớp học"
         tooltip="lớp học tên là..?"
-        onChange={(e) => setClassname(e.target.value)}
+        onChange={(e) => setCourseName(e.target.value)}
         rules={[
           {
             required: true,
@@ -149,14 +141,24 @@ const AddClass = ({ id }) => {
       >
         <Input />
       </Form.Item>
-      <Form.Item name="minStudents" label="Số học sinh tối thiểu">
+      <Form.Item
+        name="tuitionFee"
+        label="Tên lớp học"
+        tooltip="lớp học tên là..?"
+        onChange={(e) => setTuitionFee(e.target.value)}
+        rules={[
+          {
+            required: true,
+            message: "Hãy nhập tên lớp học!",
+            whitespace: true,
+          },
+        ]}
+      >
         <Input />
       </Form.Item>
-      
-      
-
-    
-
+      <Form.Item name="desciption" label="Mô tả lớp học">
+        <Input />
+      </Form.Item>
       <Form.Item {...tailFormItemLayout}>
         <Button type="primary" htmlType="submit">
           {id ? "Sửa Thông Tin" : "Thêm lớp học"}
@@ -173,4 +175,4 @@ const AddClass = ({ id }) => {
   );
 };
 
-export default AddClass;
+export default AddCourse;

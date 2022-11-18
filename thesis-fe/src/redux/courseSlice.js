@@ -1,6 +1,7 @@
 /* eslint-disable array-callback-return */
 import { createSlice } from "@reduxjs/toolkit";
 import * as api from "../api";
+import { changeStringToNormalizeString } from "../components/Common/utilities";
 
 export const courseAction = {
   getCourses: () => async (dispatch) => {
@@ -11,6 +12,12 @@ export const courseAction = {
     } catch (error) {
       console.log(error);
     }
+  },
+
+  searchCourse: (str) => (dispatch) => {
+    if (!str) dispatch(courseAction.getStudents());
+
+    dispatch(actions.searchCourse({ str: str || '', dispatch }));
   },
 
   createCourse: (course) => async (dispatch) => {
@@ -59,7 +66,7 @@ const initialState = {
 };
 
 const courseSlice = createSlice({
-  name: "classReducer",
+  name: "courseReducer",
   initialState,
   reducers: {
     fetchCourses: (state, action) => {
@@ -80,8 +87,19 @@ const courseSlice = createSlice({
       );
       --state.totalCourses;
     },
+    searchCourse: (state, action) => {
+      if (action.payload.str) {
+        const str = changeStringToNormalizeString(action.payload.str).toLowerCase();
+        state.courses = state.classes.filter(
+          (course) =>
+            course.id.includes(str) ||
+            changeStringToNormalizeString(course.name).toLowerCase().includes(str)
+        );
+      }
+      state.totalClasses = state.classes.length;
+    },
   },
 });
 
-const actions = courseAction.actions;
+const actions = courseSlice.actions;
 export const { reducer } = courseSlice;

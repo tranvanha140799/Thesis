@@ -48,7 +48,7 @@ const StudentPage = () => {
   return (
     <>
       <Row>
-        <Col span={12}>
+        <Col >
           <SearchBox
             style={{ width: '50%' }}
             placeholder="Tên hoặc mã học viên..."
