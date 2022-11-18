@@ -60,8 +60,8 @@ const ClassPage = () => {
         <Column title="Mã giáo viên" dataIndex="formTeacherId" key="key" />
         <Column title="Thời gian bắt đầu" dataIndex="dateStart" key="key" />
         <Column title="Thời gian kết thúc" dataIndex="dateEnd" key="key" />
-        <Column title="Số học sinh tối thiểu" dataIndex="minStudents" key="key" />
-        <Column title="Số học sinh tối đa" dataIndex="maxStudents" key="key" />
+        <Column title="Số học viên tối thiểu" dataIndex="minStudents" key="key" />
+        <Column title="Số học viên tối đa" dataIndex="maxStudents" key="key" />
         <Column title="Giảm giá" dataIndex="discount" key="key" />
         <Column title="Khoá học" dataIndex="courseId" key="key" />
         <Column

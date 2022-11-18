@@ -58,9 +58,9 @@ function Home() {
             <Menu.Item key="salary-chart" icon={<BookOutlined />}>
               <Link to="/salary-chart">Bảng Bậc Lương</Link>
             </Menu.Item>
-            <Menu.Item key="teachers-salary-chart" icon={<BookOutlined />}>
+            {/* <Menu.Item key="teachers-salary-chart" icon={<BookOutlined />}>
               <Link to="/teachers-salary-chart">Bảng Lương Tháng Giáo Viên</Link>
-            </Menu.Item>
+            </Menu.Item> */}
           </SubMenu>
           <Menu.Item key="teachers" icon={<TeamOutlined />}>
             <Link to="/teachers">Giảng Viên</Link>

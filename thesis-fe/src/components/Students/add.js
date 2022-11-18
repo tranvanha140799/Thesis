@@ -9,9 +9,11 @@ import 'antd/dist/antd.css';
 import './index.css';
 
 import { showNotification, validatePhoneNumber } from '../Common/utilities';
+import { classActions } from '../../redux/classSlice';
 import { studentActions } from '../../redux/studentSlice';
 import Avatar from '../Common/Avatar';
 
+const { getClasses } = classActions;
 const { createStudent, getStudents, updateStudent } = studentActions;
 const { Option } = Select;
 
@@ -55,6 +57,7 @@ const AddStudent = ({ id }) => {
   const student = useSelector((state) =>
     id ? state.studentReducer.students.find((st) => st.studentId === id) : null
   );
+  const classes = useSelector((state) => state.classReducer.classes);
   const [_id, set_Id] = useState('');
   const [studentId, setStudentId] = useState('');
   const [fullname, setFullname] = useState('');
@@ -85,6 +88,12 @@ const AddStudent = ({ id }) => {
       setImage(student.image);
     }
   }, [dispatch, student]);
+
+  useEffect(() => {
+    if (!classes.length) {
+      dispatch(getClasses());
+    }
+  }, [classes.length]);
 
   const onFinish = async (values) => {
     const student = {
@@ -255,7 +264,6 @@ const AddStudent = ({ id }) => {
           <Form.Item
             name="classId"
             label="Lớp đang học"
-            onChange={(e) => setClassId(e.target.value)}
             rules={[
               {
                 required: false,
@@ -263,7 +271,14 @@ const AddStudent = ({ id }) => {
               },
             ]}
           >
-            <Input />
+            {/* <Input /> */}
+            <Select value={classId} onChange={(e) => setClassId(e)}>
+              {classes.map((clasS) => (
+                <Select.Option key={clasS._id} value={clasS._id}>
+                  {clasS.name}
+                </Select.Option>
+              ))}
+            </Select>
           </Form.Item>
           <Form.Item
             name="status"
