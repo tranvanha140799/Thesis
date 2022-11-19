@@ -9,6 +9,7 @@ import { EditOutlined } from '@ant-design/icons';
 import 'antd/dist/antd.css';
 
 import AddBtn from '../Common/AddBtn';
+import CancelBtn from '../Common/CancelBtn';
 import EditBtn from '../Common/EditBtn';
 import DeleteBtn from '../Common/DeleteBtn';
 import ConfirmDeleteModal from '../Common/ConfirmDeleteModal';
@@ -38,7 +39,22 @@ const SchedulePage = () => {
 
   useEffect(() => {
     dispatch(getSchedules());
+
+    document.addEventListener(
+      'keydown',
+      (keyboardEvent) => escFunction(keyboardEvent.key),
+      false
+    );
+
+    return () =>
+      document.removeEventListener(
+        'keydown',
+        (keyboardEvent) => escFunction(keyboardEvent.key),
+        false
+      );
   }, []);
+
+  const escFunction = (event) => event === 'Escape' && stopEditing();
 
   const startEditing = (record) => {
     setIsEditing(true);
@@ -115,7 +131,7 @@ const SchedulePage = () => {
       <AddBtn add={() => setOpenModal(true)} />
       <Table dataSource={data} rowKey="_id">
         <Column
-          title="Tên khung giờ học"
+          title="Tên Khung Giờ Học"
           dataIndex="name"
           key="key"
           render={(text, record) =>
@@ -131,7 +147,7 @@ const SchedulePage = () => {
           }
         />
         <Column
-          title="Ngày trong tuần"
+          title="Ngày Trong Tuần"
           dataIndex="dayOfWeek"
           key="key"
           render={(text, record) =>
@@ -183,7 +199,7 @@ const SchedulePage = () => {
           }
         />
         <Column
-          title="Thời gian bắt đầu"
+          title="Thời Gian Bắt Đầu"
           dataIndex="timeStart"
           key="key"
           render={(text, record) =>
@@ -201,7 +217,7 @@ const SchedulePage = () => {
           }
         />
         <Column
-          title="Thời gian kết thúc"
+          title="Thời Gian Kết Thúc"
           dataIndex="timeEnd"
           key="key"
           render={(text, record) =>
@@ -223,19 +239,22 @@ const SchedulePage = () => {
           key="actions"
           render={(text, record) =>
             isEditing && editingRecordId === record._id ? (
-              <Button
-                type="primary"
-                shape="round"
-                onClick={() => onEditSchedule(record._id)}
-                icon={<EditOutlined />}
-              >
-                Ok
-              </Button>
+              <Space size="middle">
+                <Button
+                  type="primary"
+                  shape="round"
+                  onClick={() => onEditSchedule(record._id)}
+                  icon={<EditOutlined />}
+                >
+                  Ok
+                </Button>
+                <CancelBtn onCancel={() => stopEditing()} />
+              </Space>
             ) : (
               <Space size="middle">
                 <EditBtn onEdit={() => startEditing(record)} />
                 <DeleteBtn
-                  deletE={() => {
+                  onDelete={() => {
                     setOpenConfirmDeleteModal(true);
                     setEditingRecordId(record._id);
                   }}
@@ -248,7 +267,7 @@ const SchedulePage = () => {
       <Modal
         destroyOnClose
         open={openModal}
-        title="Thêm khung giờ học"
+        title="Thêm Khung Giờ Học"
         cancelText="Huỷ"
         onOk={onOk}
         onCancel={() => setOpenModal(false)}

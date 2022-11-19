@@ -236,7 +236,7 @@ const StudentPage = () => {
                 render={(text, record) => (
                   <Space size="middle">
                     <DeleteBtn
-                      deletE={() => {
+                      onDelete={() => {
                         setOpenConfirmDeleteModal(true);
                         setEditingRecordId(record._id);
                       }}
@@ -323,7 +323,7 @@ const StudentPage = () => {
                     <Space size="middle">
                       <EditBtn onEdit={() => startEditing(record)} />
                       <DeleteBtn
-                        deletE={() => {
+                        onDelete={() => {
                           setOpenConfirmDeleteModal(true);
                           setEditingRecordId(record._id);
                         }}

@@ -108,7 +108,7 @@ const ClassPage = () => {
               {/* <Button onClick={() => dispatch(deleteStudent(record._id))}>
                 Xoá
               </Button> */}
-              <DeleteBtn deletE={() => deleteStu(record._id)} />
+              <DeleteBtn onDelete={() => deleteStu(record._id)} />
             </Space>
           )}
         />

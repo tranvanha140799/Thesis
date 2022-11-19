@@ -5,22 +5,21 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import moment from 'moment';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
-
-import 'react-big-calendar/lib/css/react-big-calendar.css';
-
-import { courseActions } from '../../redux/courseSlice';
-import { classActions } from '../../redux/classSlice';
-import { classStudentActions } from '../../redux/classStudentSlice';
-import { exemptActions } from '../../redux/exemptSlice';
-import { studentActions } from '../../redux/studentSlice';
-import { numberToVnd } from '../Common/utilities';
 import { EditOutlined } from '@ant-design/icons';
+import 'react-big-calendar/lib/css/react-big-calendar.css';
+import { numberToVnd } from '../Common/utilities';
+
+import { classActions } from '../../redux/classSlice';
+import { courseActions } from '../../redux/courseSlice';
+import { exemptActions } from '../../redux/exemptSlice';
+import { classStudentActions } from '../../redux/classStudentSlice';
+import { studentActions } from '../../redux/studentSlice';
 
 const { getCourses } = courseActions;
 const { getClasses } = classActions;
+const { getExempts } = exemptActions;
 const { getAllClassStudents, changeCurrentClassStudents, resetCurrentClassStudent } =
   classStudentActions;
-const { getExempts } = exemptActions;
 const { getStudents, updateStudent } = studentActions;
 const localizer = momentLocalizer(moment);
 
