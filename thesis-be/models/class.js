@@ -8,7 +8,7 @@ const classSchema = mongoose.Schema({
   dateEnd: String,
   minStudents: Number,
   maxStudents: Number,
-  discount: String,
+  discount: Number,
   status: String,
   courseId: String,
 });

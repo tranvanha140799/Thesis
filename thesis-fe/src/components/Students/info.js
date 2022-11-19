@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { Col, Divider, Form, Row } from 'antd';
+import { Button, Col, Divider, Form, Row } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
@@ -8,13 +8,19 @@ import { Calendar, momentLocalizer } from 'react-big-calendar';
 
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 
+import { courseActions } from '../../redux/courseSlice';
 import { classActions } from '../../redux/classSlice';
 import { classStudentActions } from '../../redux/classStudentSlice';
+import { exemptActions } from '../../redux/exemptSlice';
 import { studentActions } from '../../redux/studentSlice';
 import { numberToVnd } from '../Common/utilities';
+import { EditOutlined } from '@ant-design/icons';
 
+const { getCourses } = courseActions;
 const { getClasses } = classActions;
-const { getAllClassStudents, changeCurrentClassStudent } = classStudentActions;
+const { getAllClassStudents, changeCurrentClassStudents, resetCurrentClassStudent } =
+  classStudentActions;
+const { getExempts } = exemptActions;
 const { getStudents, updateStudent } = studentActions;
 const localizer = momentLocalizer(moment);
 
@@ -23,51 +29,62 @@ const Info = ({ id }) => {
   const navigate = useNavigate();
   const [form] = Form.useForm();
 
+  const courses = useSelector((state) => state.courseReducer.courses);
   const classes = useSelector((state) => state.classReducer.classes);
-  const currentClassStudent = useSelector(
-    (state) => state.classStudentReducer.currentClassStudent
-  );
+  const exempts = useSelector((state) => state.exemptReducer.exempts);
   const allClassStudents = useSelector(
     (state) => state.classStudentReducer.allClassStudents
   );
+  const newestCurrentClassStudent = useSelector(
+    (state) => state.classStudentReducer.newestCurrentClassStudent
+  );
   const totalStudents = useSelector((state) => state.studentReducer.totalStudents);
-  const student = useSelector((state) =>
+  const currentStudent = useSelector((state) =>
     id ? state.studentReducer.students.find((p) => p.studentId === id) : null
   );
-  const clasS = useSelector((state) =>
-    currentClassStudent
+  const currentExempt = useSelector((state) =>
+    currentStudent
+      ? state.exemptReducer.exempts.find((p) => p._id === currentStudent?.exemptId)
+      : null
+  );
+  const currentClass = useSelector((state) =>
+    newestCurrentClassStudent
       ? state.classReducer.classes.find(
-          (clasS) => clasS._id === currentClassStudent?.class_id
+          (clasS) => clasS._id === newestCurrentClassStudent?.class_id
         )
       : null
   );
-  // const course = useSelector((state) =>
-  //   clasS
-  //     ? state.coursesReducer.courses.find(
-  //         (course) => course.classId === clasS?.class_id
-  //       )
-  //     : null
-  // );
+  const currentCourse = useSelector((state) =>
+    currentClass
+      ? state.courseReducer.courses.find(
+          (course) => course._id === currentClass?.courseId
+        )
+      : null
+  );
   const [_id, set_Id] = useState('');
   const [classId, setClassId] = useState('');
   const [excemptId, setExcemptId] = useState('');
+  const [finalTuitionFee, setFinalTuitionFee] = useState(-1);
+  const [remainTuitionFee, setRemainTuitionFee] = useState(-1);
 
   // Lấy thông tin học viên theo id
   useEffect(() => {
     if (totalStudents === 0) dispatch(getStudents());
-    if (student) {
-      set_Id(student._id);
-      setClassId(student.classId);
-      setExcemptId(student.excemptId);
+    if (currentStudent) {
+      set_Id(currentStudent._id);
+      setClassId(currentStudent.classId);
+      setExcemptId(currentStudent.excemptId);
     }
-  }, [dispatch, student]);
+  }, [dispatch, currentStudent]);
 
   // Lấy thông tin đóng học phí của học viên hiện tại
   useEffect(() => {
     if (!allClassStudents.length) dispatch(getAllClassStudents());
-    if (student && allClassStudents.length)
-      dispatch(changeCurrentClassStudent(student.classId, student._id));
-  }, [id, student, allClassStudents.length]);
+    if (currentStudent && allClassStudents.length)
+      dispatch(changeCurrentClassStudents(currentStudent.classId, currentStudent._id));
+
+    return () => dispatch(resetCurrentClassStudent());
+  }, [id, currentStudent, allClassStudents.length]);
 
   // Lấy thông tin lớp học mà học viên đang theo học
   useEffect(() => {
@@ -75,13 +92,53 @@ const Info = ({ id }) => {
   }, [classes.length]);
 
   // Lấy thông tin khoá học mà học viên đang theo học
-  // useEffect(() => {
-  //   if (!courses.length) dispatch(getCourses());
-  // }, [courses.length]);
+  useEffect(() => {
+    if (!courses.length) dispatch(getCourses());
+  }, [courses.length]);
+
+  // Lấy thông tin đối tượng miễn giảm của học viên
+  useEffect(() => {
+    if (!exempts.length) dispatch(getExempts());
+  }, [exempts.length]);
+
+  // Tính tiền học phí sau cùng
+  if (
+    finalTuitionFee === -1 &&
+    currentClass &&
+    newestCurrentClassStudent &&
+    currentStudent &&
+    currentCourse
+  ) {
+    if (currentClass?.discount && currentExempt?.percent)
+      setFinalTuitionFee(
+        currentCourse?.tuitionFee -
+          (currentCourse?.tuitionFee *
+            (currentClass?.discount + currentExempt?.percent)) /
+            100
+      );
+    else if (currentClass?.discount)
+      setFinalTuitionFee(
+        currentCourse?.tuitionFee -
+          (currentCourse?.tuitionFee * currentClass?.discount) / 100
+      );
+    else if (currentExempt?.percent)
+      setFinalTuitionFee(
+        currentCourse?.tuitionFee -
+          (currentCourse?.tuitionFee * currentExempt?.percent) / 100
+      );
+  }
+
+  // Tính tiền học phí còn lại
+  if (finalTuitionFee !== -1 && remainTuitionFee === -1)
+    setRemainTuitionFee(
+      finalTuitionFee <= newestCurrentClassStudent?.paidTuitionFee
+        ? 0
+        : finalTuitionFee - newestCurrentClassStudent?.paidTuitionFee
+    );
 
   const onFinish = async (values) => {
     const std = {
-      ...student,
+      ...currentStudent,
       classId,
       excemptId,
     };
@@ -90,26 +147,92 @@ const Info = ({ id }) => {
     navigate('/students');
   };
 
-  return currentClassStudent._id ? (
+  return newestCurrentClassStudent._id ? (
     <Row>
       <Col span={24} style={{ display: 'flex', justifyContent: 'space-around' }}>
         <h3>
-          Lớp đang học:{' '}
-          <Link to={`/classes/${clasS?.classId}`}>{clasS?.name || '---'}</Link>
+          Khoá học:{' '}
+          <Link to={`/courses/${currentCourse?.courseId}`}>
+            {currentCourse?.name || '---'}
+          </Link>
         </h3>
-        <h3>Sĩ số: {clasS?.numberOfStudents || '---'}</h3>
+        <h3>
+          Lớp đang học:{' '}
+          <Link to={`/classes/${currentClass?.classId}`}>
+            {currentClass?.name || '---'}
+          </Link>
+        </h3>
+        <h3>
+          Sĩ số:{' '}
+          {currentClass?.numberOfStudents
+            ? `${currentClass?.numberOfStudents} học viên`
+            : '--- học viên'}
+        </h3>
+        <h3>
+          Học phí:{' '}
+          {currentCourse?.tuitionFee ? (
+            <>
+              {finalTuitionFee !== -1 ? numberToVnd(finalTuitionFee) : '---'}
+              {(currentClass?.discount || currentExempt?.percent) && (
+                <h5 style={{ display: 'inline' }}>
+                  {' '}
+                  (-
+                  {currentClass?.discount && currentExempt?.percent
+                    ? `${currentClass?.discount + currentExempt?.percent}`
+                    : currentClass?.discount
+                    ? `${currentClass?.discount}`
+                    : currentExempt?.percent
+                    ? `${currentExempt?.percent}`
+                    : ''}
+                  %)
+                </h5>
+              )}
+            </>
+          ) : (
+            '--- VND'
+          )}
+        </h3>
+        <h3>
+          Tình trạng:{' '}
+          <h3
+            style={{
+              display: 'inline',
+              color:
+                remainTuitionFee === finalTuitionFee
+                  ? 'red'
+                  : remainTuitionFee
+                  ? 'orange'
+                  : 'green',
+            }}
+          >
+            {remainTuitionFee === finalTuitionFee
+              ? 'Chưa nộp'
+              : remainTuitionFee
+              ? 'Đang nộp'
+              : 'Đã nộp đủ'}
+          </h3>
+          {remainTuitionFee && (
+            <Button icon={<EditOutlined />} style={{ border: 'none' }} />
+          )}
+        </h3>
       </Col>
       <Col span={24} style={{ display: 'flex', justifyContent: 'space-around' }}>
         <h3>
-          Học phí đã nộp: {numberToVnd(currentClassStudent?.paidTuitionFee || 0)}
+          Học phí đã nộp: {numberToVnd(newestCurrentClassStudent?.paidTuitionFee || 0)}
         </h3>
         <h3>
-          Ngày trả gần nhất:{' '}
-          {moment(currentClassStudent?.lastestDatePaid).format('DD/MM/YYYY HH:mm')}
+          Học phí còn lại:{' '}
+          {remainTuitionFee !== -1 ? numberToVnd(remainTuitionFee) : '--- VND'}
         </h3>
         <h3>
-          Hạn trả phần còn lại:{' '}
-          {moment(currentClassStudent?.expiryDatePayTuitionFee).format(
+          Ngày nộp gần nhất:{' '}
+          {newestCurrentClassStudent?.payDate
+            ? moment(newestCurrentClassStudent?.payDate).format('DD/MM/YYYY HH:mm')
+            : 'Chưa nộp lần nào'}
+        </h3>
+        <h3>
+          Hạn nộp phần còn lại:{' '}
+          {moment(newestCurrentClassStudent?.expiryDatePayTuitionFee).format(
             'DD/MM/YYYY HH:mm'
           )}
         </h3>

@@ -52,6 +52,13 @@ export const updateClassStudent = (id, updateClassStudent) =>
   API.patch(`/class-student/${id}`, updateClassStudent);
 export const deleteClassStudent = (id) => API.delete(`/class-student/${id}`);
 
+//EXEMPTS
+export const getExempts = () => API.get('/exempts');
+export const createExempt = (exempt) => API.post('/exempts', exempt);
+export const updateExempt = (id, updateExempt) =>
+  API.patch(`/exempts/${id}`, updateExempt);
+export const deleteExempt = (id) => API.delete(`/exempts/${id}`);
+
 //SCHEDULES
 export const getSchedules = () => API.get('/schedules');
 export const createSchedule = (schedule) => API.post('/schedules', schedule);

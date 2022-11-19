@@ -12,28 +12,59 @@ export const classStudentActions = {
     }
   },
 
-  changeCurrentClassStudent: (classId, studentId) => (dispatch, getState) => {
-    const currentClassStudent = getState().classStudentReducer.currentClassStudent;
+  // Lọc danh sách nộp tiền của học sinh cụ thể
+  changeCurrentClassStudents: (classId, studentId) => (dispatch, getState) => {
+    const currentClassStudents = getState().classStudentReducer.currentClassStudents;
     const allClassStudents = getState().classStudentReducer.allClassStudents;
     if (
-      currentClassStudent?.class_id !== classId ||
-      currentClassStudent?.student_id !== studentId
+      currentClassStudents[0]?.class_id !== classId ||
+      currentClassStudents[0]?.student_id !== studentId
     ) {
       const data = allClassStudents.filter(
         (record) => record.class_id === classId && record.student_id === studentId
       );
 
-      if (data?.length) dispatch(actions.changeCurrentClassStudent({ data: data[0] }));
-      else {
+      if (data?.length) {
+        dispatch(actions.changeCurrentClassStudents({ data }));
+
+        dispatch(classStudentActions.changeNewestCurrentClassStudent());
+      } else {
         console.log('No data found!', classId, studentId);
-        dispatch(actions.changeCurrentClassStudent({ data: {} }));
+        dispatch(actions.changeCurrentClassStudents({ data: [] }));
       }
     }
   },
+
+  // Lấy lần nộp tiền mới nhất
+  changeNewestCurrentClassStudent: () => (dispatch, getState) => {
+    const newestCurrentClassStudent =
+      getState().classStudentReducer.newestCurrentClassStudent;
+    const currentClassStudents = getState().classStudentReducer.currentClassStudents;
+    if (
+      newestCurrentClassStudent?.class_id !== currentClassStudents[0]?.class_id ||
+      newestCurrentClassStudent?.student_id !== currentClassStudents[0]?.student_id
+    ) {
+      const max = currentClassStudents
+        .map((record) => record.payTime)
+        .sort((a, b) => b - a)[0];
+      const data = currentClassStudents.filter((record) => record.payTime === max);
+
+      if (data?.length)
+        dispatch(actions.changeNewestCurrentClassStudent({ data: data[0] }));
+      else {
+        console.log('No data found!');
+        dispatch(actions.changeNewestCurrentClassStudent({ data: {} }));
+      }
+    }
+  },
+
+  resetCurrentClassStudent: () => (dispatch) =>
+    dispatch(actions.resetCurrentClassStudent()),
 };
 
 const initialState = {
-  currentClassStudent: {},
+  currentClassStudents: [],
+  newestCurrentClassStudent: {},
   allClassStudents: [],
 };
 
@@ -45,8 +76,17 @@ const classStudentSlice = createSlice({
       state.allClassStudents = action.payload.data;
     },
 
-    changeCurrentClassStudent: (state, action) => {
-      state.currentClassStudent = { ...action.payload.data };
+    changeCurrentClassStudents: (state, action) => {
+      state.currentClassStudents = [...action.payload.data];
+    },
+
+    changeNewestCurrentClassStudent: (state, action) => {
+      state.newestCurrentClassStudent = { ...action.payload.data };
+    },
+
+    resetCurrentClassStudent: (state, action) => {
+      state.currentClassStudents = [];
+      state.newestCurrentClassStudent = {};
     },
   },
 });

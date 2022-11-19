@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
@@ -9,10 +10,12 @@ import 'antd/dist/antd.css';
 import './index.css';
 
 import { showNotification, validatePhoneNumber } from '../Common/utilities';
+import { exemptActions } from '../../redux/exemptSlice';
 import { classActions } from '../../redux/classSlice';
 import { studentActions } from '../../redux/studentSlice';
 import Avatar from '../Common/Avatar';
 
+const { getExempts } = exemptActions;
 const { getClasses } = classActions;
 const { createStudent, getStudents, updateStudent } = studentActions;
 const { Option } = Select;
@@ -57,6 +60,7 @@ const AddStudent = ({ id }) => {
   const student = useSelector((state) =>
     id ? state.studentReducer.students.find((st) => st.studentId === id) : null
   );
+  const exempts = useSelector((state) => state.exemptReducer.exempts);
   const classes = useSelector((state) => state.classReducer.classes);
   const [_id, set_Id] = useState('');
   const [studentId, setStudentId] = useState('');
@@ -67,7 +71,7 @@ const AddStudent = ({ id }) => {
   const [address, setAddress] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [classId, setClassId] = useState('');
-  const [excemptId, setExcemptId] = useState('');
+  const [exemptId, setExemptId] = useState('');
   const [status, setStatus] = useState('');
   const [image, setImage] = useState('');
 
@@ -84,7 +88,7 @@ const AddStudent = ({ id }) => {
       setPhoneNumber(student.phoneNumber);
       setStatus(student.status);
       setClassId(student.classId);
-      setExcemptId(student.excemptId);
+      setExemptId(student.exemptId || '');
       setImage(student.image);
     }
   }, [dispatch, student]);
@@ -94,6 +98,12 @@ const AddStudent = ({ id }) => {
       dispatch(getClasses());
     }
   }, [classes.length]);
+
+  useEffect(() => {
+    if (!exempts.length) {
+      dispatch(getExempts());
+    }
+  }, [exempts.length]);
 
   const onFinish = async (values) => {
     const student = {
@@ -105,8 +115,8 @@ const AddStudent = ({ id }) => {
       address,
       phoneNumber,
       status,
-      classId,
-      excemptId,
+      classId: classId || '',
+      exemptId: exemptId || '',
       image,
     };
     if (typeof id === 'string')
@@ -146,7 +156,7 @@ const AddStudent = ({ id }) => {
         { name: ['phoneNumber'], value: phoneNumber },
         { name: ['status'], value: status },
         { name: ['classId'], value: classId },
-        { name: ['excemptId'], value: excemptId },
+        { name: ['exemptId'], value: exemptId },
         { name: ['image'], value: image },
       ]}
       scrollToFirstError
@@ -250,6 +260,25 @@ const AddStudent = ({ id }) => {
               }}
             />
           </Form.Item>
+          <Form.Item
+            name="exemptId"
+            label="Đối tượng miễn giảm"
+            rules={[
+              {
+                required: false,
+                message: '',
+              },
+            ]}
+          >
+            {/* <Input /> */}
+            <Select value={exemptId} onChange={(e) => setExemptId(e)} allowClear>
+              {exempts.map((exempt) => (
+                <Select.Option key={exempt._id} value={exempt._id}>
+                  {exempt.name}
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
         </Col>
         <Col span={12}>
           <Form.Item name="image" label="Ảnh">
@@ -272,7 +301,7 @@ const AddStudent = ({ id }) => {
             ]}
           >
             {/* <Input /> */}
-            <Select value={classId} onChange={(e) => setClassId(e)}>
+            <Select value={classId} onChange={(e) => setClassId(e)} allowClear>
               {classes.map((clasS) => (
                 <Select.Option key={clasS._id} value={clasS._id}>
                   {clasS.name}
