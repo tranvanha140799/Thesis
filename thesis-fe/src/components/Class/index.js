@@ -8,20 +8,25 @@ import Column from 'antd/lib/table/Column';
 
 import 'antd/dist/antd.css';
 // import "./index.css";
+
 import AddBtn from '../Common/AddBtn';
 import DeleteBtn from '../Common/DeleteBtn';
-import { classActions } from '../../redux/classSlice';
 import SearchBox from '../Common/SearchBox';
+import { classActions } from '../../redux/classSlice';
+import { courseActions } from '../../redux/courseSlice';
 
+const { getCourses } = courseActions;
 const { deleteClass, getClasses, searchClass } = classActions;
 
 const ClassPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const data = useSelector((state) => state.classReducer.classes);
+  const courses = useSelector((state) => state.courseReducer.courses);
 
   useEffect(() => {
     dispatch(getClasses());
+    if (!courses.length) dispatch(getCourses());
   }, []);
 
   const gotoAdd = () => {
@@ -45,9 +50,9 @@ const ClassPage = () => {
         </Col>
       </Row>
       <Table dataSource={data} rowKey="classId">
-        <Column title="Mã lớp học" dataIndex="classId" key="key" />
+        <Column title="Mã Lớp Học" dataIndex="classId" key="key" />
         <Column
-          title="Tên lớp học"
+          title="Tên Lớp Học"
           dataIndex="name"
           key="key"
           render={(text, record) => (
@@ -56,16 +61,33 @@ const ClassPage = () => {
             </Space>
           )}
         />
-        <Column title="Số lượng học viên" dataIndex="studentQuantity" key="key" />
-        <Column title="Mã giáo viên" dataIndex="formTeacherId" key="key" />
-        <Column title="Thời gian bắt đầu" dataIndex="dateStart" key="key" />
-        <Column title="Thời gian kết thúc" dataIndex="dateEnd" key="key" />
-        <Column title="Số học viên tối thiểu" dataIndex="minStudents" key="key" />
-        <Column title="Số học viên tối đa" dataIndex="maxStudents" key="key" />
-        <Column title="Giảm giá" dataIndex="discount" key="key" />
-        <Column title="Khoá học" dataIndex="courseId" key="key" />
+        <Column title="Số Lượng Học Viên" dataIndex="numberOfStudents" key="key" />
+        <Column title="Mã Giáo Viên" dataIndex="formTeacherId" key="key" />
+        <Column title="Thời Gian Bắt Đầu" dataIndex="dateStart" key="key" />
+        <Column title="Thời Gian Kết Thúc" dataIndex="dateEnd" key="key" />
+        <Column title="Số Học Viên Tối Thiểu" dataIndex="minStudents" key="key" />
+        <Column title="Số Học Viên Tối Đa" dataIndex="maxStudents" key="key" />
+        <Column title="Khuyến Mãi (%)" dataIndex="discount" key="key" />
         <Column
-          title="Trạng thái"
+          title="Khoá Học"
+          dataIndex="courseId"
+          key="key"
+          render={(text, record) =>
+            text ? (
+              <Link
+                to={`/courses/${
+                  courses.find((course) => course._id === text).courseId
+                }`}
+              >
+                {courses.find((course) => course._id === text)?.name}
+              </Link>
+            ) : (
+              '---'
+            )
+          }
+        />
+        <Column
+          title="Trạng Thái"
           dataIndex="status"
           key="key"
           render={(text) =>
