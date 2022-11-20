@@ -29,6 +29,7 @@ import Schedules from './Schedule';
 import Students from './Students';
 import Teachers from './Teachers';
 import TeachersSalaryChart from './TeachersSalaryChart';
+import TuitionFees from './TuitionFee';
 
 const { Content, Footer, Sider } = Layout;
 const { SubMenu } = Menu;
@@ -108,6 +109,7 @@ function Home() {
           <Courses />
           <Classes />
           <Schedules />
+          <TuitionFees />
           <TeachersSalaryChart />
         </Content>
         <Footer style={{ textAlign: 'center' }}>
