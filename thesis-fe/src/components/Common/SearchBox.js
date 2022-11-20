@@ -5,7 +5,7 @@ const SearchBox = (props) => {
   return (
     <>
       <Input
-        addonBefore="Tìm kiếm:"
+        addonBefore={props.addonBefore || 'Tìm kiếm:'}
         placeholder={props.placeholder}
         style={{ ...props.style }}
         onChange={(e) => props.onChange(e.target.value)}

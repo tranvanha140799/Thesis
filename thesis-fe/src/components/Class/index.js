@@ -76,10 +76,10 @@ const ClassPage = () => {
             text ? (
               <Link
                 to={`/courses/${
-                  courses.find((course) => course._id === text).courseId
+                  courses.find((course) => course?._id === text)?.courseId
                 }`}
               >
-                {courses.find((course) => course._id === text)?.name}
+                {courses.find((course) => course?._id === text)?.name}
               </Link>
             ) : (
               '---'

@@ -86,13 +86,13 @@ const courseSlice = createSlice({
     searchCourse: (state, action) => {
       if (action.payload.str) {
         const str = changeStringToNormalizeString(action.payload.str).toLowerCase();
-        state.courses = state.classes.filter(
+        state.courses = state.courses.filter(
           (course) =>
-            course.id.includes(str) ||
+            course._id.includes(str) ||
             changeStringToNormalizeString(course.name).toLowerCase().includes(str)
         );
       }
-      state.totalClasses = state.classes.length;
+      state.totalCourses = state.courses.length;
     },
   },
 });
