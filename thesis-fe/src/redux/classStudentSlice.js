@@ -12,6 +12,18 @@ export const classStudentActions = {
     }
   },
 
+  createClassStudent: (classStudent, meta) => async (dispatch) => {
+    try {
+      const { data } = await api.createClassStudent(classStudent);
+
+      dispatch(actions.createClassStudent({ data }));
+      if (meta.onSuccess) meta.onSuccess();
+    } catch (error) {
+      console.log(error);
+      if (meta.onError) meta.onError();
+    }
+  },
+
   // Lọc danh sách nộp tiền của học sinh cụ thể
   changeCurrentClassStudents: (classId, studentId) => (dispatch, getState) => {
     const currentClassStudents = getState().classStudentReducer.currentClassStudents;
@@ -74,6 +86,12 @@ const classStudentSlice = createSlice({
   reducers: {
     fetchClassStudents: (state, action) => {
       state.allClassStudents = action.payload.data;
+    },
+
+    createClassStudent: (state, action) => {
+      state.allClassStudents.push(action.payload.data);
+      state.currentClassStudents.push(action.payload.data);
+      state.newestCurrentClassStudent = action.payload.data;
     },
 
     changeCurrentClassStudents: (state, action) => {

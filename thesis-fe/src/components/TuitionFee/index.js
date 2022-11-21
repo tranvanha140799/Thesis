@@ -4,23 +4,46 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import moment from 'moment';
 import { Link } from 'react-router-dom';
-import { Button, Col, Divider, Row, Select } from 'antd';
+import {
+  Button,
+  Card,
+  Col,
+  Divider,
+  Form,
+  InputNumber,
+  Modal,
+  Row,
+  Select,
+} from 'antd';
 
-import { changeStringToNormalizeString, numberToVnd } from '../Common/utilities';
+import {
+  changeStringToNormalizeString,
+  numberToVnd,
+  showNotification,
+} from '../Common/utilities';
 import { courseActions } from '../../redux/courseSlice';
 import { classActions } from '../../redux/classSlice';
 import { classStudentActions } from '../../redux/classStudentSlice';
 import { studentActions } from '../../redux/studentSlice';
 import { EditOutlined } from '@ant-design/icons';
+import { exemptActions } from '../../redux/exemptSlice';
 
 const { getCourses } = courseActions;
 const { getClasses } = classActions;
-const { getAllClassStudents } = classStudentActions;
+const {
+  getAllClassStudents,
+  createClassStudent,
+  changeCurrentClassStudents,
+  resetCurrentClassStudent,
+} = classStudentActions;
+const { getExempts } = exemptActions;
 const { getStudents } = studentActions;
 
-const TuitionFeePage = ({ id }) => {
+const TuitionFeePage = () => {
   const dispatch = useDispatch();
+  const [form] = Form.useForm();
 
+  const [selectedStudent, setSelectedStudent] = useState({});
   const allClassStudents = useSelector(
     (state) => state.classStudentReducer.allClassStudents
   ); //
@@ -31,7 +54,9 @@ const TuitionFeePage = ({ id }) => {
     (state) => state.classStudentReducer.newestCurrentClassStudent
   ); //
   const currentStudent = useSelector((state) =>
-    id ? state.studentReducer.students.find((p) => p.studentId === id) : null
+    selectedStudent
+      ? state.studentReducer.students.find((p) => p._id === selectedStudent._id)
+      : null
   ); //
   const currentExempt = useSelector((state) =>
     currentStudent
@@ -54,6 +79,7 @@ const TuitionFeePage = ({ id }) => {
   ); //
   const courses = useSelector((state) => state.courseReducer.courses); //
   const classes = useSelector((state) => state.classReducer.classes); // Redux
+  const exempts = useSelector((state) => state.exemptReducer.exempts); //
   const students = useSelector((state) => state.studentReducer.students); //
 
   const [listCourses, setListCurrentCourses] = useState([]); //
@@ -61,16 +87,20 @@ const TuitionFeePage = ({ id }) => {
   const [listStudents, setListCurrentStudents] = useState([]); //
   const [selectedCourse, setSelectedCourse] = useState({}); //
   const [selectedClass, setSelectedClass] = useState({}); // Giá trị đang chọn của khung tìm kiếm
-  const [selectedStudent, setSelectedStudent] = useState({}); //
   // const [dataTable, setDataTable] = useState([]); // Dữ liệu bảng
+  const [_id, set_Id] = useState('');
+  const [classId, setClassId] = useState('');
+  const [excemptId, setExcemptId] = useState('');
   const [finalTuitionFee, setFinalTuitionFee] = useState(-1);
   const [remainTuitionFee, setRemainTuitionFee] = useState(-1);
+  const [payAmount, setPayAmount] = useState(0);
+  const [payAmountType, setPayAmountType] = useState('');
+  const [isShowModalTotal, setIsShowModalTotal] = useState(false);
 
   useEffect(() => {
     if (!courses.length) dispatch(getCourses());
     if (!classes.length) dispatch(getClasses());
     if (!students.length) dispatch(getStudents());
-    if (!allClassStudents.length) dispatch(getAllClassStudents());
   }, []);
 
   useEffect(() => {
@@ -85,24 +115,65 @@ const TuitionFeePage = ({ id }) => {
     if (students.length) setListCurrentStudents(students);
   }, [students.length]);
 
-  // // Tạo lại data cho table mỗi khi thay đổi đk lọc
-  // useEffect(() => {
-  //   makeDataTable();
-  // }, [currentCourse?._id, currentClass?._id, selectedStudent?._id]);
+  // --------------- Info.js -----------------
+  // Lấy thông tin học viên theo id
+  useEffect(() => {
+    if (currentStudent) {
+      set_Id(currentStudent._id);
+      setClassId(currentStudent.classId);
+      setExcemptId(currentStudent.excemptId);
+    }
+  }, [dispatch, currentStudent]);
 
-  // // Lấy toàn bộ học viên phù hợp với điều kiện lọc => data cho table
-  // const makeDataTable = () => {
-  //   let data = [];
-  //   if (selectedStudent._id) data.push(selectedStudent);
-  //   else if (currentClass._id) data = listStudents.length ? [...listStudents] : [];
-  //   else if (currentCourse._id)
-  //     listClasses.map((clasS) =>
-  //       data.push(...students.filter((student) => student.classId === clasS._id))
-  //     );
-  //   else data.push(...students);
+  // Lấy thông tin đóng học phí của học viên hiện tại
+  useEffect(() => {
+    if (!allClassStudents.length) dispatch(getAllClassStudents());
+    if (currentStudent && allClassStudents.length)
+      dispatch(changeCurrentClassStudents(currentStudent.classId, currentStudent._id));
 
-  //   setDataTable(data);
-  // };
+    return () => dispatch(resetCurrentClassStudent());
+  }, [selectedStudent, currentStudent, allClassStudents.length]);
+
+  // Lấy thông tin đối tượng miễn giảm của học viên
+  useEffect(() => {
+    if (!exempts.length) dispatch(getExempts());
+  }, [exempts.length]);
+
+  // Tính tiền học phí sau cùng
+  if (
+    finalTuitionFee === -1 &&
+    currentClass &&
+    newestCurrentClassStudent &&
+    currentStudent &&
+    currentCourse
+  ) {
+    if (currentClass?.discount && currentExempt?.percent)
+      setFinalTuitionFee(
+        currentCourse?.tuitionFee -
+          (currentCourse?.tuitionFee *
+            (currentClass?.discount + currentExempt?.percent)) /
+            100
+      );
+    else if (currentClass?.discount)
+      setFinalTuitionFee(
+        currentCourse?.tuitionFee -
+          (currentCourse?.tuitionFee * currentClass?.discount) / 100
+      );
+    else if (currentExempt?.percent)
+      setFinalTuitionFee(
+        currentCourse?.tuitionFee -
+          (currentCourse?.tuitionFee * currentExempt?.percent) / 100
+      );
+  }
+
+  // Tính tiền học phí còn lại
+  if (finalTuitionFee !== -1 && remainTuitionFee === -1)
+    setRemainTuitionFee(
+      finalTuitionFee <= newestCurrentClassStudent?.paidTuitionFee
+        ? 0
+        : finalTuitionFee - newestCurrentClassStudent?.paidTuitionFee
+    );
+  // -----------------------------------------
 
   // Thay đổi khoá học
   const handleChangeCourse = (value) => {
@@ -204,11 +275,41 @@ const TuitionFeePage = ({ id }) => {
     }
   };
 
+  // Nộp toàn bộ học phí còn lại
+  const pay = () => {
+    const payload = {
+      class_id: newestCurrentClassStudent?.class_id,
+      student_id: newestCurrentClassStudent?.student_id,
+      classId: newestCurrentClassStudent?.classId,
+      paidTuitionFee:
+        payAmountType === 'total'
+          ? finalTuitionFee
+          : newestCurrentClassStudent?.paidTuitionFee + payAmount,
+      payTime: newestCurrentClassStudent?.payTime + 1,
+      payAmount: remainTuitionFee,
+      payDate: new Date().toISOString(),
+      expiryDatePayTuitionFee:
+        payAmountType === 'total'
+          ? ''
+          : newestCurrentClassStudent?.expiryDatePayTuitionFee,
+    };
+    console.log(payload);
+
+    dispatch(
+      createClassStudent(payload, {
+        onSuccess: () => showNotification('success', 'Nộp học phí thành công.'),
+        onError: () => showNotification('error', 'Nộp học phí thất bại!'),
+      })
+    );
+    setIsShowModalTotal(false);
+  };
+
   return (
     <>
       <h3>Tìm kiếm học viên:</h3>
       <Row>
-        <Col span={6}>
+        <Col span={6} style={{ display: 'flex' }}>
+          <h4 style={{ lineHeight: '200%', marginRight: '10px' }}>Khoá học:</h4>
           <Select
             allowClear
             onClear={clearCourse}
@@ -216,7 +317,7 @@ const TuitionFeePage = ({ id }) => {
             placeholder="Khoá học"
             onChange={handleChangeCourse}
             onSearch={(e) => handleSearch(e, listCourses)}
-            style={{ width: '100%' }}
+            style={{ width: '75%' }}
             value={selectedCourse?._id || undefined}
             filterOption={false}
           >
@@ -227,7 +328,8 @@ const TuitionFeePage = ({ id }) => {
             ))}
           </Select>
         </Col>
-        <Col span={6}>
+        <Col span={6} style={{ display: 'flex' }}>
+          <h4 style={{ lineHeight: '200%', marginRight: '10px' }}>Lớp học:</h4>
           <Select
             allowClear
             onClear={clearClass}
@@ -235,7 +337,7 @@ const TuitionFeePage = ({ id }) => {
             placeholder="Lớp học"
             onChange={handleChangeClass}
             onSearch={(e) => handleSearch(e, listClasses)}
-            style={{ width: '100%' }}
+            style={{ width: '75%' }}
             value={selectedClass?._id || undefined}
             filterOption={false}
           >
@@ -246,7 +348,8 @@ const TuitionFeePage = ({ id }) => {
             ))}
           </Select>
         </Col>
-        <Col span={6}>
+        <Col span={6} style={{ display: 'flex' }}>
+          <h4 style={{ lineHeight: '200%', marginRight: '10px' }}>Học viên:</h4>
           <Select
             allowClear
             onClear={clearStudent}
@@ -254,7 +357,7 @@ const TuitionFeePage = ({ id }) => {
             placeholder="Học viên"
             onChange={handleChangeStudent}
             onSearch={(e) => handleSearch(e, listStudents)}
-            style={{ width: '100%' }}
+            style={{ width: '75%' }}
             value={selectedStudent?._id || undefined}
             filterOption={false}
           >
@@ -267,97 +370,201 @@ const TuitionFeePage = ({ id }) => {
         </Col>
       </Row>
       <Divider />
-      <Row>
-        <Col span={24} style={{ display: 'flex', justifyContent: 'space-around' }}>
-          <h3>
-            Khoá học:{' '}
-            <Link to={`/courses/${currentCourse?.courseId}`}>
-              {currentCourse?.name || '---'}
-            </Link>
-          </h3>
-          <h3>
-            Lớp đang học:{' '}
-            <Link to={`/classes/${currentClass?.classId}`}>
-              {currentClass?.name || '---'}
-            </Link>
-          </h3>
-          <h3>
-            Sĩ số:{' '}
-            {currentClass?.numberOfStudents
-              ? `${currentClass?.numberOfStudents} học viên`
-              : '--- học viên'}
-          </h3>
-          <h3>
-            Học phí:{' '}
-            {currentCourse?.tuitionFee ? (
-              <>
-                {finalTuitionFee !== -1 ? numberToVnd(finalTuitionFee) : '---'}
-                {(currentClass?.discount || currentExempt?.percent) && (
-                  <h5 style={{ display: 'inline' }}>
-                    {' '}
-                    (-
-                    {currentClass?.discount && currentExempt?.percent
-                      ? `${currentClass?.discount + currentExempt?.percent}`
-                      : currentClass?.discount
-                      ? `${currentClass?.discount}`
-                      : currentExempt?.percent
-                      ? `${currentExempt?.percent}`
-                      : ''}
-                    %)
-                  </h5>
+      <Card hoverable={false}>
+        {newestCurrentClassStudent._id ? (
+          <>
+            <Row>
+              <Col
+                span={24}
+                style={{ display: 'flex', justifyContent: 'space-around' }}
+              >
+                <h3>
+                  Khoá học:{' '}
+                  <Link to={`/courses/${currentCourse?.courseId}`}>
+                    {currentCourse?.name || '---'}
+                  </Link>
+                </h3>
+                <h3>
+                  Lớp đang học:{' '}
+                  <Link to={`/classes/${currentClass?.classId}`}>
+                    {currentClass?.name || '---'}
+                  </Link>
+                </h3>
+                <h3>
+                  Sĩ số:{' '}
+                  {currentClass?.numberOfStudents
+                    ? `${currentClass?.numberOfStudents} học viên`
+                    : '--- học viên'}
+                </h3>
+                <h3>
+                  Học phí:{' '}
+                  {currentCourse?.tuitionFee ? (
+                    <>
+                      {finalTuitionFee !== -1 ? numberToVnd(finalTuitionFee) : '---'}
+                      {(currentClass?.discount || currentExempt?.percent) && (
+                        <h5 style={{ display: 'inline' }}>
+                          {' '}
+                          (-
+                          {currentClass?.discount && currentExempt?.percent
+                            ? `${currentClass?.discount + currentExempt?.percent}`
+                            : currentClass?.discount
+                            ? `${currentClass?.discount}`
+                            : currentExempt?.percent
+                            ? `${currentExempt?.percent}`
+                            : ''}
+                          %)
+                        </h5>
+                      )}
+                    </>
+                  ) : (
+                    '--- VND'
+                  )}
+                </h3>
+                <h3>
+                  Tình trạng:{' '}
+                  <h3
+                    style={{
+                      display: 'inline',
+                      color:
+                        remainTuitionFee === finalTuitionFee
+                          ? 'red'
+                          : remainTuitionFee
+                          ? 'orange'
+                          : 'green',
+                    }}
+                  >
+                    {remainTuitionFee === finalTuitionFee
+                      ? 'Chưa nộp'
+                      : remainTuitionFee
+                      ? 'Đang nộp'
+                      : 'Đã nộp đủ'}
+                  </h3>
+                  {remainTuitionFee ? (
+                    <Button icon={<EditOutlined />} style={{ border: 'none' }} />
+                  ) : null}
+                </h3>
+              </Col>
+              <Col
+                span={12}
+                style={{ display: 'flex', justifyContent: 'space-around' }}
+              >
+                <h3>
+                  Học phí đã nộp:{' '}
+                  {numberToVnd(newestCurrentClassStudent?.paidTuitionFee || 0)}
+                </h3>
+                <h3>
+                  Học phí còn lại:{' '}
+                  {remainTuitionFee !== -1 ? numberToVnd(remainTuitionFee) : '--- VND'}
+                </h3>
+                <h3>
+                  Ngày nộp gần nhất:{' '}
+                  {newestCurrentClassStudent?.payDate
+                    ? moment(newestCurrentClassStudent?.payDate).format(
+                        'DD/MM/YYYY HH:mm'
+                      )
+                    : 'Chưa nộp lần nào'}
+                </h3>
+                <h3>
+                  Hạn nộp phần còn lại:{' '}
+                  {newestCurrentClassStudent?.expiryDatePayTuitionFee
+                    ? moment(
+                        newestCurrentClassStudent?.expiryDatePayTuitionFee
+                      ).format('DD/MM/YYYY HH:mm')
+                    : '---'}
+                </h3>
+              </Col>
+              <Col span={12}>
+                <Row style={{ display: 'flex' }}>
+                  <h3>Nộp học phí:</h3>
+                  {remainTuitionFee ? (
+                    <Select
+                      placeholder="Chọn hình thức nộp"
+                      style={{ width: '250px', margin: '0 10px' }}
+                      value={payAmountType || undefined}
+                      onChange={(e) => setPayAmountType(e)}
+                    >
+                      <Select.Option value="partial">Nộp một phần</Select.Option>
+                      <Select.Option value="total">Nộp toàn bộ</Select.Option>
+                    </Select>
+                  ) : (
+                    <h3 style={{ marginLeft: '5px' }}>
+                      Học viên đã hoàn tất đóng học phí.
+                    </h3>
+                  )}
+                  {payAmountType === 'total' && (
+                    <Button onClick={() => setIsShowModalTotal(true)} type="primary">
+                      Nộp
+                    </Button>
+                  )}
+                </Row>
+                {payAmountType === 'partial' && (
+                  <>
+                    <Divider />
+                    <Form
+                      form={form}
+                      name="payAmountForm"
+                      onFinish={(value) => console.log(value)}
+                      scrollToFirstError
+                    >
+                      <Row>
+                        <Col span={12}>
+                          <Form.Item
+                            style={{ display: 'flex-start' }}
+                            name="payAmount"
+                            label="Số tiền"
+                            tooltip="Số tiền nộp..?"
+                            rules={[
+                              {
+                                required: true,
+                                message: 'Nhập số tiền!',
+                              },
+                            ]}
+                            onChange={(e) => console.log(typeof e.target.value)}
+                          >
+                            <InputNumber style={{ width: '80%' }} value={payAmount} />{' '}
+                            VND
+                          </Form.Item>
+                        </Col>
+                        <Col span={12}>
+                          <Form.Item
+                            style={{ display: 'flex', justifyContent: 'space-around' }}
+                          >
+                            <Button type="primary" htmlType="submit">
+                              Ok
+                            </Button>
+                            <Button
+                              type="ghost"
+                              style={{ marginLeft: '10px' }}
+                              onClick={() => console.log('/students')}
+                            >
+                              Huỷ Bỏ
+                            </Button>
+                          </Form.Item>
+                        </Col>
+                      </Row>
+                    </Form>
+                  </>
                 )}
-              </>
-            ) : (
-              '--- VND'
-            )}
-          </h3>
-          <h3>
-            Tình trạng:{' '}
-            <h3
-              style={{
-                display: 'inline',
-                color:
-                  remainTuitionFee === finalTuitionFee
-                    ? 'red'
-                    : remainTuitionFee
-                    ? 'orange'
-                    : 'green',
-              }}
-            >
-              {remainTuitionFee === finalTuitionFee
-                ? 'Chưa nộp'
-                : remainTuitionFee
-                ? 'Đang nộp'
-                : 'Đã nộp đủ'}
-            </h3>
-            {remainTuitionFee && (
-              <Button icon={<EditOutlined />} style={{ border: 'none' }} />
-            )}
-          </h3>
-        </Col>
-        <Col span={24} style={{ display: 'flex', justifyContent: 'space-around' }}>
-          <h3>
-            Học phí đã nộp:{' '}
-            {numberToVnd(newestCurrentClassStudent?.paidTuitionFee || 0)}
-          </h3>
-          <h3>
-            Học phí còn lại:{' '}
-            {remainTuitionFee !== -1 ? numberToVnd(remainTuitionFee) : '--- VND'}
-          </h3>
-          <h3>
-            Ngày nộp gần nhất:{' '}
-            {newestCurrentClassStudent?.payDate
-              ? moment(newestCurrentClassStudent?.payDate).format('DD/MM/YYYY HH:mm')
-              : 'Chưa nộp lần nào'}
-          </h3>
-          <h3>
-            Hạn nộp phần còn lại:{' '}
-            {moment(newestCurrentClassStudent?.expiryDatePayTuitionFee).format(
-              'DD/MM/YYYY HH:mm'
-            )}
-          </h3>
-        </Col>
-      </Row>
+              </Col>
+            </Row>
+          </>
+        ) : (
+          <Row>
+            <Col span={24} style={{ display: 'flex', justifyContent: 'space-around' }}>
+              <h3>Không có thông tin!</h3>
+            </Col>
+          </Row>
+        )}
+      </Card>
+      <Modal
+        title="Nộp toàn bộ học phí"
+        cancelText="Huỷ"
+        open={isShowModalTotal}
+        onOk={pay}
+        onCancel={() => setIsShowModalTotal(false)}
+      >
+        Xác nhận nộp toàn bộ học phí còn lại của lớp học này?
+      </Modal>
     </>
   );
 };
