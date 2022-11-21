@@ -25,6 +25,7 @@ import 'antd/dist/antd.css';
 import Courses from './Course';
 import Classes from './Class';
 import HomePage from './Home';
+import SalaryFactor from './SalaryFactor';
 import Schedules from './Schedule';
 import Students from './Students';
 import Teachers from './Teachers';
@@ -55,14 +56,11 @@ function Home() {
           <Menu.Item key="" icon={<HomeOutlined />}>
             <Link to="/">Trang Chủ</Link>
           </Menu.Item>
-          <SubMenu key="salary" icon={<DollarOutlined />} title="Lương">
-            <Menu.Item key="salary-chart" icon={<BookOutlined />}>
-              <Link to="/salary-chart">Bảng Bậc Lương</Link>
-            </Menu.Item>
-            {/* <Menu.Item key="teachers-salary-chart" icon={<BookOutlined />}>
-              <Link to="/teachers-salary-chart">Bảng Lương Tháng Giáo Viên</Link>
+          {/* <SubMenu key="salary" icon={<DollarOutlined />} title="Lương"> */}
+          {/* <Menu.Item key="teachers-salary-factors" icon={<BookOutlined />}>
+              <Link to="/teachers-salary-factors">Bảng Lương Tháng Giáo Viên</Link>
             </Menu.Item> */}
-          </SubMenu>
+          {/* </SubMenu> */}
           <Menu.Item key="teachers" icon={<TeamOutlined />}>
             <Link to="/teachers">Giảng Viên</Link>
           </Menu.Item>
@@ -80,6 +78,9 @@ function Home() {
           </Menu.Item>
           <Menu.Item key="discounts" icon={<DollarCircleOutlined />}>
             <Link to="/discounts">Khuyến Mãi</Link>
+          </Menu.Item>
+          <Menu.Item key="salary-factors" icon={<BookOutlined />}>
+            <Link to="/salary-factors">Bảng Bậc Lương</Link>
           </Menu.Item>
           <Menu.Item key="pay-salaries" icon={<MoneyCollectOutlined />}>
             <Link to="/pay-salaries">Chi Lương</Link>
@@ -108,6 +109,7 @@ function Home() {
           <Students />
           <Courses />
           <Classes />
+          <SalaryFactor />
           <Schedules />
           <TuitionFees />
           <TeachersSalaryChart />
