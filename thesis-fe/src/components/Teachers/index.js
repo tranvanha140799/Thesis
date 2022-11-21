@@ -1,17 +1,18 @@
-import React, { useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import React, { useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
 
-import { Table, Space, Button } from 'antd';
+import { Table, Space, Button, Row, Col } from "antd";
 // import ColumnGroup from 'antd/lib/table/ColumnGroup';
-import Column from 'antd/lib/table/Column';
+import Column from "antd/lib/table/Column";
 
-import 'antd/dist/antd.css';
-import './index.css';
-import { Link, useNavigate } from 'react-router-dom';
-import { teacherActions } from '../../redux/teacherSlice';
-import Addbtn from '../Common/AddBtn';
+import "antd/dist/antd.css";
+import "./index.css";
+import { Link, useNavigate } from "react-router-dom";
+import { teacherActions } from "../../redux/teacherSlice";
+import Addbtn from "../Common/AddBtn";
+import SearchBox from "../Common/SearchBox";
 
-const { deleteTeacher, getTeachers } = teacherActions;
+const { deleteTeacher, getTeachers, searchTeacher } = teacherActions;
 
 const TeacherPage = () => {
   const dispatch = useDispatch();
@@ -53,12 +54,23 @@ const TeacherPage = () => {
   }, []);
 
   const gotoAdd = () => {
-    navigate('./add');
+    navigate("./add");
   };
 
   return (
     <>
-      <Addbtn add={gotoAdd} />
+      <Row>
+        <Col span={12}>
+          <SearchBox
+            style={{ width: "50%" }}
+            placeholder="Tên hoặc mã giáo viên..."
+            onChange={(str) => dispatch(searchTeacher(str))}
+          />
+        </Col>
+        <Col span={12}>
+          <Addbtn add={gotoAdd} />
+        </Col>
+      </Row>
       <Table dataSource={teachers} rowKey="teacherId">
         <Column
           title="Mã Giáo Viên"
@@ -73,7 +85,9 @@ const TeacherPage = () => {
           key="fullname"
           render={(text, record) => (
             <Space size="middle">
-              <Link to={`/teachers/${record.teacherId}`}>{record.fullname}</Link>
+              <Link to={`/teachers/${record.teacherId}`}>
+                {record.fullname}
+              </Link>
             </Space>
           )}
         />
@@ -82,9 +96,9 @@ const TeacherPage = () => {
           dataIndex="gender"
           key="gender"
           render={(gender) => {
-            if (gender === 'male') return 'Nam';
-            else if (gender === 'female') return 'Nữ';
-            else return 'Khác';
+            if (gender === "male") return "Nam";
+            else if (gender === "female") return "Nữ";
+            else return "Khác";
           }}
         />
         <Column
@@ -93,15 +107,19 @@ const TeacherPage = () => {
           key="birthday"
           render={(birthday) => {
             const date = new Date(birthday);
-            let string = '';
-            string += date.getDate().toString() + '/';
-            string += (date.getMonth() + 1).toString() + '/';
+            let string = "";
+            string += date.getDate().toString() + "/";
+            string += (date.getMonth() + 1).toString() + "/";
             string += date.getFullYear().toString();
             return string;
           }}
         />
         <Column title="Địa Chỉ" dataIndex="address" key="address" />
-        <Column title="Số Điện Thoại" dataIndex="phoneNumber" key="phoneNumber" />
+        <Column
+          title="Số Điện Thoại"
+          dataIndex="phoneNumber"
+          key="phoneNumber"
+        />
         <Column title="Học Vị" dataIndex="degree" key="degree" />
         <Column title="Chức Vụ" dataIndex="position" key="position" />
         <Column
@@ -111,24 +129,24 @@ const TeacherPage = () => {
           sorter={(a, b) => Number(a.subjectId) - Number(b.subjectId)}
           render={(text) => {
             switch (text) {
-              case '001':
-                return 'Toán';
-              case '002':
-                return 'Vật Lý';
-              case '003':
-                return 'Hoá Học';
-              case '004':
-                return 'Sinh Học';
-              case '005':
-                return 'Ngữ Văn';
-              case '006':
-                return 'Lịch Sử';
-              case '007':
-                return 'Địa Lý';
-              case '008':
-                return 'Tiếng Anh';
+              case "001":
+                return "Toán";
+              case "002":
+                return "Vật Lý";
+              case "003":
+                return "Hoá Học";
+              case "004":
+                return "Sinh Học";
+              case "005":
+                return "Ngữ Văn";
+              case "006":
+                return "Lịch Sử";
+              case "007":
+                return "Địa Lý";
+              case "008":
+                return "Tiếng Anh";
               default:
-                return '';
+                return "";
             }
           }}
         />
@@ -138,30 +156,30 @@ const TeacherPage = () => {
           key="status"
           filters={[
             {
-              text: 'Đang công tác',
-              value: '1',
+              text: "Đang công tác",
+              value: "1",
             },
             {
-              text: 'Tạm nghỉ',
-              value: '2',
+              text: "Tạm nghỉ",
+              value: "2",
             },
             {
-              text: 'Đã nghỉ việc',
-              value: '3',
+              text: "Đã nghỉ việc",
+              value: "3",
             },
           ]}
           onFilter={(value, record) => record.status === value}
           filterSearch={true}
           render={(text) => {
             switch (text) {
-              case '1':
-                return 'Đang công tác';
-              case '2':
-                return 'Tạm nghỉ';
-              case '3':
-                return 'Đã nghỉ việc';
+              case "1":
+                return "Đang công tác";
+              case "2":
+                return "Tạm nghỉ";
+              case "3":
+                return "Đã nghỉ việc";
               default:
-                return '';
+                return "";
             }
           }}
         />
@@ -173,10 +191,10 @@ const TeacherPage = () => {
           render={(salary) => {
             const str = salary?.toString();
             return str
-              ?.split('')
+              ?.split("")
               ?.reverse()
               ?.reduce((prev, next, index) => {
-                return (index % 3 ? next : next + '.') + prev;
+                return (index % 3 ? next : next + ".") + prev;
               });
           }}
         />
@@ -185,7 +203,9 @@ const TeacherPage = () => {
           key="action"
           render={(text, record) => (
             <Space size="middle">
-              <Button onClick={() => dispatch(deleteTeacher(record._id))}>Xoá</Button>
+              <Button onClick={() => dispatch(deleteTeacher(record._id))}>
+                Xoá
+              </Button>
               {/* <Button shape="round " onClick={() => dispatch(deleteTeacher(record._id))}>
                 Sửa
               </Button> */}

@@ -1,5 +1,6 @@
-import { createSlice } from '@reduxjs/toolkit';
-import * as api from '../api';
+import { createSlice } from "@reduxjs/toolkit";
+import * as api from "../api";
+import { changeStringToNormalizeString } from "../components/Common/utilities";
 
 export const teacherActions = {
   getTeachers: () => async (dispatch) => {
@@ -10,6 +11,12 @@ export const teacherActions = {
     } catch (error) {
       console.log(error);
     }
+  },
+
+  searchTeacher: (str) => (dispatch) => {
+    if (!str) dispatch(teacherActions.getTeachers());
+
+    dispatch(actions.searchTeacher({ str: str || "", dispatch }));
   },
 
   // getTeachersBySearch: (searchQuery) => async (dispatch) => {
@@ -66,7 +73,7 @@ const initialState = {
 };
 
 const teacherSlice = createSlice({
-  name: 'teacherReducer',
+  name: "teacherReducer",
   initialState,
   reducers: {
     fetchTeachers: (state, action) => {
@@ -86,6 +93,21 @@ const teacherSlice = createSlice({
         (teacher) => teacher._id !== action.payload.id
       );
       --state.totalTeachers;
+    },
+    searchTeacher: (state, action) => {
+      if (action.payload.str) {
+        const str = changeStringToNormalizeString(
+          action.payload.str
+        ).toLowerCase();
+        state.teachers = state.teachers.filter(
+          (teacher) =>
+            teacher.teacherId.includes(str) ||
+            changeStringToNormalizeString(teacher.fullname)
+              .toLowerCase()
+              .includes(str)
+        );
+      }
+      state.totalTeachers = state.teachers.length;
     },
   },
 });
