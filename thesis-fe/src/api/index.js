@@ -90,9 +90,10 @@ export const updateExpenseOfMonthSheet = (id, updatedExpenseOfMonthSheet) =>
 export const deleteExpenseOfMonthSheet = (id) =>
   API.delete(`/expense-of-month-sheets/${id}`);
 
-  //SALARYfACTOR
-export const getSalaryFactor = () => API.get('/salary-factors');
-export const createSalaryFactor = (clasS) => API.post('/salary-factors', clasS);
-export const updateSalaryFactor = (id, updateClass) =>
-  API.patch(`/classes/${id}`, updateClass);
+// SALARY FACTORS
+export const getSalaryFactors = () => API.get('/salary-factors');
+export const createSalaryFactor = (salaryFactor) =>
+  API.post('/salary-factors', salaryFactor);
+export const updateSalaryFactor = (id, updateSalaryFactor) =>
+  API.patch(`/salary-factors/${id}`, updateSalaryFactor);
 export const deleteSalaryFactor = (id) => API.delete(`/salary-factors/${id}`);
