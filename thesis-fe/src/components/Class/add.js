@@ -1,15 +1,15 @@
-import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 
-import "antd/dist/antd.css";
+import 'antd/dist/antd.css';
 
-import { Form, Input, Select, Button, DatePicker, Col } from "antd";
-import { useNavigate } from "react-router-dom";
-import { classActions } from "../../redux/classSlice";
-import FormItem from "antd/es/form/FormItem";
-import moment from "moment";
+import { Form, Input, Select, Button, DatePicker, Col } from 'antd';
+import { useNavigate } from 'react-router-dom';
+import { classActions } from '../../redux/classSlice';
+import FormItem from 'antd/es/form/FormItem';
+import moment from 'moment';
 // import { getCourses } from "../../api";
-import { courseActions } from "../../redux/courseSlice";
+import { courseActions } from '../../redux/courseSlice';
 
 const { createClass, getClasses, updateClass } = classActions;
 const { getCourses } = courseActions;
@@ -56,18 +56,18 @@ const AddClass = ({ id }) => {
   const clasS = useSelector((state) =>
     id ? state.classReducer.classes.find((p) => p.classId === id) : null
   );
-  const [_id, set_Id] = useState("");
-  const [classId, setClassId] = useState("");
-  const [classname, setClassname] = useState("");
-  const [studentQuantity, setStudentQuantity] = useState("");
-  const [status, setStatus] = useState("");
+  const [_id, set_Id] = useState('');
+  const [classId, setClassId] = useState('');
+  const [classname, setClassname] = useState('');
+  const [studentQuantity, setStudentQuantity] = useState('');
+  const [status, setStatus] = useState('');
   // const [formTeacherId, setFormTeacherId] = useState("");
-  const [minStu, setMinStu] = useState("");
-  const [maxStu, setMaxStu] = useState("");
-  const [discount, setDiscount] = useState("");
-  const [dateStart, setDateStart] = useState("");
-  const [dateEnd, setDateEnd] = useState("");
-  const [courseId, setCourseId] = useState("");
+  const [minStu, setMinStu] = useState('');
+  const [maxStu, setMaxStu] = useState('');
+  const [discount, setDiscount] = useState('');
+  const [dateStart, setDateStart] = useState('');
+  const [dateEnd, setDateEnd] = useState('');
+  const [courseId, setCourseId] = useState('');
 
   useEffect(() => {
     if (totalClasses === 0) dispatch(getClasses());
@@ -107,10 +107,10 @@ const AddClass = ({ id }) => {
       dateEnd,
       courseId,
     };
-    if (typeof id === "string") await dispatch(updateClass(_id, clasS));
+    if (typeof id === 'string') await dispatch(updateClass(_id, clasS));
     else await dispatch(createClass(clasS));
 
-    navigate("/classes");
+    navigate('/classes');
   };
   const onChange1 = (date, dateString) => {
     console.log(date, dateString);
@@ -123,16 +123,16 @@ const AddClass = ({ id }) => {
       name="register"
       onFinish={onFinish}
       fields={[
-        { name: ["classId"], value: classId },
-        { name: ["classname"], value: classname },
-        { name: ["studentQuantity"], value: studentQuantity },
-        { name: ["status"], value: status },
-        { name: ["dateStart"], value: dateStart },
-        { name: ["dateEnd"], value: dateEnd },
-        { name: ["minStudents"], value: minStu },
-        { name: ["maxStudents"], value: maxStu },
-        { name: ["discount"], value: discount },
-        { name: ["courseId"], value: courseId },
+        { name: ['classId'], value: classId },
+        { name: ['classname'], value: classname },
+        { name: ['studentQuantity'], value: studentQuantity },
+        { name: ['status'], value: status },
+        { name: ['dateStart'], value: dateStart },
+        { name: ['dateEnd'], value: dateEnd },
+        { name: ['minStudents'], value: minStu },
+        { name: ['maxStudents'], value: maxStu },
+        { name: ['discount'], value: discount },
+        { name: ['courseId'], value: courseId },
       ]}
       scrollToFirstError
     >
@@ -144,7 +144,7 @@ const AddClass = ({ id }) => {
         rules={[
           {
             required: true,
-            message: "Hãy nhập mã lớp học!",
+            message: 'Hãy nhập mã lớp học!',
             whitespace: false,
           },
         ]}
@@ -160,7 +160,7 @@ const AddClass = ({ id }) => {
         rules={[
           {
             required: true,
-            message: "Hãy nhập tên lớp học!",
+            message: 'Hãy nhập tên lớp học!',
             whitespace: true,
           },
         ]}
@@ -218,18 +218,18 @@ const AddClass = ({ id }) => {
           // disabledDate={(current) =>
           //   current && current < moment().startOf("day")
           // }
-          style={{ width: "100%" }}
+          style={{ width: '100%' }}
           showTime={{
-            format: "HH:mm",
+            format: 'HH:mm',
             minuteStep: 15,
-            defaultValue: moment("21:00", "HH:mm"),
-            placeholder: "Chọn giờ",
+            defaultValue: moment('21:00', 'HH:mm'),
+            placeholder: 'Chọn giờ',
           }}
           format="DD-MM-YYYY HH:mm"
           placeholder="Chọn thời gian ..."
           onChange={(date, dateString) => {
             // setDateStart(dateString);
-            console.log(dateString);
+            console.log(new Date(dateString).toISOString());
           }}
         />
       </FormItem>
@@ -239,15 +239,13 @@ const AddClass = ({ id }) => {
         onChange={(e) => setDateEnd(e.target.value)}
       >
         <DatePicker
-          disabledDate={(current) =>
-            current && current < moment().startOf("day")
-          }
-          style={{ width: "100%" }}
+          disabledDate={(current) => current && current < moment().startOf('day')}
+          style={{ width: '100%' }}
           showTime={{
-            format: "HH:mm",
+            format: 'HH:mm',
             minuteStep: 15,
-            defaultValue: moment("21:00", "HH:mm"),
-            placeholder: "Chọn giờ",
+            defaultValue: moment('21:00', 'HH:mm'),
+            placeholder: 'Chọn giờ',
           }}
           format="DD-MM-YYYY HH:mm"
           placeholder="Chọn thời gian ..."
@@ -264,7 +262,7 @@ const AddClass = ({ id }) => {
           rules={[
             {
               required: false,
-              message: "",
+              message: '',
             },
           ]}
         >
@@ -276,12 +274,12 @@ const AddClass = ({ id }) => {
 
       <Form.Item {...tailFormItemLayout}>
         <Button type="primary" htmlType="submit">
-          {id ? "Sửa Thông Tin" : "Thêm lớp học"}
+          {id ? 'Sửa Thông Tin' : 'Thêm lớp học'}
         </Button>
         <Button
           type="ghost"
-          style={{ marginLeft: "10px" }}
-          onClick={() => navigate("/classes")}
+          style={{ marginLeft: '10px' }}
+          onClick={() => navigate('/classes')}
         >
           Huỷ Bỏ
         </Button>

@@ -25,7 +25,11 @@ import { courseActions } from '../../redux/courseSlice';
 import { classActions } from '../../redux/classSlice';
 import { classStudentActions } from '../../redux/classStudentSlice';
 import { studentActions } from '../../redux/studentSlice';
-import { EditOutlined } from '@ant-design/icons';
+import {
+  CheckCircleOutlined,
+  ClockCircleOutlined,
+  ExclamationCircleOutlined,
+} from '@ant-design/icons';
 import { exemptActions } from '../../redux/exemptSlice';
 
 const { getCourses } = courseActions;
@@ -87,15 +91,12 @@ const TuitionFeePage = () => {
   const [listStudents, setListCurrentStudents] = useState([]); //
   const [selectedCourse, setSelectedCourse] = useState({}); //
   const [selectedClass, setSelectedClass] = useState({}); // Giá trị đang chọn của khung tìm kiếm
-  // const [dataTable, setDataTable] = useState([]); // Dữ liệu bảng
-  const [_id, set_Id] = useState('');
-  const [classId, setClassId] = useState('');
-  const [excemptId, setExcemptId] = useState('');
-  const [finalTuitionFee, setFinalTuitionFee] = useState(-1);
-  const [remainTuitionFee, setRemainTuitionFee] = useState(-1);
-  const [payAmount, setPayAmount] = useState(0);
-  const [payAmountType, setPayAmountType] = useState('');
+  const [finalTuitionFee, setFinalTuitionFee] = useState(-1); // Học phí
+  const [remainTuitionFee, setRemainTuitionFee] = useState(-1); // Học phí còn lại
+  const [payAmount, setPayAmount] = useState(0); // Tiền nộp lần này (nhập)
+  const [payAmountType, setPayAmountType] = useState(''); // Kiểu nộp hp (toàn bộ/một phần)
   const [isShowModalTotal, setIsShowModalTotal] = useState(false);
+  const [isShowModalPartial, setIsShowModalPartial] = useState(false);
 
   useEffect(() => {
     if (!courses.length) dispatch(getCourses());
@@ -116,15 +117,6 @@ const TuitionFeePage = () => {
   }, [students.length]);
 
   // --------------- Info.js -----------------
-  // Lấy thông tin học viên theo id
-  useEffect(() => {
-    if (currentStudent) {
-      set_Id(currentStudent._id);
-      setClassId(currentStudent.classId);
-      setExcemptId(currentStudent.excemptId);
-    }
-  }, [dispatch, currentStudent]);
-
   // Lấy thông tin đóng học phí của học viên hiện tại
   useEffect(() => {
     if (!allClassStudents.length) dispatch(getAllClassStudents());
@@ -140,40 +132,42 @@ const TuitionFeePage = () => {
   }, [exempts.length]);
 
   // Tính tiền học phí sau cùng
-  if (
-    finalTuitionFee === -1 &&
-    currentClass &&
-    newestCurrentClassStudent &&
-    currentStudent &&
-    currentCourse
-  ) {
-    if (currentClass?.discount && currentExempt?.percent)
-      setFinalTuitionFee(
-        currentCourse?.tuitionFee -
-          (currentCourse?.tuitionFee *
-            (currentClass?.discount + currentExempt?.percent)) /
-            100
-      );
-    else if (currentClass?.discount)
-      setFinalTuitionFee(
-        currentCourse?.tuitionFee -
-          (currentCourse?.tuitionFee * currentClass?.discount) / 100
-      );
-    else if (currentExempt?.percent)
-      setFinalTuitionFee(
-        currentCourse?.tuitionFee -
-          (currentCourse?.tuitionFee * currentExempt?.percent) / 100
-      );
-  }
+  useEffect(() => {
+    if (currentClass && currentStudent && Object.keys(newestCurrentClassStudent)) {
+      if (
+        currentClass._id === newestCurrentClassStudent.class_id ||
+        currentStudent._id === newestCurrentClassStudent.student_id
+      ) {
+        if (currentClass?.discount && currentExempt?.percent)
+          setFinalTuitionFee(
+            currentCourse?.tuitionFee -
+              (currentCourse?.tuitionFee *
+                (currentClass?.discount + currentExempt?.percent)) /
+                100
+          );
+        else if (currentClass?.discount)
+          setFinalTuitionFee(
+            currentCourse?.tuitionFee -
+              (currentCourse?.tuitionFee * currentClass?.discount) / 100
+          );
+        else if (currentExempt?.percent)
+          setFinalTuitionFee(
+            currentCourse?.tuitionFee -
+              (currentCourse?.tuitionFee * currentExempt?.percent) / 100
+          );
+        else setFinalTuitionFee(currentCourse?.tuitionFee);
+      }
+    }
+  }, [newestCurrentClassStudent, currentClass, currentStudent]);
 
-  // Tính tiền học phí còn lại
-  if (finalTuitionFee !== -1 && remainTuitionFee === -1)
-    setRemainTuitionFee(
-      finalTuitionFee <= newestCurrentClassStudent?.paidTuitionFee
-        ? 0
-        : finalTuitionFee - newestCurrentClassStudent?.paidTuitionFee
-    );
-  // -----------------------------------------
+  useEffect(() => {
+    if (finalTuitionFee !== -1 && remainTuitionFee === -1)
+      setRemainTuitionFee(
+        finalTuitionFee <= newestCurrentClassStudent?.paidTuitionFee
+          ? 0
+          : finalTuitionFee - newestCurrentClassStudent?.paidTuitionFee
+      );
+  }, [finalTuitionFee, remainTuitionFee]);
 
   // Thay đổi khoá học
   const handleChangeCourse = (value) => {
@@ -203,13 +197,19 @@ const TuitionFeePage = () => {
   const handleChangeClass = (value) => {
     const dataClass = classes.find((clasS) => clasS?._id === value);
     setSelectedClass(dataClass);
+    if (listClasses.length === classes.length)
+      setListCurrentClasses(
+        classes.filter((clasS) => clasS.courseId === dataClass.courseId)
+      );
 
     if (value) {
       const dataCourses = courses.find((course) => course._id === dataClass?.courseId);
       setSelectedCourse(dataCourses);
-    }
+      if (listCourses.length === courses.length)
+        setListCurrentCourses(
+          courses.filter((course) => course._id === dataCourses._id)
+        );
 
-    if (value) {
       const dataStudents = students.filter(
         (student) => student.classId === dataClass?._id
       );
@@ -219,8 +219,6 @@ const TuitionFeePage = () => {
   };
 
   const clearClass = () => {
-    setListCurrentClasses(classes);
-    setListCurrentStudents(students);
     setSelectedClass({});
     setSelectedStudent({});
   };
@@ -229,22 +227,34 @@ const TuitionFeePage = () => {
   const handleChangeStudent = (value) => {
     const dataStudent = students.find((student) => student?._id === value);
     setSelectedStudent(dataStudent);
+    if (listStudents.length === students.length)
+      setListCurrentStudents(
+        students.filter((student) => student.classId === dataStudent.classId)
+      );
 
     if (value) {
       const dataClasses = classes.find((clasS) => clasS._id === dataStudent?.classId);
       setSelectedClass(dataClasses);
+      if (listClasses.length === classes.length)
+        setListCurrentClasses(
+          classes.filter((clasS) => clasS.courseId === dataClasses.courseId)
+        );
 
       const dataCourses = courses.find(
         (course) => course._id === dataClasses?.courseId
       );
       setSelectedCourse(dataCourses);
+      if (listCourses.length === courses.length)
+        setListCurrentCourses(
+          courses.filter((course) => course._id === dataCourses._id)
+        );
+
+      setFinalTuitionFee(-1);
+      setRemainTuitionFee(-1);
     }
   };
 
-  const clearStudent = () => {
-    setSelectedStudent({});
-    setListCurrentStudents(students);
-  };
+  const clearStudent = () => setSelectedStudent({});
 
   // Xử lý nhập liệu trong các ô tìm kiếm
   const handleSearch = (searchStr, arr) => {
@@ -275,7 +285,7 @@ const TuitionFeePage = () => {
     }
   };
 
-  // Nộp toàn bộ học phí còn lại
+  // Nộp học phí
   const pay = () => {
     const payload = {
       class_id: newestCurrentClassStudent?.class_id,
@@ -286,22 +296,28 @@ const TuitionFeePage = () => {
           ? finalTuitionFee
           : newestCurrentClassStudent?.paidTuitionFee + payAmount,
       payTime: newestCurrentClassStudent?.payTime + 1,
-      payAmount: remainTuitionFee,
+      payAmount: payAmountType === 'total' ? remainTuitionFee : payAmount,
       payDate: new Date().toISOString(),
       expiryDatePayTuitionFee:
         payAmountType === 'total'
           ? ''
           : newestCurrentClassStudent?.expiryDatePayTuitionFee,
     };
-    console.log(payload);
 
     dispatch(
       createClassStudent(payload, {
-        onSuccess: () => showNotification('success', 'Nộp học phí thành công.'),
+        onSuccess: () => {
+          showNotification('success', 'Nộp học phí thành công.');
+          setRemainTuitionFee(remainTuitionFee - payAmount);
+        },
         onError: () => showNotification('error', 'Nộp học phí thất bại!'),
       })
     );
-    setIsShowModalTotal(false);
+
+    setRemainTuitionFee(-1);
+    payAmountType === 'total'
+      ? setIsShowModalTotal(false)
+      : setIsShowModalPartial(false);
   };
 
   return (
@@ -369,7 +385,9 @@ const TuitionFeePage = () => {
           </Select>
         </Col>
       </Row>
+
       <Divider />
+
       <Card hoverable={false}>
         {newestCurrentClassStudent._id ? (
           <>
@@ -421,7 +439,7 @@ const TuitionFeePage = () => {
                   )}
                 </h3>
                 <h3>
-                  Tình trạng:{' '}
+                  Trạng thái:{' '}
                   <h3
                     style={{
                       display: 'inline',
@@ -433,19 +451,27 @@ const TuitionFeePage = () => {
                           : 'green',
                     }}
                   >
-                    {remainTuitionFee === finalTuitionFee
-                      ? 'Chưa nộp'
-                      : remainTuitionFee
-                      ? 'Đang nộp'
-                      : 'Đã nộp đủ'}
+                    {remainTuitionFee === finalTuitionFee ? (
+                      <>
+                        Chưa nộp <ExclamationCircleOutlined />
+                      </>
+                    ) : remainTuitionFee ? (
+                      <>
+                        Đang nộp <ClockCircleOutlined />
+                      </>
+                    ) : (
+                      <>
+                        Đã nộp đủ <CheckCircleOutlined />
+                      </>
+                    )}
                   </h3>
-                  {remainTuitionFee ? (
+                  {/* {remainTuitionFee ? (
                     <Button icon={<EditOutlined />} style={{ border: 'none' }} />
-                  ) : null}
+                  ) : null} */}
                 </h3>
               </Col>
               <Col
-                span={12}
+                span={24}
                 style={{ display: 'flex', justifyContent: 'space-around' }}
               >
                 <h3>
@@ -473,85 +499,105 @@ const TuitionFeePage = () => {
                     : '---'}
                 </h3>
               </Col>
-              <Col span={12}>
-                <Row style={{ display: 'flex' }}>
-                  <h3>Nộp học phí:</h3>
-                  {remainTuitionFee ? (
-                    <Select
-                      placeholder="Chọn hình thức nộp"
-                      style={{ width: '250px', margin: '0 10px' }}
-                      value={payAmountType || undefined}
-                      onChange={(e) => setPayAmountType(e)}
-                    >
-                      <Select.Option value="partial">Nộp một phần</Select.Option>
-                      <Select.Option value="total">Nộp toàn bộ</Select.Option>
-                    </Select>
-                  ) : (
-                    <h3 style={{ marginLeft: '5px' }}>
-                      Học viên đã hoàn tất đóng học phí.
-                    </h3>
-                  )}
-                  {payAmountType === 'total' && (
-                    <Button onClick={() => setIsShowModalTotal(true)} type="primary">
-                      Nộp
-                    </Button>
+
+              <Divider />
+
+              <Col span={24}>
+                <Row>
+                  <Col span={12} style={{ display: 'flex' }}>
+                    <h3>Nộp học phí:</h3>
+                    {remainTuitionFee ? (
+                      <Select
+                        placeholder="Chọn hình thức nộp"
+                        style={{ width: '260px', margin: '0 10px' }}
+                        value={payAmountType || undefined}
+                        onChange={setPayAmountType}
+                      >
+                        <Select.Option value="partial">Nộp một phần</Select.Option>
+                        <Select.Option value="total">Nộp toàn bộ</Select.Option>
+                      </Select>
+                    ) : (
+                      <h3 style={{ marginLeft: '5px' }}>
+                        Học viên đã hoàn tất đóng học phí.
+                      </h3>
+                    )}
+                    {payAmountType === 'total' && (
+                      <Button onClick={() => setIsShowModalTotal(true)} type="primary">
+                        Nộp
+                      </Button>
+                    )}
+                  </Col>
+                  {payAmountType === 'partial' && (
+                    <Col span={12} style={{ display: 'flex' }}>
+                      <Form
+                        form={form}
+                        name="payAmountForm"
+                        onFinish={(value) => console.log(value)}
+                        scrollToFirstError
+                      >
+                        <Row>
+                          <Col span={16}>
+                            <Form.Item
+                              style={{ display: 'flex-start' }}
+                              name="payAmount"
+                              label="Số tiền"
+                              tooltip="Số tiền nộp..?"
+                              rules={[
+                                {
+                                  required: true,
+                                  message: 'Nhập số tiền!',
+                                },
+                              ]}
+                              onChange={(e) => setPayAmount(Number(e.target.value))}
+                            >
+                              <InputNumber
+                                style={{ width: '70%' }}
+                                value={payAmount}
+                              />{' '}
+                              VND
+                            </Form.Item>
+                          </Col>
+                          <Col span={8}>
+                            <Form.Item
+                              style={{
+                                display: 'flex',
+                                justifyContent: 'space-around',
+                              }}
+                            >
+                              <Button
+                                type="primary"
+                                onClick={() =>
+                                  !payAmount
+                                    ? showNotification(
+                                        'warning',
+                                        'Nhập số tiền học phí!'
+                                      )
+                                    : setIsShowModalPartial(true)
+                                }
+                              >
+                                Ok
+                              </Button>
+                              {/* <Button
+                                type="ghost"
+                                style={{ marginLeft: '10px' }}
+                                // onClick={() => console.log('/students')}
+                              >
+                                Huỷ Bỏ
+                              </Button> */}
+                            </Form.Item>
+                          </Col>
+                        </Row>
+                      </Form>
+                    </Col>
                   )}
                 </Row>
-                {payAmountType === 'partial' && (
-                  <>
-                    <Divider />
-                    <Form
-                      form={form}
-                      name="payAmountForm"
-                      onFinish={(value) => console.log(value)}
-                      scrollToFirstError
-                    >
-                      <Row>
-                        <Col span={12}>
-                          <Form.Item
-                            style={{ display: 'flex-start' }}
-                            name="payAmount"
-                            label="Số tiền"
-                            tooltip="Số tiền nộp..?"
-                            rules={[
-                              {
-                                required: true,
-                                message: 'Nhập số tiền!',
-                              },
-                            ]}
-                            onChange={(e) => console.log(typeof e.target.value)}
-                          >
-                            <InputNumber style={{ width: '80%' }} value={payAmount} />{' '}
-                            VND
-                          </Form.Item>
-                        </Col>
-                        <Col span={12}>
-                          <Form.Item
-                            style={{ display: 'flex', justifyContent: 'space-around' }}
-                          >
-                            <Button type="primary" htmlType="submit">
-                              Ok
-                            </Button>
-                            <Button
-                              type="ghost"
-                              style={{ marginLeft: '10px' }}
-                              onClick={() => console.log('/students')}
-                            >
-                              Huỷ Bỏ
-                            </Button>
-                          </Form.Item>
-                        </Col>
-                      </Row>
-                    </Form>
-                  </>
-                )}
               </Col>
             </Row>
           </>
         ) : (
           <Row>
             <Col span={24} style={{ display: 'flex', justifyContent: 'space-around' }}>
-              <h3>Không có thông tin!</h3>
+              <h3>Hãy chọn một học viên!</h3>
             </Col>
           </Row>
         )}
@@ -564,6 +610,15 @@ const TuitionFeePage = () => {
         onCancel={() => setIsShowModalTotal(false)}
       >
         Xác nhận nộp toàn bộ học phí còn lại của lớp học này?
+      </Modal>
+      <Modal
+        title="Nộp một phần học phí"
+        cancelText="Huỷ"
+        open={isShowModalPartial}
+        onOk={pay}
+        onCancel={() => setIsShowModalPartial(false)}
+      >
+        Xác nhận nộp học phí cho học viên {currentStudent?.fullname}?
       </Modal>
     </>
   );
