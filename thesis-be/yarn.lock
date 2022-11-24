@@ -1274,6 +1274,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"jspdf-autotable@npm:^3.5.25":
+  version: 3.5.25
+  resolution: "jspdf-autotable@npm:3.5.25"
+  peerDependencies:
+    jspdf: ^2.5.1
+  checksum: e866e5964ef699599790ca0fa0fe7a3e6cc69291027a2789dbbc703713897775cc59ed9aebd5f3612aa2ff6cb721d84d04b0b4d44b1a15ad3df7512c7e7b15f4
+  languageName: node
+  linkType: hard
+
 "jwa@npm:^1.4.1":
   version: 1.4.1
   resolution: "jwa@npm:1.4.1"
@@ -2296,6 +2305,7 @@ __metadata:
     dotenv: ^16.0.0
     express: ^4.17.3
     jsonwebtoken: ^8.5.1
+    jspdf-autotable: ^3.5.25
     mongoose: ^6.2.9
     nodemon: ^2.0.15
   languageName: unknown

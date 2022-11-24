@@ -2,6 +2,8 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import moment from 'moment';
 import { Link } from 'react-router-dom';
 import {
@@ -14,6 +16,7 @@ import {
   Modal,
   Row,
   Select,
+  Table,
 } from 'antd';
 
 import {
@@ -48,6 +51,7 @@ const TuitionFeePage = () => {
   const [form] = Form.useForm();
 
   const [selectedStudent, setSelectedStudent] = useState({});
+  const user = useSelector((state) => state.authReducer.authData.result);
   const allClassStudents = useSelector(
     (state) => state.classStudentReducer.allClassStudents
   ); //
@@ -97,6 +101,7 @@ const TuitionFeePage = () => {
   const [payAmountType, setPayAmountType] = useState(''); // Kiểu nộp hp (toàn bộ/một phần)
   const [isShowModalTotal, setIsShowModalTotal] = useState(false);
   const [isShowModalPartial, setIsShowModalPartial] = useState(false);
+  const [dataSource, setDataSource] = useState([]);
 
   useEffect(() => {
     if (!courses.length) dispatch(getCourses());
@@ -131,7 +136,7 @@ const TuitionFeePage = () => {
     if (!exempts.length) dispatch(getExempts());
   }, [exempts.length]);
 
-  // Tính tiền học phí sau cùng
+  // Tính tiền học phí sau cùng-------
   useEffect(() => {
     if (currentClass && currentStudent && Object.keys(newestCurrentClassStudent)) {
       if (
@@ -168,6 +173,19 @@ const TuitionFeePage = () => {
           : finalTuitionFee - newestCurrentClassStudent?.paidTuitionFee
       );
   }, [finalTuitionFee, remainTuitionFee]);
+  // ---------------------------------
+
+  // Nạp lại dataSource cho table
+  useEffect(() => {
+    if (!dataSource.length && currentClassStudents.length) {
+      let temp = [...currentClassStudents];
+      temp = temp
+        .filter((record) => record?.payTime !== 0)
+        .sort((a, b) => a?.payTime - b?.payTime);
+
+      setDataSource(temp);
+    }
+  }, [currentClassStudents]);
 
   // Thay đổi khoá học
   const handleChangeCourse = (value) => {
@@ -181,6 +199,7 @@ const TuitionFeePage = () => {
       setListCurrentClasses(dataClasses);
       setSelectedClass({});
       setSelectedStudent({});
+      setDataSource([]);
     }
   };
 
@@ -191,6 +210,7 @@ const TuitionFeePage = () => {
     setSelectedCourse({});
     setSelectedClass({});
     setSelectedStudent({});
+    setDataSource([]);
   };
 
   // Thay đổi lớp học
@@ -215,12 +235,14 @@ const TuitionFeePage = () => {
       );
       setListCurrentStudents(dataStudents);
       setSelectedStudent({});
+      setDataSource([]);
     }
   };
 
   const clearClass = () => {
     setSelectedClass({});
     setSelectedStudent({});
+    setDataSource([]);
   };
 
   // Thay đổi học viên
@@ -251,10 +273,14 @@ const TuitionFeePage = () => {
 
       setFinalTuitionFee(-1);
       setRemainTuitionFee(-1);
+      setDataSource([]);
     }
   };
 
-  const clearStudent = () => setSelectedStudent({});
+  const clearStudent = () => {
+    setSelectedStudent({});
+    setDataSource([]);
+  };
 
   // Xử lý nhập liệu trong các ô tìm kiếm
   const handleSearch = (searchStr, arr) => {
@@ -320,6 +346,90 @@ const TuitionFeePage = () => {
       : setIsShowModalPartial(false);
   };
 
+  // In ra file PDF-------
+  const renderItem = (doc, classStudents) => {
+    doc.setFontSize(14);
+    doc.text('TRUNG TÂM TIẾNG ANH........', 10, 10);
+    doc.text(`Ngày: ${moment().format('DD-MM-YYYY HH:mm').toString()}`, 18, 18);
+
+    doc.setFontSize(20);
+    doc.text('BÁO CÁO THU HỌC PHÍ', 105, 40, null, null, 'center');
+
+    doc.setFontSize(12);
+    doc.text(`Học viên: ${currentStudent?.fullname}`, 18, 70);
+    doc.text(`Lớp: ${currentClass?.name}`, 200, 70, null, null, 'right');
+    doc.text(`Số điện thoại: ${currentStudent?.phoneNumber}`, 18, 80);
+    doc.text(`Học phí: ${numberToVnd(finalTuitionFee)}`, 200, 80, null, null, 'right');
+    doc.text(`Địa chỉ: ${currentStudent?.address}`, 18, 90);
+
+    let arr = classStudents
+      .filter((record) => record.payTime !== 0)
+      .map((record) => [
+        record?.payTime.toString(),
+        numberToVnd(record?.payAmount).toString(),
+        moment(record?.payDate).format('DD/MM/YYYY HH:mm').toString(),
+      ]);
+
+    autoTable(doc, {
+      head: [['Lần Nộp', 'Số Tiền Nộp', 'Ngày Nộp']],
+      body: [...arr],
+      foot: [
+        [
+          '',
+          '',
+          `Tổng tiền đã nộp: ${numberToVnd(
+            newestCurrentClassStudent?.paidTuitionFee
+          )}`,
+        ],
+      ],
+      // styles
+      theme: 'grid',
+      margin: { top: 100, left: 18 },
+      columnStyles: {
+        0: { halign: 'center' },
+        1: { halign: 'right' },
+        2: { halign: 'center' },
+      },
+      headStyles: {
+        halign: 'center',
+        fontStyle: 'bold',
+        font: 'Arial',
+        lineWidth: 0.1,
+        lineColor: [236, 238, 239],
+      },
+      bodyStyles: {
+        font: 'Arial',
+      },
+      footStyles: { fontStyle: 'bold', font: 'Arial', halign: 'right' },
+    });
+
+    doc.text(`Người lập báo cáo`, 35, 250);
+    doc.text(`${user.name}`, 40, 280);
+  };
+
+  // Xuất file PDF
+  const exportToPDF = () => {
+    if (!currentClassStudents.length) {
+      showNotification('warning', 'Không có thông tin nộp học phí của học viên!');
+      return;
+    }
+
+    const doc = new jsPDF({
+      orientation: 'portrait',
+      // format: [chieudai1don(currentClassStudents), 31.5],
+    });
+
+    doc.addFont('/fonts/arial.ttf', 'Arial', 'normal');
+    doc.setDisplayMode('fullpage', 'continuous', 'FullScreen');
+    doc.getFontList();
+    doc.setFont('Arial', 'normal');
+    doc.setFontSize(18);
+
+    renderItem(doc, currentClassStudents);
+    doc.save(`${currentStudent?.fullname}_BAO_CAO_THU_HOC_PHI.pdf`);
+  };
+  // ---------------------
+
   return (
     <>
       <h3>Tìm kiếm học viên:</h3>
@@ -383,6 +493,16 @@ const TuitionFeePage = () => {
               </Select.Option>
             ))}
           </Select>
+        </Col>
+        <Col span={6} style={{ display: 'flex' }}>
+          <Button
+            type="primary"
+            shape="round"
+            onClick={exportToPDF}
+            disabled={!currentStudent || !newestCurrentClassStudent.payTime}
+          >
+            Tải file PDF
+          </Button>
         </Col>
       </Row>
 
@@ -577,19 +697,35 @@ const TuitionFeePage = () => {
                               >
                                 Ok
                               </Button>
-                              {/* <Button
-                                type="ghost"
-                                style={{ marginLeft: '10px' }}
-                                // onClick={() => console.log('/students')}
-                              >
-                                Huỷ Bỏ
-                              </Button> */}
                             </Form.Item>
                           </Col>
                         </Row>
                       </Form>
                     </Col>
                   )}
+                </Row>
+
+                <Divider />
+
+                <Row>
+                  <Table
+                    style={{ width: '100%' }}
+                    dataSource={dataSource}
+                    rowKey="_id"
+                    pagination={{ pageSize: 20 }}
+                  >
+                    <Table.Column title="Lần Nộp" dataIndex="payTime" />
+                    <Table.Column
+                      title="Số Tiền Nộp"
+                      dataIndex="payAmount"
+                      render={(text) => numberToVnd(text)}
+                    />
+                    <Table.Column
+                      title="Thời Gian"
+                      dataIndex="payDate"
+                      render={(text) => moment(text).format('DD/MM/YYYY HH:mm')}
+                    />
+                  </Table>
                 </Row>
               </Col>
             </Row>

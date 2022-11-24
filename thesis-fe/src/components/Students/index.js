@@ -45,6 +45,7 @@ const StudentPage = () => {
   const exempts = useSelector((state) => state.exemptReducer.exempts);
   const classes = useSelector((state) => state.classReducer.classes);
 
+  const [pageSize, setPageSize] = useState('10');
   const [isEditing, setIsEditing] = useState(false);
   const [openModal, setOpenModal] = useState(false);
   const [editingName, setEditingName] = useState('');
@@ -161,7 +162,18 @@ const StudentPage = () => {
                 <AddBtn add={() => navigate('./add')} />
               </Col>
             </Row>
-            <Table dataSource={data} rowKey="studentId">
+            <Table
+              dataSource={data}
+              rowKey="studentId"
+              pagination={{
+                pageSize,
+                showTotal: (total, range) =>
+                  `${range[0]}-${range[1]} của ${total} học viên`,
+                showSizeChanger: true,
+                pageSizeOptions: ['10', '20', '50'],
+              }}
+              onChange={(e) => setPageSize(e?.pageSize)}
+            >
               <Column title="Mã Học Viên" dataIndex="studentId" key="key" />
               <Column
                 title="Họ và Tên"
@@ -280,6 +292,9 @@ const StudentPage = () => {
                   isEditing && editingRecordId === record._id ? (
                     <>
                       <InputNumber
+                        min={0}
+                        max={100}
+                        step={0.5}
                         style={{ width: '200px' }}
                         defaultValue={Number(text)}
                         onChange={(e) => setEditingPercent(e)}
