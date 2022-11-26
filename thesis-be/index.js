@@ -6,6 +6,7 @@ import mongoose from 'mongoose';
 
 import classScheduleRoutes from './routes/classSchedule.js';
 import classStudentRoutes from './routes/classStudent.js';
+import classTeacherRoutes from './routes/classTeacher.js';
 import classRoutes from './routes/classes.js';
 import courseRoutes from './routes/courses.js';
 import discountRoutes from './routes/discounts.js';
@@ -31,6 +32,7 @@ app.use(cors());
 
 app.use('/class-schedule', classScheduleRoutes);
 app.use('/class-student', classStudentRoutes);
+app.use('/class-teacher', classTeacherRoutes);
 app.use('/classes', classRoutes);
 app.use('/courses', courseRoutes);
 app.use('/discounts', discountRoutes);

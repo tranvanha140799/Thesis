@@ -1,14 +1,14 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { Button, Col, Divider, InputNumber, Row, Select } from 'antd';
+import { Button, Col, Divider, InputNumber, Row, Select, Table } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link } from 'react-router-dom';
 import moment from 'moment';
-import { Calendar, momentLocalizer } from 'react-big-calendar';
+import { momentLocalizer } from 'react-big-calendar';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { numberToVnd, showNotification } from '../Common/utilities';
 
 import { classActions } from '../../redux/classSlice';
+import { classTeacherActions } from '../../redux/classTeacherSlice';
 import { courseActions } from '../../redux/courseSlice';
 import { paySalaryActions } from '../../redux/paySalarySlice';
 import { salaryFactorActions } from '../../redux/salaryFactorSlice';
@@ -22,6 +22,8 @@ import {
 
 const { getCourses } = courseActions;
 const { getClasses } = classActions;
+const { getAllClassTeachers, changeCurrentClassTeachers, resetCurrentClassTeacher } =
+  classTeacherActions;
 const { getAllPaySalaries, changeCurrentPaySalaries, resetCurrentPaySalary } =
   paySalaryActions;
 const { getSalaryFactors } = salaryFactorActions;
@@ -31,6 +33,12 @@ const localizer = momentLocalizer(moment);
 const Info = ({ id }) => {
   const dispatch = useDispatch();
 
+  const allClassTeachers = useSelector(
+    (state) => state.classTeacherReducer.allClassTeachers
+  );
+  const currentClassTeachers = useSelector(
+    (state) => state.classTeacherReducer.currentClassTeachers
+  );
   const totalCourses = useSelector((state) => state.courseReducer.totalCourses);
   const totalClasses = useSelector((state) => state.classReducer.totalClasses);
   const salaryFactors = useSelector(
@@ -44,26 +52,10 @@ const Info = ({ id }) => {
     (state) => state.paySalaryReducer.latestPaidSalary
   );
   const totalTeachers = useSelector((state) => state.teacherReducer.totalTeachers);
-  const currentStudent = useSelector((state) =>
-    id ? state.studentReducer.students.find((p) => p.studentId === id) : null
-  );
   const currentTeacher = useSelector((state) =>
     id ? state.teacherReducer.teachers.find((p) => p.teacherId === id) : null
   );
-  const currentClass = useSelector((state) =>
-    currentTeacher
-      ? state.classReducer.classes.find(
-          (clasS) => clasS._id === currentTeacher?.classId
-        )
-      : null
-  );
-  const currentCourse = useSelector((state) =>
-    currentClass
-      ? state.courseReducer.courses.find(
-          (course) => course._id === currentClass?.courseId
-        )
-      : null
-  );
+  const classes = useSelector((state) => state.classReducer.classes);
   const currentSalaryFactor = useSelector((state) =>
     currentTeacher
       ? state.salaryFactorReducer.salaryFactors.find(
@@ -71,13 +63,7 @@ const Info = ({ id }) => {
         )
       : null
   );
-  const currentExempt = useSelector((state) =>
-    currentStudent
-      ? state.exemptReducer.exempts.find((p) => p._id === currentStudent?.exemptId)
-      : null
-  );
-  const [finalTuitionFee, setFinalTuitionFee] = useState(-1);
-  const [remainTuitionFee, setRemainTuitionFee] = useState(-1);
+  const [dataSource, setDataSource] = useState([]);
   const [isEditContractSalary, setIsEditContractSalary] = useState(false);
   const [editingContractSalary, setEditingContractSalary] = useState(0);
   const [isEditSalaryFactorId, setIsEditSalaryFactorId] = useState(false);
@@ -101,6 +87,14 @@ const Info = ({ id }) => {
     if (!totalClasses) dispatch(getClasses());
   }, [totalClasses]);
 
+  useEffect(() => {
+    if (!allClassTeachers.length) dispatch(getAllClassTeachers());
+    if (currentTeacher && allClassTeachers.length)
+      dispatch(changeCurrentClassTeachers(currentTeacher._id));
+
+    return () => dispatch(resetCurrentClassTeacher());
+  }, [id, currentTeacher, allClassTeachers.length]);
+
   // Lấy thông tin khoá học mà giảng viên đang giảng dạy
   useEffect(() => {
     if (!totalCourses) dispatch(getCourses());
@@ -111,40 +105,17 @@ const Info = ({ id }) => {
     if (!salaryFactors.length) dispatch(getSalaryFactors());
   }, [salaryFactors.length]);
 
-  // Tính tiền học phí sau cùng
-  if (
-    finalTuitionFee === -1 &&
-    currentClass &&
-    latestPaySalaryTime &&
-    currentStudent &&
-    currentCourse
-  ) {
-    if (currentClass?.discount && currentExempt?.percent)
-      setFinalTuitionFee(
-        currentCourse?.tuitionFee -
-          (currentCourse?.tuitionFee *
-            (currentClass?.discount + currentExempt?.percent)) /
-            100
-      );
-    else if (currentClass?.discount)
-      setFinalTuitionFee(
-        currentCourse?.tuitionFee -
-          (currentCourse?.tuitionFee * currentClass?.discount) / 100
-      );
-    else if (currentExempt?.percent)
-      setFinalTuitionFee(
-        currentCourse?.tuitionFee -
-          (currentCourse?.tuitionFee * currentExempt?.percent) / 100
-      );
-  }
-
-  // Tính tiền học phí còn lại
-  if (finalTuitionFee !== -1 && remainTuitionFee === -1)
-    setRemainTuitionFee(
-      finalTuitionFee <= latestPaySalaryTime?.paidTuitionFee
-        ? 0
-        : finalTuitionFee - latestPaySalaryTime?.paidTuitionFee
-    );
+  // Nạp lại thông tin lớp dạy - giảng viên
+  useEffect(() => {
+    if (classes.length && !dataSource.length && currentClassTeachers.length) {
+      let temp = [];
+      currentClassTeachers.forEach((record) => {
+        const foundClass = classes.find((clasS) => clasS._id === record?.classId);
+        if (foundClass._id) temp.push(foundClass);
+      });
+      setDataSource(temp);
+    }
+  }, [currentClassTeachers]);
 
   // Chỉnh sửa lương hợp đồng của giảng viên
   const handleChangeContractSalary = () => {
@@ -206,52 +177,9 @@ const Info = ({ id }) => {
     setIsEditSalaryFactorId(false);
   };
 
-  return currentClass?._id ? (
+  console.log(dataSource);
+  return (
     <Row>
-      <Col span={24} style={{ display: 'flex', justifyContent: 'space-around' }}>
-        <h3>
-          Khoá:{' '}
-          <Link to={`/courses/${currentCourse?.courseId}`}>
-            {currentCourse?.name || '---'}
-          </Link>
-        </h3>
-        <h3>
-          Lớp đang dạy:{' '}
-          <Link to={`/classes/${currentClass?.classId}`}>
-            {currentClass?.name || '---'}
-          </Link>
-        </h3>
-        <h3>
-          Sĩ số:{' '}
-          {currentClass?.numberOfStudents
-            ? `${currentClass?.numberOfStudents} học viên`
-            : '--- học viên'}
-        </h3>
-        <h3>
-          Trạng thái lớp:{' '}
-          <h3
-            style={{
-              display: 'inline',
-              color:
-                currentClass?.status === 'closed'
-                  ? 'red'
-                  : currentClass?.status === 'paused'
-                  ? 'orange'
-                  : currentClass?.status === 'active'
-                  ? 'green'
-                  : 'black',
-            }}
-          >
-            {currentClass?.status === 'closed'
-              ? 'Đã kết thúc'
-              : currentClass?.status === 'paused'
-              ? 'Tạm dừng'
-              : currentClass?.status === 'active'
-              ? 'Đang hoạt động'
-              : ''}
-          </h3>
-        </h3>
-      </Col>
       <Col span={24} style={{ display: 'flex', justifyContent: 'space-around' }}>
         <h3>
           Lương hợp đồng:{' '}
@@ -368,8 +296,28 @@ const Info = ({ id }) => {
           ) : null}
         </h3>
       </Col>
-      {/* <Divider />
+      <Divider />
       <Col span={24}>
+        <h3>Các lớp tham gia: {currentClassTeachers.length}</h3>
+        <Table rowKey="_id" dataSource={dataSource}>
+          <Table.Column title="Lớp" dataIndex="name" />
+          <Table.Column title="Sĩ Số" dataIndex="numberOfStudents" />
+          <Table.Column
+            title="Trạng Thái"
+            dataIndex="status"
+            render={(text) =>
+              text === 'active'
+                ? 'Hoạt động'
+                : text === 'paused'
+                ? 'Tạm dừng'
+                : text === 'closed'
+                ? 'Đã đóng'
+                : '---'
+            }
+          />
+        </Table>
+      </Col>
+      {/* <Col span={24}>
         <h3 style={{ textAlign: 'center' }}>Thời Khoá Biểu</h3>
         <Calendar
           localizer={localizer}
@@ -388,13 +336,13 @@ const Info = ({ id }) => {
         />
       </Col> */}
     </Row>
-  ) : (
-    <Row>
-      <Col span={24} style={{ display: 'flex', justifyContent: 'space-around' }}>
-        <h3>Giảng viên chưa giảng dạy lớp học nào!</h3>
-      </Col>
-    </Row>
   );
+
+  // <Row>
+  //   <Col span={24} style={{ display: 'flex', justifyContent: 'space-around' }}>
+  //     <h3>Giảng viên chưa giảng dạy lớp học nào!</h3>
+  //   </Col>
+  // </Row>
 };
 
 export default Info;

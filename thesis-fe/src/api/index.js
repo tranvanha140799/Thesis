@@ -52,6 +52,14 @@ export const updateClassStudent = (id, updateClassStudent) =>
   API.patch(`/class-student/${id}`, updateClassStudent);
 export const deleteClassStudent = (id) => API.delete(`/class-student/${id}`);
 
+//CLASS-TEACHER
+export const getAllClassTeachers = () => API.get('/class-teacher');
+export const createClassTeacher = (classTeacher) =>
+  API.post('/class-teacher', classTeacher);
+export const updateClassTeacher = (id, updateClassTeacher) =>
+  API.patch(`/class-teacher/${id}`, updateClassTeacher);
+export const deleteClassTeacher = (id) => API.delete(`/class-teacher/${id}`);
+
 //EXEMPTS
 export const getExempts = () => API.get('/exempts');
 export const createExempt = (exempt) => API.post('/exempts', exempt);

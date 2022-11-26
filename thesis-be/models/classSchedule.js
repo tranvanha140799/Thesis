@@ -2,11 +2,10 @@ import mongoose from 'mongoose';
 
 const classScheduleSchema = mongoose.Schema({
   classId: String,
-  teacherId: String,
-  scheduleId: String, // Mã buổi học
+  scheduleId: String,
   session: String,
 });
 
-const classSchedule = mongoose.model('classSchedule', classScheduleSchema);
+const ClassSchedule = mongoose.model('classSchedule', classScheduleSchema);
 
-export default classSchedule;
+export default ClassSchedule;

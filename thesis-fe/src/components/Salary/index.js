@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import moment from 'moment';
-import { Link, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import {
   Button,
   Card,
@@ -70,20 +70,13 @@ const SalaryPage = () => {
         )
       : null
   ); //
-  const currentClass = useSelector((state) =>
-    currentTeacher
-      ? state.classReducer.classes.find(
-          (clasS) => clasS._id === currentTeacher?.classId
-        )
-      : null
-  ); //
-  const currentCourse = useSelector((state) =>
-    currentClass
-      ? state.courseReducer.courses.find(
-          (course) => course._id === currentClass?.courseId
-        )
-      : null
-  ); //
+  // const currentClass = useSelector((state) =>
+  //   currentTeacher
+  //     ? state.classReducer.classes.find(
+  //         (clasS) => clasS._id === currentTeacher?.classId
+  //       )
+  //     : null
+  // ); //
   const courses = useSelector((state) => state.courseReducer.courses); //
   const classes = useSelector((state) => state.classReducer.classes); // Redux
   const salaryFactors = useSelector(
@@ -98,8 +91,6 @@ const SalaryPage = () => {
   const [listTeachers, setListCurrentTeachers] = useState([]); //
   const [selectedCourse, setSelectedCourse] = useState({}); //
   const [selectedClass, setSelectedClass] = useState({}); // Giá trị đang chọn của khung tìm kiếm
-  const [finalTuitionFee, setFinalTuitionFee] = useState(-1); // Học phí
-  const [remainTuitionFee, setRemainTuitionFee] = useState(-1); // Học phí còn lại
   const [payAmount, setPayAmount] = useState(0); // Tiền nộp lần này (nhập)
   const [payAmountType, setPayAmountType] = useState(''); // Kiểu nộp hp (toàn bộ/một phần)
   const [isShowModalTotal, setIsShowModalTotal] = useState(false);
@@ -190,9 +181,9 @@ const SalaryPage = () => {
   useEffect(() => {
     if (!dataSource.length && currentPaySalaries.length) {
       let temp = [...currentPaySalaries];
-      temp = temp
-        .filter((record) => record?.payTime !== 0)
-        .sort((a, b) => a?.payTime - b?.payTime);
+      temp = temp.sort(
+        (a, b) => new Date(b?.datePaidSalary) - new Date(a?.datePaidSalary)
+      );
 
       setDataSource(temp);
     }
@@ -241,10 +232,10 @@ const SalaryPage = () => {
           courses.filter((course) => course._id === dataCourses._id)
         );
 
-      const dataStudents = teachers.filter(
-        (student) => student.classId === dataClass?._id
+      const dataTeachers = teachers.filter(
+        (teacher) => teacher.classId === dataClass?._id
       );
-      setListCurrentTeachers(dataStudents);
+      setListCurrentTeachers(dataTeachers);
       setSelectedTeacher({});
       setDataSource([]);
     }
@@ -282,8 +273,6 @@ const SalaryPage = () => {
           courses.filter((course) => course._id === dataCourses._id)
         );
 
-      setFinalTuitionFee(-1);
-      setRemainTuitionFee(-1);
       setDataSource([]);
     }
   };
@@ -326,27 +315,28 @@ const SalaryPage = () => {
   const pay = () => {
     const payload = {
       period: `${new Date().getMonth() + 1}/${new Date().getFullYear()}`,
-      periodSalary: 0,
-      paidSalary: 0,
+      periodSalary:
+        currentTeacher?.contractSalary * currentSalaryFactor?.factor +
+        currentSalaryFactor?.allowance, // Continue...
+      paidSalary:
+        payAmountType === 'total' ? latestPaidSalary?.periodSalary : payAmount,
       isPaidSalary: !!(payAmountType === 'total'),
       datePaidSalary: new Date().toISOString(),
       isAdvancePayment: !(payAmountType === 'total'),
-      advancePayment: latestPaidSalary?.advancePayment,
+      advancePayment:
+        payAmountType === 'total' ? latestPaidSalary?.advancePayment : payAmount,
       teacherId: currentTeacher?._id,
     };
     console.log(payload);
 
     // dispatch(
     //   createPaySalary(payload, {
-    //     onSuccess: () => {
-    //       showNotification('success', 'Lưu thông tin lĩnh lương thành công.');
-    //       setRemainTuitionFee(remainTuitionFee - payAmount);
-    //     },
+    //     onSuccess: () =>
+    //       showNotification('success', 'Lưu thông tin lĩnh lương thành công.'),
     //     onError: () => showNotification('error', 'Lưu thông tin lĩnh lương thất bại!'),
     //   })
     // );
 
-    setRemainTuitionFee(-1);
     payAmountType === 'total'
       ? setIsShowModalTotal(false)
       : setIsShowModalPartial(false);
@@ -359,36 +349,78 @@ const SalaryPage = () => {
     doc.text(`Ngày: ${moment().format('DD-MM-YYYY HH:mm').toString()}`, 18, 18);
 
     doc.setFontSize(20);
-    doc.text('BÁO CÁO THU HỌC PHÍ', 105, 40, null, null, 'center');
+    doc.text('BÁO CÁO CHI LƯƠNG', 105, 40, null, null, 'center');
 
     doc.setFontSize(12);
-    doc.text(`Giảng viên: ${currentTeacher?.fullname}`, 18, 70);
-    doc.text(`Lớp: ${currentClass?.name}`, 200, 70, null, null, 'right');
-    doc.text(`Số điện thoại: ${currentTeacher?.phoneNumber}`, 18, 80);
-    doc.text(`Học phí: ${numberToVnd(finalTuitionFee)}`, 200, 80, null, null, 'right');
-    doc.text(`Địa chỉ: ${currentTeacher?.address}`, 18, 90);
+    doc.text(`Họ và tên: ${currentTeacher?.fullname}`, 18, 70);
+    doc.text(
+      `Chức vụ: ${
+        currentTeacher?.position === 'teacher'
+          ? 'Giảng viên'
+          : currentTeacher?.position === 'tutor'
+          ? 'Trợ giảng'
+          : ''
+      }`,
+      18,
+      80
+    );
+    doc.text(`Số điện thoại: ${currentTeacher?.phoneNumber}`, 18, 90);
+    doc.text(
+      `Lương hợp đồng: ${numberToVnd(currentTeacher?.contractSalary)}`,
+      200,
+      70,
+      null,
+      null,
+      'right'
+    );
+    doc.text(
+      `Hệ số lương: x${currentSalaryFactor?.factor}`,
+      200,
+      80,
+      null,
+      null,
+      'right'
+    );
+    doc.text(
+      `Phụ cấp: ${numberToVnd(currentSalaryFactor?.allowance)}`,
+      200,
+      90,
+      null,
+      null,
+      'right'
+    );
+    doc.text(`Địa chỉ: ${currentTeacher?.address}`, 18, 100);
 
-    let arr = classStudents
-      .filter((record) => record.payTime !== 0)
+    let arr = [...currentPaySalaries];
+    arr = arr
+      .sort((a, b) => new Date(b?.datePaidSalary) - new Date(a?.datePaidSalary))
       .map((record) => [
-        record?.payTime.toString(),
-        numberToVnd(record?.payAmount).toString(),
-        moment(record?.payDate).format('DD/MM/YYYY HH:mm').toString(),
+        record?.period,
+        record?.isAdvancePayment ? 'Ứng lương' : 'Lĩnh lương',
+        record?.isAdvancePayment
+          ? numberToVnd(record?.advancePayment).toString()
+          : numberToVnd(record?.paidSalary - record?.advancePayment).toString(),
+        moment(record?.datePaidSalary).format('DD/MM/YYYY HH:mm').toString(),
       ]);
 
     autoTable(doc, {
-      head: [['Lần Nộp', 'Số Tiền Nộp', 'Ngày Nộp']],
+      head: [['Kỳ Lương', 'Hình Thức', 'Số Tiền', 'Ngày Nhận']],
       body: [...arr],
-      foot: [
-        ['', '', `Tổng tiền đã nộp: ${numberToVnd(latestPaidSalary?.paidTuitionFee)}`],
-      ],
+      // foot: [
+      //   [
+      //     '',
+      //     '',
+      //     `Tổng tiền đã nhận: ${numberToVnd(latestPaidSalary?.paidTuitionFee)}`,
+      //   ],
+      // ],
       // styles
       theme: 'grid',
-      margin: { top: 100, left: 18 },
+      margin: { top: 110, left: 18 },
       columnStyles: {
         0: { halign: 'center' },
-        1: { halign: 'right' },
+        1: { halign: 'center' },
         2: { halign: 'center' },
+        3: { halign: 'center' },
       },
       headStyles: {
         halign: 'center',
@@ -426,7 +458,7 @@ const SalaryPage = () => {
     doc.setFontSize(18);
 
     renderItem(doc, currentPaySalaries);
-    doc.save(`${currentTeacher?.fullname}_BAO_CAO_THU_HOC_PHI.pdf`);
+    doc.save(`${currentTeacher?.fullname}_BAO_CAO_CHI_LUONG.pdf`);
   };
   // ---------------------
 
@@ -499,7 +531,7 @@ const SalaryPage = () => {
             type="primary"
             shape="round"
             onClick={exportToPDF}
-            disabled={!currentTeacher || !latestPaidSalary.payTime}
+            disabled={!currentTeacher || !latestPaidSalary.datePaidSalary}
           >
             Tải file PDF
           </Button>
@@ -582,7 +614,7 @@ const SalaryPage = () => {
                     ? `${numberToVnd(currentSalaryFactor?.allowance)}`
                     : 'Không có thông tin'}
                 </h3>
-                <h3>
+                {/* <h3>
                   Lương tháng trước:{' '}
                   {latestPaidSalary?._id
                     ? numberToVnd(latestPaidSalary?.periodSalary)
@@ -593,7 +625,7 @@ const SalaryPage = () => {
                   {latestPaySalaryTime?.isAdvancePayment
                     ? numberToVnd(latestPaySalaryTime?.advancePayment)
                     : 'Chưa ứng'}
-                </h3>
+                </h3> */}
               </Col>
 
               <Divider />
@@ -602,122 +634,133 @@ const SalaryPage = () => {
                 <Row>
                   <Col span={12} style={{ display: 'flex' }}>
                     <h3>Lĩnh lương:</h3>
-                    {remainTuitionFee ? (
-                      <Select
-                        placeholder="Chọn hình thức lĩnh"
-                        style={{ width: '260px', margin: '0 10px' }}
-                        value={payAmountType || undefined}
-                        onChange={setPayAmountType}
+                    <Select
+                      allowClear
+                      placeholder="Chọn hình thức lĩnh lương"
+                      style={{ width: '260px', margin: '0 10px' }}
+                      value={payAmountType || undefined}
+                      onChange={setPayAmountType}
+                    >
+                      {!latestPaySalaryTime?.isAdvancePayment && (
+                        <Select.Option value="partial">Ứng lương</Select.Option>
+                      )}
+                      <Select.Option value="total">Lĩnh toàn bộ</Select.Option>
+                    </Select>
+
+                    {new Date().getDate() > 10 &&
+                    new Date().getDate() < 15 &&
+                    payAmountType === 'total' ? (
+                      <Button
+                        shape="round"
+                        type="primary"
+                        onClick={() => setIsShowModalTotal(true)}
                       >
-                        {!latestPaySalaryTime?.isAdvancePayment && (
-                          <Select.Option value="partial">Ứng lương</Select.Option>
-                        )}
-                        <Select.Option value="total">Lĩnh toàn bộ</Select.Option>
-                      </Select>
-                    ) : (
-                      <h3 style={{ marginLeft: '5px' }}>
-                        Học viên đã hoàn tất đóng học phí.
-                      </h3>
-                    )}
-                    {payAmountType === 'total' && (
-                      <Button onClick={() => setIsShowModalTotal(true)} type="primary">
                         Lĩnh lương
                       </Button>
+                    ) : (
+                      <span style={{ color: 'red', lineHeight: '200%' }}>
+                        Ngày lĩnh lương là 10 - 15 hàng tháng!
+                      </span>
                     )}
                   </Col>
-                  {payAmountType === 'partial' && (
-                    <Col span={12} style={{ display: 'flex' }}>
-                      <Form
-                        form={form}
-                        name="payAmountForm"
-                        onFinish={(value) => console.log(value)}
-                        scrollToFirstError
-                      >
-                        <Row>
-                          <Col span={16}>
-                            <Form.Item
-                              style={{ display: 'flex-start' }}
-                              name="payAmount"
-                              label="Số tiền"
-                              tooltip="Số tiền nộp..?"
-                              rules={[
-                                {
-                                  required: true,
-                                  message: 'Nhập số tiền!',
-                                },
-                              ]}
-                              onChange={(e) => setPayAmount(Number(e.target.value))}
-                            >
-                              <InputNumber
-                                style={{ width: '70%' }}
-                                value={payAmount}
-                              />{' '}
-                              VND
-                            </Form.Item>
-                          </Col>
-                          <Col span={8}>
-                            <Form.Item
-                              style={{
-                                display: 'flex',
-                                justifyContent: 'space-around',
-                              }}
-                            >
-                              <Button
-                                type="primary"
-                                onClick={() =>
-                                  !payAmount
-                                    ? showNotification(
-                                        'warning',
-                                        'Nhập số tiền học phí!'
-                                      )
-                                    : setIsShowModalPartial(true)
-                                }
+                  {!latestPaySalaryTime?.isAdvancePayment &&
+                    new Date().getDate() > 10 &&
+                    new Date().getDate() < 15 &&
+                    payAmountType === 'partial' && (
+                      <Col span={12} style={{ display: 'flex' }}>
+                        <Form
+                          form={form}
+                          name="payAmountForm"
+                          onFinish={(value) => console.log(value)}
+                          scrollToFirstError
+                        >
+                          <Row>
+                            <Col span={16}>
+                              <Form.Item
+                                style={{ display: 'flex-start' }}
+                                name="payAmount"
+                                label="Số tiền"
+                                tooltip="Số tiền lĩnh..?"
+                                rules={[
+                                  {
+                                    required: true,
+                                    message: 'Nhập số tiền!',
+                                  },
+                                ]}
+                                onChange={(e) => setPayAmount(Number(e.target.value))}
                               >
-                                Ok
-                              </Button>
-                            </Form.Item>
-                          </Col>
-                        </Row>
-                      </Form>
-                    </Col>
-                  )}
+                                <InputNumber
+                                  min={1000}
+                                  max={
+                                    (currentTeacher?.contractSalary *
+                                      currentSalaryFactor?.factor +
+                                      currentSalaryFactor?.allowance) /
+                                    2
+                                  }
+                                  style={{ width: '70%' }}
+                                  value={payAmount}
+                                />{' '}
+                                VND
+                              </Form.Item>
+                            </Col>
+                            <Col span={8}>
+                              <Form.Item
+                                style={{
+                                  display: 'flex',
+                                  justifyContent: 'space-around',
+                                }}
+                              >
+                                <Button
+                                  type="primary"
+                                  onClick={() =>
+                                    !payAmount
+                                      ? showNotification('warning', 'Nhập số tiền!')
+                                      : setIsShowModalPartial(true)
+                                  }
+                                >
+                                  Ok
+                                </Button>
+                              </Form.Item>
+                            </Col>
+                          </Row>
+                        </Form>
+                      </Col>
+                    )}
                 </Row>
 
                 <Divider />
 
                 <Row>
                   <Col span={8} style={{ display: 'flex' }}>
-                    <h4 style={{ lineHeight: '200%', marginRight: '10px' }}>
+                    <h3 style={{ lineHeight: '200%', marginRight: '10px' }}>
                       Lịch sử lương:
-                    </h4>
-                    {/* <Select
-                      allowClear
-                      onClear={clearCourse}
-                      showSearch
-                      placeholder="Chọn kỳ lương"
-                      onChange={handleChangeCourse}
-                      onSearch={(e) => handleSearch(e, listCourses)}
-                      style={{ width: '75%' }}
-                      value={selectedCourse?._id || undefined}
-                      filterOption={false}
-                    ></Select> */}
+                    </h3>
                   </Col>
                   <Table
                     style={{ width: '100%' }}
-                    dataSource={currentPaySalaries}
+                    dataSource={dataSource}
                     rowKey="_id"
                     pagination={{ pageSize: 20 }}
                   >
                     <Table.Column title="Kỳ Lương" dataIndex="period" />
-                    <Table.Column
+                    {/* <Table.Column
                       title="Lương Nhận"
                       dataIndex="paidSalary"
                       render={(text) => numberToVnd(text)}
+                    /> */}
+                    <Table.Column
+                      title="Hình Thức"
+                      dataIndex="isAdvancePayment"
+                      render={(text) => (text ? 'Ứng lương' : 'Lĩnh lương')}
                     />
                     <Table.Column
-                      title="Ứng Trước"
+                      title="Số Tiền"
                       dataIndex="advancePayment"
-                      render={(text) => numberToVnd(text)}
+                      render={(text, record) =>
+                        record?.isAdvancePayment
+                          ? numberToVnd(text)
+                          : numberToVnd(Number(record?.paidSalary) - Number(text))
+                      }
                     />
                     <Table.Column
                       title="Ngày Nhận"
