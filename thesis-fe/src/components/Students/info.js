@@ -20,7 +20,7 @@ const { getClasses } = classActions;
 const { getExempts } = exemptActions;
 const { getAllClassStudents, changeCurrentClassStudents, resetCurrentClassStudent } =
   classStudentActions;
-const { getStudents, updateStudent } = studentActions;
+const { getStudents } = studentActions;
 const localizer = momentLocalizer(moment);
 
 const Info = ({ id }) => {
@@ -60,20 +60,12 @@ const Info = ({ id }) => {
         )
       : null
   );
-  const [_id, set_Id] = useState('');
-  const [classId, setClassId] = useState('');
-  const [excemptId, setExcemptId] = useState('');
   const [finalTuitionFee, setFinalTuitionFee] = useState(-1);
   const [remainTuitionFee, setRemainTuitionFee] = useState(-1);
 
   // Lấy thông tin học viên theo id
   useEffect(() => {
     if (totalStudents === 0) dispatch(getStudents());
-    if (currentStudent) {
-      set_Id(currentStudent._id);
-      setClassId(currentStudent.classId);
-      setExcemptId(currentStudent.excemptId);
-    }
   }, [dispatch, currentStudent]);
 
   // Lấy thông tin đóng học phí của học viên hiện tại
@@ -134,17 +126,6 @@ const Info = ({ id }) => {
         ? 0
         : finalTuitionFee - newestCurrentClassStudent?.paidTuitionFee
     );
-
-  const onFinish = async (values) => {
-    const std = {
-      ...currentStudent,
-      classId,
-      excemptId,
-    };
-    if (typeof id === 'string') await dispatch(updateStudent(_id, std));
-
-    navigate('/students');
-  };
 
   return newestCurrentClassStudent._id ? (
     <Row>
@@ -210,9 +191,11 @@ const Info = ({ id }) => {
               ? 'Đang nộp'
               : 'Đã nộp đủ'}
           </h3>
-          {remainTuitionFee && (
-            <Button icon={<EditOutlined />} style={{ border: 'none' }} />
-          )}
+          <Button
+            icon={<EditOutlined />}
+            style={{ border: 'none' }}
+            onClick={() => navigate(`/tuition-fees/${currentStudent?.studentId}`)}
+          />
         </h3>
       </Col>
       <Col span={24} style={{ display: 'flex', justifyContent: 'space-around' }}>
@@ -231,9 +214,11 @@ const Info = ({ id }) => {
         </h3>
         <h3>
           Hạn nộp phần còn lại:{' '}
-          {moment(newestCurrentClassStudent?.expiryDatePayTuitionFee).format(
-            'DD/MM/YYYY HH:mm'
-          )}
+          {newestCurrentClassStudent?.expiryDatePayTuitionFee
+            ? moment(newestCurrentClassStudent?.expiryDatePayTuitionFee).format(
+                'DD/MM/YYYY HH:mm'
+              )
+            : 'Đã nộp xong'}
         </h3>
       </Col>
       <Divider />

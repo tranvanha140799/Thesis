@@ -16,7 +16,10 @@ export const classStudentActions = {
     try {
       const { data } = await api.createClassStudent(classStudent);
 
-      dispatch(actions.createClassStudent({ data }));
+      if (data) {
+        dispatch(actions.createClassStudent({ data }));
+        if (meta.onSuccess) meta.onSuccess();
+      }
       if (meta.onSuccess) meta.onSuccess();
     } catch (error) {
       console.log(error);
@@ -24,7 +27,7 @@ export const classStudentActions = {
     }
   },
 
-  // Lọc danh sách nộp tiền của học sinh cụ thể
+  // Lọc danh sách nộp tiền của học viên cụ thể
   changeCurrentClassStudents: (classId, studentId) => (dispatch, getState) => {
     const currentClassStudents = getState().classStudentReducer.currentClassStudents;
     const allClassStudents = getState().classStudentReducer.allClassStudents;

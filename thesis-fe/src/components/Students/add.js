@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import FileBase from 'react-file-base64';
 import moment from 'moment';
-import { Form, Input, Select, Button, DatePicker, Row, Col } from 'antd';
+import { Form, Input, Select, Button, DatePicker, Row, Col, Avatar } from 'antd';
 
 import 'antd/dist/antd.css';
 import './index.css';
@@ -13,7 +13,6 @@ import { showNotification, validatePhoneNumber } from '../Common/utilities';
 import { exemptActions } from '../../redux/exemptSlice';
 import { classActions } from '../../redux/classSlice';
 import { studentActions } from '../../redux/studentSlice';
-import Avatar from '../Common/Avatar';
 
 const { getExempts } = exemptActions;
 const { getClasses } = classActions;
@@ -282,7 +281,7 @@ const AddStudent = ({ id }) => {
         </Col>
         <Col span={12}>
           <Form.Item name="image" label="Ảnh">
-            {image && <Avatar src={image} />}
+            {image && <Avatar src={image} size={200} />}
             <FileBase
               type="file"
               multiple={false}

@@ -5,6 +5,7 @@ import { reducer as classReducer } from './classSlice';
 import { reducer as classStudentReducer } from './classStudentSlice';
 import { reducer as courseReducer } from './courseSlice';
 import { reducer as exemptReducer } from './exemptSlice';
+import { reducer as paySalaryReducer } from './paySalarySlice';
 import { reducer as salaryFactorReducer } from './salaryFactorSlice';
 import { reducer as scheduleReducer } from './scheduleSlice';
 import { reducer as studentReducer } from './studentSlice';
@@ -17,6 +18,7 @@ export default configureStore({
     classStudentReducer,
     courseReducer,
     exemptReducer,
+    paySalaryReducer,
     salaryFactorReducer,
     scheduleReducer,
     studentReducer,

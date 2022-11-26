@@ -10,7 +10,6 @@ import {
   BookOutlined,
   MoneyCollectOutlined,
   HomeOutlined,
-  DollarOutlined,
   PicCenterOutlined,
   PicLeftOutlined,
   SnippetsOutlined,
@@ -20,12 +19,12 @@ import {
 } from '@ant-design/icons';
 
 import 'antd/dist/antd.css';
-// import './index.css';
 
 import Courses from './Course';
 import Classes from './Class';
 import HomePage from './Home';
 import SalaryFactor from './SalaryFactor';
+import Salary from './Salary';
 import Schedules from './Schedule';
 import Students from './Students';
 import Teachers from './Teachers';
@@ -39,10 +38,7 @@ function Home() {
   const [collapsed, setCollapsed] = useState(false);
 
   const onCollapse = () => setCollapsed(!collapsed);
-
-  // const temp = useParams();
   const route = useLocation();
-  // console.log(route);
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
@@ -56,11 +52,6 @@ function Home() {
           <Menu.Item key="" icon={<HomeOutlined />}>
             <Link to="/">Trang Chủ</Link>
           </Menu.Item>
-          {/* <SubMenu key="salary" icon={<DollarOutlined />} title="Lương"> */}
-          {/* <Menu.Item key="teachers-salary-factors" icon={<BookOutlined />}>
-              <Link to="/teachers-salary-factors">Bảng Lương Tháng Giáo Viên</Link>
-            </Menu.Item> */}
-          {/* </SubMenu> */}
           <Menu.Item key="teachers" icon={<TeamOutlined />}>
             <Link to="/teachers">Giảng Viên</Link>
           </Menu.Item>
@@ -80,7 +71,7 @@ function Home() {
             <Link to="/discounts">Khuyến Mãi</Link>
           </Menu.Item>
           <Menu.Item key="salary-factors" icon={<BookOutlined />}>
-            <Link to="/salary-factors">Bảng Bậc Lương</Link>
+            <Link to="/salary-factors">Hệ Số Lương</Link>
           </Menu.Item>
           <Menu.Item key="pay-salaries" icon={<MoneyCollectOutlined />}>
             <Link to="/pay-salaries">Chi Lương</Link>
@@ -110,6 +101,7 @@ function Home() {
           <Courses />
           <Classes />
           <SalaryFactor />
+          <Salary />
           <Schedules />
           <TuitionFees />
           <TeachersSalaryChart />

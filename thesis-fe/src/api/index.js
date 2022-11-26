@@ -59,6 +59,13 @@ export const updateExempt = (id, updateExempt) =>
   API.patch(`/exempts/${id}`, updateExempt);
 export const deleteExempt = (id) => API.delete(`/exempts/${id}`);
 
+//PAYSALARIES
+export const getAllPaySalaries = () => API.get('/pay-salaries');
+export const createPaySalary = (paySalary) => API.post('/pay-salaries', paySalary);
+export const updatePaySalary = (id, updatePaySalary) =>
+  API.patch(`/pay-salaries/${id}`, updatePaySalary);
+export const deletePaySalary = (id) => API.delete(`/pay-salaries/${id}`);
+
 //SCHEDULES
 export const getSchedules = () => API.get('/schedules');
 export const createSchedule = (schedule) => API.post('/schedules', schedule);
@@ -80,15 +87,6 @@ export const createTeacherPayment = (newTeacherPayment) =>
 export const updateTeacherPayment = (id, updatedTeacherPayment) =>
   API.patch(`/teacher-payment/${id}`, updatedTeacherPayment);
 export const deleteTeacherPayment = (id) => API.delete(`/teacher-payment/${id}`);
-
-// EXPENSEOFMONTHSHEETS
-export const getExpenseOfMonthSheets = () => API.get('/expense-of-month-sheets');
-export const createExpenseOfMonthSheet = (newExpenseOfMonthSheet) =>
-  API.post('/expense-of-month-sheets', newExpenseOfMonthSheet);
-export const updateExpenseOfMonthSheet = (id, updatedExpenseOfMonthSheet) =>
-  API.patch(`/expense-of-month-sheets/${id}`, updatedExpenseOfMonthSheet);
-export const deleteExpenseOfMonthSheet = (id) =>
-  API.delete(`/expense-of-month-sheets/${id}`);
 
 // SALARY FACTORS
 export const getSalaryFactors = () => API.get('/salary-factors');

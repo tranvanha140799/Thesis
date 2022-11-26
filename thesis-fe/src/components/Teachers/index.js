@@ -1,25 +1,25 @@
-import React, { useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import { Table, Space, Row, Col } from 'antd';
 
-import { Table, Space, Button, Row, Col } from "antd";
-// import ColumnGroup from 'antd/lib/table/ColumnGroup';
-import Column from "antd/lib/table/Column";
+import 'antd/dist/antd.css';
+import './index.css';
+import Addbtn from '../Common/AddBtn';
+import DeleteBtn from '../Common/DeleteBtn';
+import SearchBox from '../Common/SearchBox';
+import { teacherActions } from '../../redux/teacherSlice';
+import moment from 'moment';
 
-import "antd/dist/antd.css";
-import "./index.css";
-import { Link, useNavigate } from "react-router-dom";
-import { teacherActions } from "../../redux/teacherSlice";
-import Addbtn from "../Common/AddBtn";
-import SearchBox from "../Common/SearchBox";
-
+const { Column } = Table;
 const { deleteTeacher, getTeachers, searchTeacher } = teacherActions;
 
 const TeacherPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const teachers = useSelector((state) => state.teacherReducer.teachers);
-  console.log(teachers);
-  let data = [];
+  const [pageSize, setPageSize] = useState('10');
 
   // if (teachers.length > 0 && salaries.length > 0) {
   //   var editTeachers = teachers;
@@ -54,7 +54,7 @@ const TeacherPage = () => {
   }, []);
 
   const gotoAdd = () => {
-    navigate("./add");
+    navigate('./add');
   };
 
   return (
@@ -62,8 +62,8 @@ const TeacherPage = () => {
       <Row>
         <Col span={12}>
           <SearchBox
-            style={{ width: "50%" }}
-            placeholder="Tên hoặc mã giáo viên..."
+            style={{ width: '50%' }}
+            placeholder="Tên hoặc mã giảng viên..."
             onChange={(str) => dispatch(searchTeacher(str))}
           />
         </Col>
@@ -71,9 +71,21 @@ const TeacherPage = () => {
           <Addbtn add={gotoAdd} />
         </Col>
       </Row>
-      <Table dataSource={teachers} rowKey="teacherId">
+      <Table
+        dataSource={teachers}
+        rowKey="teacherId"
+        style={{ width: '100%' }}
+        pagination={{
+          pageSize,
+          showTotal: (total, range) =>
+            `${range[0]}-${range[1]} của ${total} giảng viên`,
+          showSizeChanger: true,
+          pageSizeOptions: ['10', '20', '50'],
+        }}
+        onChange={(e) => setPageSize(e?.pageSize)}
+      >
         <Column
-          title="Mã Giáo Viên"
+          title="Mã Giảng Viên"
           dataIndex="teacherId"
           key="teacherId"
           defaultSortOrder="ascend"
@@ -85,9 +97,7 @@ const TeacherPage = () => {
           key="fullname"
           render={(text, record) => (
             <Space size="middle">
-              <Link to={`/teachers/${record.teacherId}`}>
-                {record.fullname}
-              </Link>
+              <Link to={`/teachers/${record.teacherId}`}>{record.fullname}</Link>
             </Space>
           )}
         />
@@ -96,94 +106,102 @@ const TeacherPage = () => {
           dataIndex="gender"
           key="gender"
           render={(gender) => {
-            if (gender === "male") return "Nam";
-            else if (gender === "female") return "Nữ";
-            else return "Khác";
+            if (gender === 'male') return 'Nam';
+            else if (gender === 'female') return 'Nữ';
+            else return 'Khác';
           }}
         />
         <Column
           title="Ngày Sinh"
           dataIndex="birthday"
           key="birthday"
-          render={(birthday) => {
-            const date = new Date(birthday);
-            let string = "";
-            string += date.getDate().toString() + "/";
-            string += (date.getMonth() + 1).toString() + "/";
-            string += date.getFullYear().toString();
-            return string;
-          }}
+          render={(text) => moment(text).format('DD/MM/YYYY')}
         />
         <Column title="Địa Chỉ" dataIndex="address" key="address" />
+        <Column title="Số Điện Thoại" dataIndex="phoneNumber" key="phoneNumber" />
+        {/* <Column title="Học Vị" dataIndex="degree" key="degree" /> */}
         <Column
-          title="Số Điện Thoại"
-          dataIndex="phoneNumber"
-          key="phoneNumber"
+          title="Chức Vụ"
+          dataIndex="position"
+          key="position"
+          filters={[
+            {
+              text: 'Giảng Viên',
+              value: 'teacher',
+            },
+            {
+              text: 'Trợ Giảng',
+              value: 'tutor',
+            },
+          ]}
+          onFilter={(value, record) => record.position === value}
+          // filterSearch={true}
+          render={(text) =>
+            text === 'teacher' ? 'Giảng Viên' : text === 'tutor' ? 'Trợ Giảng' : ''
+          }
         />
-        <Column title="Học Vị" dataIndex="degree" key="degree" />
-        <Column title="Chức Vụ" dataIndex="position" key="position" />
-        <Column
+        {/* <Column
           title="Môn Giảng Dạy"
           dataIndex="subjectId"
           key="subjectId"
           sorter={(a, b) => Number(a.subjectId) - Number(b.subjectId)}
           render={(text) => {
             switch (text) {
-              case "001":
-                return "Toán";
-              case "002":
-                return "Vật Lý";
-              case "003":
-                return "Hoá Học";
-              case "004":
-                return "Sinh Học";
-              case "005":
-                return "Ngữ Văn";
-              case "006":
-                return "Lịch Sử";
-              case "007":
-                return "Địa Lý";
-              case "008":
-                return "Tiếng Anh";
+              case '001':
+                return 'Toán';
+              case '002':
+                return 'Vật Lý';
+              case '003':
+                return 'Hoá Học';
+              case '004':
+                return 'Sinh Học';
+              case '005':
+                return 'Ngữ Văn';
+              case '006':
+                return 'Lịch Sử';
+              case '007':
+                return 'Địa Lý';
+              case '008':
+                return 'Tiếng Anh';
               default:
-                return "";
+                return '';
             }
           }}
-        />
+        /> */}
         <Column
           title="Trạng Thái"
           dataIndex="status"
           key="status"
           filters={[
             {
-              text: "Đang công tác",
-              value: "1",
+              text: 'Đang công tác',
+              value: 'active',
             },
             {
-              text: "Tạm nghỉ",
-              value: "2",
+              text: 'Tạm nghỉ',
+              value: 'paused',
             },
             {
-              text: "Đã nghỉ việc",
-              value: "3",
+              text: 'Đã nghỉ việc',
+              value: 'leaved',
             },
           ]}
           onFilter={(value, record) => record.status === value}
-          filterSearch={true}
+          // filterSearch={true}
           render={(text) => {
             switch (text) {
-              case "1":
-                return "Đang công tác";
-              case "2":
-                return "Tạm nghỉ";
-              case "3":
-                return "Đã nghỉ việc";
+              case 'active':
+                return 'Đang công tác';
+              case 'paused':
+                return 'Tạm nghỉ';
+              case 'leaved':
+                return 'Đã nghỉ việc';
               default:
-                return "";
+                return '';
             }
           }}
         />
-        <Column
+        {/* <Column
           title="Mức Lương Hiện Tại"
           dataIndex="salaryAmount"
           key="salaryAmount"
@@ -191,24 +209,19 @@ const TeacherPage = () => {
           render={(salary) => {
             const str = salary?.toString();
             return str
-              ?.split("")
+              ?.split('')
               ?.reverse()
               ?.reduce((prev, next, index) => {
-                return (index % 3 ? next : next + ".") + prev;
+                return (index % 3 ? next : next + '.') + prev;
               });
           }}
-        />
+        /> */}
         <Column
           title="Action"
           key="action"
           render={(text, record) => (
             <Space size="middle">
-              <Button onClick={() => dispatch(deleteTeacher(record._id))}>
-                Xoá
-              </Button>
-              {/* <Button shape="round " onClick={() => dispatch(deleteTeacher(record._id))}>
-                Sửa
-              </Button> */}
+              <DeleteBtn onDelete={() => dispatch(deleteTeacher(record._id))} />
             </Space>
           )}
         />

@@ -26,56 +26,54 @@ import {
 } from '../Common/utilities';
 import { courseActions } from '../../redux/courseSlice';
 import { classActions } from '../../redux/classSlice';
-import { classStudentActions } from '../../redux/classStudentSlice';
-import { studentActions } from '../../redux/studentSlice';
-import {
-  CheckCircleOutlined,
-  ClockCircleOutlined,
-  ExclamationCircleOutlined,
-} from '@ant-design/icons';
-import { exemptActions } from '../../redux/exemptSlice';
+import { paySalaryActions } from '../../redux/paySalarySlice';
+import { salaryFactorActions } from '../../redux/salaryFactorSlice';
+import { teacherActions } from '../../redux/teacherSlice';
 
-const { getCourses } = courseActions;
 const { getClasses } = classActions;
+const { getCourses } = courseActions;
 const {
-  getAllClassStudents,
-  createClassStudent,
-  changeCurrentClassStudents,
-  resetCurrentClassStudent,
-} = classStudentActions;
-const { getExempts } = exemptActions;
-const { getStudents } = studentActions;
+  getAllPaySalaries,
+  createPaySalary,
+  changeCurrentPaySalaries,
+  resetCurrentPaySalary,
+} = paySalaryActions;
+const { getSalaryFactors } = salaryFactorActions;
+const { getTeachers } = teacherActions;
 
-const TuitionFeePage = () => {
+const SalaryPage = () => {
   const dispatch = useDispatch();
-  const { studentId } = useParams();
+  const { teacherId } = useParams();
   const [form] = Form.useForm();
 
-  const [selectedStudent, setSelectedStudent] = useState({});
+  const [selectedTeacher, setSelectedTeacher] = useState({});
   const user = useSelector((state) => state.authReducer.authData.result);
-  const allClassStudents = useSelector(
-    (state) => state.classStudentReducer.allClassStudents
+  const allPaySalaries = useSelector((state) => state.paySalaryReducer.allPaySalaries); //
+  const currentPaySalaries = useSelector(
+    (state) => state.paySalaryReducer.currentPaySalaries
   ); //
-  const currentClassStudents = useSelector(
-    (state) => state.classStudentReducer.currentClassStudents
+  const latestPaidSalary = useSelector(
+    (state) => state.paySalaryReducer.latestPaidSalary
   ); //
-  const newestCurrentClassStudent = useSelector(
-    (state) => state.classStudentReducer.newestCurrentClassStudent
-  ); //
-  const currentStudent = useSelector((state) =>
-    selectedStudent
-      ? state.studentReducer.students.find((p) => p._id === selectedStudent._id)
+  const latestPaySalaryTime = useSelector(
+    (state) => state.paySalaryReducer.latestPaySalaryTime
+  );
+  const currentTeacher = useSelector((state) =>
+    selectedTeacher
+      ? state.teacherReducer.teachers.find((p) => p._id === selectedTeacher._id)
       : null
   ); //
-  const currentExempt = useSelector((state) =>
-    currentStudent
-      ? state.exemptReducer.exempts.find((p) => p._id === currentStudent?.exemptId)
+  const currentSalaryFactor = useSelector((state) =>
+    currentTeacher
+      ? state.salaryFactorReducer.salaryFactors.find(
+          (p) => p._id === currentTeacher?.salaryFactorId
+        )
       : null
   ); //
   const currentClass = useSelector((state) =>
-    newestCurrentClassStudent
+    currentTeacher
       ? state.classReducer.classes.find(
-          (clasS) => clasS._id === newestCurrentClassStudent?.class_id
+          (clasS) => clasS._id === currentTeacher?.classId
         )
       : null
   ); //
@@ -88,12 +86,16 @@ const TuitionFeePage = () => {
   ); //
   const courses = useSelector((state) => state.courseReducer.courses); //
   const classes = useSelector((state) => state.classReducer.classes); // Redux
-  const exempts = useSelector((state) => state.exemptReducer.exempts); //
-  const students = useSelector((state) => state.studentReducer.students); //
+  const salaryFactors = useSelector(
+    (state) => state.salaryFactorReducer.salaryFactors
+  ); //
+  const teachers = useSelector((state) =>
+    state.teacherReducer.teachers.filter((teacher) => teacher?.status === 'active')
+  ); //
 
   const [listCourses, setListCurrentCourses] = useState([]); //
   const [listClasses, setListCurrentClasses] = useState([]); // Danh sách hiển thị để chọn
-  const [listStudents, setListCurrentStudents] = useState([]); //
+  const [listTeachers, setListCurrentTeachers] = useState([]); //
   const [selectedCourse, setSelectedCourse] = useState({}); //
   const [selectedClass, setSelectedClass] = useState({}); // Giá trị đang chọn của khung tìm kiếm
   const [finalTuitionFee, setFinalTuitionFee] = useState(-1); // Học phí
@@ -107,7 +109,7 @@ const TuitionFeePage = () => {
   useEffect(() => {
     if (!courses.length) dispatch(getCourses());
     if (!classes.length) dispatch(getClasses());
-    if (!students.length) dispatch(getStudents());
+    if (!teachers.length) dispatch(getTeachers());
   }, []);
 
   useEffect(() => {
@@ -119,82 +121,82 @@ const TuitionFeePage = () => {
   }, [classes.length]);
 
   useEffect(() => {
-    if (students.length) setListCurrentStudents(students);
-  }, [students.length]);
+    if (teachers.length) setListCurrentTeachers(teachers);
+  }, [teachers.length]);
 
-  // Chọn học viên mặc định (navigate từ trang thông tin học viên)
+  // Chọn giảng viên mặc định (navigate từ trang thông tin giảng viên)
   useEffect(() => {
-    if (studentId && courses.length && classes.length && students.length)
-      handleChangeStudent(
-        students.find((student) => student?.studentId === studentId)?._id
+    if (teacherId && courses.length && classes.length && teachers.length)
+      handleChangeTeacher(
+        teachers.find((teacher) => teacher?.teacherId === teacherId)?._id
       );
-  }, [studentId]);
+  }, [teacherId]);
 
   // --------------- Info.js -----------------
-  // Lấy thông tin đóng học phí của học viên hiện tại
+  // Lấy thông tin lĩnh lương của giảng viên hiện tại
   useEffect(() => {
-    if (!allClassStudents.length) dispatch(getAllClassStudents());
-    if (currentStudent && allClassStudents.length)
-      dispatch(changeCurrentClassStudents(currentStudent.classId, currentStudent._id));
+    if (!allPaySalaries.length) dispatch(getAllPaySalaries());
+    if (currentTeacher && allPaySalaries.length)
+      dispatch(changeCurrentPaySalaries(currentTeacher._id));
 
-    return () => dispatch(resetCurrentClassStudent());
-  }, [selectedStudent, currentStudent, allClassStudents.length]);
+    return () => dispatch(resetCurrentPaySalary());
+  }, [selectedTeacher, currentTeacher, allPaySalaries.length]);
 
-  // Lấy thông tin đối tượng miễn giảm của học viên
+  // Lấy thông tin hệ số lương của giảng viên
   useEffect(() => {
-    if (!exempts.length) dispatch(getExempts());
-  }, [exempts.length]);
+    if (!salaryFactors.length) dispatch(getSalaryFactors());
+  }, [salaryFactors.length]);
 
   // Tính tiền học phí sau cùng-------
-  useEffect(() => {
-    if (currentClass && currentStudent && Object.keys(newestCurrentClassStudent)) {
-      if (
-        currentClass._id === newestCurrentClassStudent.class_id ||
-        currentStudent._id === newestCurrentClassStudent.student_id
-      ) {
-        if (currentClass?.discount && currentExempt?.percent)
-          setFinalTuitionFee(
-            currentCourse?.tuitionFee -
-              (currentCourse?.tuitionFee *
-                (currentClass?.discount + currentExempt?.percent)) /
-                100
-          );
-        else if (currentClass?.discount)
-          setFinalTuitionFee(
-            currentCourse?.tuitionFee -
-              (currentCourse?.tuitionFee * currentClass?.discount) / 100
-          );
-        else if (currentExempt?.percent)
-          setFinalTuitionFee(
-            currentCourse?.tuitionFee -
-              (currentCourse?.tuitionFee * currentExempt?.percent) / 100
-          );
-        else setFinalTuitionFee(currentCourse?.tuitionFee);
-      }
-    }
-  }, [newestCurrentClassStudent, currentClass, currentStudent]);
+  // useEffect(() => {
+  //   if (currentClass && currentTeacher && Object.keys(latestPaidSalary)) {
+  //     if (
+  //       currentClass._id === latestPaidSalary.class_id ||
+  //       currentTeacher._id === latestPaidSalary.student_id
+  //     ) {
+  //       if (currentClass?.discount && currentSalaryFactor?.percent)
+  //         setFinalTuitionFee(
+  //           currentCourse?.tuitionFee -
+  //             (currentCourse?.tuitionFee *
+  //               (currentClass?.discount + currentSalaryFactor?.percent)) /
+  //               100
+  //         );
+  //       else if (currentClass?.discount)
+  //         setFinalTuitionFee(
+  //           currentCourse?.tuitionFee -
+  //             (currentCourse?.tuitionFee * currentClass?.discount) / 100
+  //         );
+  //       else if (currentSalaryFactor?.percent)
+  //         setFinalTuitionFee(
+  //           currentCourse?.tuitionFee -
+  //             (currentCourse?.tuitionFee * currentSalaryFactor?.percent) / 100
+  //         );
+  //       else setFinalTuitionFee(currentCourse?.tuitionFee);
+  //     }
+  //   }
+  // }, [latestPaidSalary, currentClass, currentTeacher]);
 
-  useEffect(() => {
-    if (finalTuitionFee !== -1 && remainTuitionFee === -1)
-      setRemainTuitionFee(
-        finalTuitionFee <= newestCurrentClassStudent?.paidTuitionFee
-          ? 0
-          : finalTuitionFee - newestCurrentClassStudent?.paidTuitionFee
-      );
-  }, [finalTuitionFee, remainTuitionFee]);
+  // useEffect(() => {
+  //   if (finalTuitionFee !== -1 && remainTuitionFee === -1)
+  //     setRemainTuitionFee(
+  //       finalTuitionFee <= latestPaidSalary?.paidTuitionFee
+  //         ? 0
+  //         : finalTuitionFee - latestPaidSalary?.paidTuitionFee
+  //     );
+  // }, [finalTuitionFee, remainTuitionFee]);
   // ---------------------------------
 
   // Nạp lại dataSource cho table
   useEffect(() => {
-    if (!dataSource.length && currentClassStudents.length) {
-      let temp = [...currentClassStudents];
+    if (!dataSource.length && currentPaySalaries.length) {
+      let temp = [...currentPaySalaries];
       temp = temp
         .filter((record) => record?.payTime !== 0)
         .sort((a, b) => a?.payTime - b?.payTime);
 
       setDataSource(temp);
     }
-  }, [currentClassStudents]);
+  }, [currentPaySalaries]);
 
   // Thay đổi khoá học
   const handleChangeCourse = (value) => {
@@ -207,7 +209,7 @@ const TuitionFeePage = () => {
       );
       setListCurrentClasses(dataClasses);
       setSelectedClass({});
-      setSelectedStudent({});
+      setSelectedTeacher({});
       setDataSource([]);
     }
   };
@@ -215,10 +217,10 @@ const TuitionFeePage = () => {
   const clearCourse = () => {
     setListCurrentCourses(courses);
     setListCurrentClasses(classes);
-    setListCurrentStudents(students);
+    setListCurrentTeachers(teachers);
     setSelectedCourse({});
     setSelectedClass({});
-    setSelectedStudent({});
+    setSelectedTeacher({});
     setDataSource([]);
   };
 
@@ -239,32 +241,32 @@ const TuitionFeePage = () => {
           courses.filter((course) => course._id === dataCourses._id)
         );
 
-      const dataStudents = students.filter(
+      const dataStudents = teachers.filter(
         (student) => student.classId === dataClass?._id
       );
-      setListCurrentStudents(dataStudents);
-      setSelectedStudent({});
+      setListCurrentTeachers(dataStudents);
+      setSelectedTeacher({});
       setDataSource([]);
     }
   };
 
   const clearClass = () => {
     setSelectedClass({});
-    setSelectedStudent({});
+    setSelectedTeacher({});
     setDataSource([]);
   };
 
-  // Thay đổi học viên
-  const handleChangeStudent = (value) => {
-    const dataStudent = students.find((student) => student?._id === value);
-    setSelectedStudent(dataStudent);
-    if (listStudents.length === students.length)
-      setListCurrentStudents(
-        students.filter((student) => student.classId === dataStudent.classId)
+  // Thay đổi giảng viên
+  const handleChangeTeacher = (value) => {
+    const dataTeacher = teachers.find((teacher) => teacher?._id === value);
+    setSelectedTeacher(dataTeacher);
+    if (listTeachers.length === teachers.length)
+      setListCurrentTeachers(
+        teachers.filter((teacher) => teacher.classId === dataTeacher.classId)
       );
 
-    if (value) {
-      const dataClasses = classes.find((clasS) => clasS._id === dataStudent?.classId);
+    if (dataTeacher.classId) {
+      const dataClasses = classes.find((clasS) => clasS._id === dataTeacher?.classId);
       setSelectedClass(dataClasses);
       if (listClasses.length === classes.length)
         setListCurrentClasses(
@@ -286,8 +288,8 @@ const TuitionFeePage = () => {
     }
   };
 
-  const clearStudent = () => {
-    setSelectedStudent({});
+  const clearTeacher = () => {
+    setSelectedTeacher({});
     setDataSource([]);
   };
 
@@ -306,48 +308,43 @@ const TuitionFeePage = () => {
         ? setListCurrentCourses(temp)
         : arr === listClasses
         ? setListCurrentClasses(temp)
-        : arr === listStudents
-        ? setListCurrentStudents(temp)
+        : arr === listTeachers
+        ? setListCurrentTeachers(temp)
         : null;
     } else {
       arr === listCourses
         ? setListCurrentCourses(courses)
         : arr === listClasses
         ? setListCurrentClasses(classes)
-        : arr === listStudents
-        ? setListCurrentStudents(students)
+        : arr === listTeachers
+        ? setListCurrentTeachers(teachers)
         : null;
     }
   };
 
-  // Nộp học phí
+  // Lĩnh lương
   const pay = () => {
     const payload = {
-      class_id: newestCurrentClassStudent?.class_id,
-      student_id: newestCurrentClassStudent?.student_id,
-      classId: newestCurrentClassStudent?.classId,
-      paidTuitionFee:
-        payAmountType === 'total'
-          ? finalTuitionFee
-          : newestCurrentClassStudent?.paidTuitionFee + payAmount,
-      payTime: newestCurrentClassStudent?.payTime + 1,
-      payAmount: payAmountType === 'total' ? remainTuitionFee : payAmount,
-      payDate: new Date().toISOString(),
-      expiryDatePayTuitionFee:
-        payAmountType === 'total'
-          ? ''
-          : newestCurrentClassStudent?.expiryDatePayTuitionFee,
+      period: `${new Date().getMonth() + 1}/${new Date().getFullYear()}`,
+      periodSalary: 0,
+      paidSalary: 0,
+      isPaidSalary: !!(payAmountType === 'total'),
+      datePaidSalary: new Date().toISOString(),
+      isAdvancePayment: !(payAmountType === 'total'),
+      advancePayment: latestPaidSalary?.advancePayment,
+      teacherId: currentTeacher?._id,
     };
+    console.log(payload);
 
-    dispatch(
-      createClassStudent(payload, {
-        onSuccess: () => {
-          showNotification('success', 'Nộp học phí thành công.');
-          setRemainTuitionFee(remainTuitionFee - payAmount);
-        },
-        onError: () => showNotification('error', 'Nộp học phí thất bại!'),
-      })
-    );
+    // dispatch(
+    //   createPaySalary(payload, {
+    //     onSuccess: () => {
+    //       showNotification('success', 'Lưu thông tin lĩnh lương thành công.');
+    //       setRemainTuitionFee(remainTuitionFee - payAmount);
+    //     },
+    //     onError: () => showNotification('error', 'Lưu thông tin lĩnh lương thất bại!'),
+    //   })
+    // );
 
     setRemainTuitionFee(-1);
     payAmountType === 'total'
@@ -365,11 +362,11 @@ const TuitionFeePage = () => {
     doc.text('BÁO CÁO THU HỌC PHÍ', 105, 40, null, null, 'center');
 
     doc.setFontSize(12);
-    doc.text(`Học viên: ${currentStudent?.fullname}`, 18, 70);
+    doc.text(`Giảng viên: ${currentTeacher?.fullname}`, 18, 70);
     doc.text(`Lớp: ${currentClass?.name}`, 200, 70, null, null, 'right');
-    doc.text(`Số điện thoại: ${currentStudent?.phoneNumber}`, 18, 80);
+    doc.text(`Số điện thoại: ${currentTeacher?.phoneNumber}`, 18, 80);
     doc.text(`Học phí: ${numberToVnd(finalTuitionFee)}`, 200, 80, null, null, 'right');
-    doc.text(`Địa chỉ: ${currentStudent?.address}`, 18, 90);
+    doc.text(`Địa chỉ: ${currentTeacher?.address}`, 18, 90);
 
     let arr = classStudents
       .filter((record) => record.payTime !== 0)
@@ -383,13 +380,7 @@ const TuitionFeePage = () => {
       head: [['Lần Nộp', 'Số Tiền Nộp', 'Ngày Nộp']],
       body: [...arr],
       foot: [
-        [
-          '',
-          '',
-          `Tổng tiền đã nộp: ${numberToVnd(
-            newestCurrentClassStudent?.paidTuitionFee
-          )}`,
-        ],
+        ['', '', `Tổng tiền đã nộp: ${numberToVnd(latestPaidSalary?.paidTuitionFee)}`],
       ],
       // styles
       theme: 'grid',
@@ -418,8 +409,8 @@ const TuitionFeePage = () => {
 
   // Xuất file PDF
   const exportToPDF = () => {
-    if (!currentClassStudents.length) {
-      showNotification('warning', 'Không có thông tin nộp học phí của học viên!');
+    if (!currentPaySalaries.length) {
+      showNotification('warning', 'Không có thông tin lĩnh lương của giảng viên!');
       return;
     }
 
@@ -434,22 +425,22 @@ const TuitionFeePage = () => {
     doc.setFont('Arial', 'normal');
     doc.setFontSize(18);
 
-    renderItem(doc, currentClassStudents);
-    doc.save(`${currentStudent?.fullname}_BAO_CAO_THU_HOC_PHI.pdf`);
+    renderItem(doc, currentPaySalaries);
+    doc.save(`${currentTeacher?.fullname}_BAO_CAO_THU_HOC_PHI.pdf`);
   };
   // ---------------------
 
   return (
     <>
-      <h3>Tìm kiếm học viên:</h3>
+      <h3>Tìm kiếm giảng viên:</h3>
       <Row>
         <Col span={6} style={{ display: 'flex' }}>
-          <h4 style={{ lineHeight: '200%', marginRight: '10px' }}>Khoá học:</h4>
+          <h4 style={{ lineHeight: '200%', marginRight: '10px' }}>Khoá:</h4>
           <Select
             allowClear
             onClear={clearCourse}
             showSearch
-            placeholder="Khoá học"
+            placeholder="Khoá"
             onChange={handleChangeCourse}
             onSearch={(e) => handleSearch(e, listCourses)}
             style={{ width: '75%' }}
@@ -464,12 +455,12 @@ const TuitionFeePage = () => {
           </Select>
         </Col>
         <Col span={6} style={{ display: 'flex' }}>
-          <h4 style={{ lineHeight: '200%', marginRight: '10px' }}>Lớp học:</h4>
+          <h4 style={{ lineHeight: '200%', marginRight: '10px' }}>Lớp:</h4>
           <Select
             allowClear
             onClear={clearClass}
             showSearch
-            placeholder="Lớp học"
+            placeholder="Lớp"
             onChange={handleChangeClass}
             onSearch={(e) => handleSearch(e, listClasses)}
             style={{ width: '75%' }}
@@ -484,19 +475,19 @@ const TuitionFeePage = () => {
           </Select>
         </Col>
         <Col span={6} style={{ display: 'flex' }}>
-          <h4 style={{ lineHeight: '200%', marginRight: '10px' }}>Học viên:</h4>
+          <h4 style={{ lineHeight: '200%', marginRight: '10px' }}>Giảng viên:</h4>
           <Select
             allowClear
-            onClear={clearStudent}
+            onClear={clearTeacher}
             showSearch
-            placeholder="Học viên"
-            onChange={handleChangeStudent}
-            onSearch={(e) => handleSearch(e, listStudents)}
+            placeholder="Giảng viên"
+            onChange={handleChangeTeacher}
+            onSearch={(e) => handleSearch(e, listTeachers)}
             style={{ width: '75%' }}
-            value={selectedStudent?._id || undefined}
+            value={selectedTeacher?._id || undefined}
             filterOption={false}
           >
-            {listStudents?.map((d) => (
+            {listTeachers?.map((d) => (
               <Select.Option key={d?._id} value={d?._id}>
                 {d?.fullname}
               </Select.Option>
@@ -508,7 +499,7 @@ const TuitionFeePage = () => {
             type="primary"
             shape="round"
             onClick={exportToPDF}
-            disabled={!currentStudent || !newestCurrentClassStudent.payTime}
+            disabled={!currentTeacher || !latestPaidSalary.payTime}
           >
             Tải file PDF
           </Button>
@@ -518,10 +509,10 @@ const TuitionFeePage = () => {
       <Divider />
 
       <Card hoverable={false}>
-        {newestCurrentClassStudent._id ? (
+        {latestPaidSalary._id ? (
           <>
             <Row>
-              <Col
+              {/* <Col
                 span={24}
                 style={{ display: 'flex', justifyContent: 'space-around' }}
               >
@@ -532,7 +523,7 @@ const TuitionFeePage = () => {
                   </Link>
                 </h3>
                 <h3>
-                  Lớp đang học:{' '}
+                  Lớp đang giảng dạy:{' '}
                   <Link to={`/classes/${currentClass?.classId}`}>
                     {currentClass?.name || '---'}
                   </Link>
@@ -541,91 +532,67 @@ const TuitionFeePage = () => {
                   Sĩ số:{' '}
                   {currentClass?.numberOfStudents
                     ? `${currentClass?.numberOfStudents} học viên`
-                    : '--- học viên'}
+                    : '--- giảng viên'}
                 </h3>
                 <h3>
-                  Học phí:{' '}
-                  {currentCourse?.tuitionFee ? (
-                    <>
-                      {finalTuitionFee !== -1 ? numberToVnd(finalTuitionFee) : '---'}
-                      {(currentClass?.discount || currentExempt?.percent) && (
-                        <h5 style={{ display: 'inline' }}>
-                          {' '}
-                          (-
-                          {currentClass?.discount && currentExempt?.percent
-                            ? `${currentClass?.discount + currentExempt?.percent}`
-                            : currentClass?.discount
-                            ? `${currentClass?.discount}`
-                            : currentExempt?.percent
-                            ? `${currentExempt?.percent}`
-                            : ''}
-                          %)
-                        </h5>
-                      )}
-                    </>
-                  ) : (
-                    '--- VND'
-                  )}
-                </h3>
-                <h3>
-                  Trạng thái:{' '}
+                  Trạng thái lớp:{' '}
                   <h3
                     style={{
                       display: 'inline',
                       color:
-                        remainTuitionFee === finalTuitionFee
+                        currentClass?.status === 'closed'
                           ? 'red'
-                          : remainTuitionFee
+                          : currentClass?.status === 'paused'
                           ? 'orange'
-                          : 'green',
+                          : currentClass?.status === 'active'
+                          ? 'green'
+                          : 'black',
                     }}
                   >
-                    {remainTuitionFee === finalTuitionFee ? (
-                      <>
-                        Chưa nộp <ExclamationCircleOutlined />
-                      </>
-                    ) : remainTuitionFee ? (
-                      <>
-                        Đang nộp <ClockCircleOutlined />
-                      </>
-                    ) : (
-                      <>
-                        Đã nộp đủ <CheckCircleOutlined />
-                      </>
-                    )}
+                    {currentClass?.status === 'closed'
+                      ? 'Đã kết thúc'
+                      : currentClass?.status === 'paused'
+                      ? 'Tạm dừng'
+                      : currentClass?.status === 'active'
+                      ? 'Đang hoạt động'
+                      : ''}
                   </h3>
-                  {/* {remainTuitionFee ? (
-                    <Button icon={<EditOutlined />} style={{ border: 'none' }} />
-                  ) : null} */}
                 </h3>
-              </Col>
+              </Col> */}
               <Col
                 span={24}
                 style={{ display: 'flex', justifyContent: 'space-around' }}
               >
                 <h3>
-                  Học phí đã nộp:{' '}
-                  {numberToVnd(newestCurrentClassStudent?.paidTuitionFee || 0)}
+                  Kỳ lương hiện tại:{' '}
+                  {`${new Date().getMonth() + 1}/${new Date().getFullYear()}`}
                 </h3>
                 <h3>
-                  Học phí còn lại:{' '}
-                  {remainTuitionFee !== -1 ? numberToVnd(remainTuitionFee) : '--- VND'}
+                  Lương hợp đồng: {numberToVnd(currentTeacher?.contractSalary || 0)}
                 </h3>
                 <h3>
-                  Ngày nộp gần nhất:{' '}
-                  {newestCurrentClassStudent?.payDate
-                    ? moment(newestCurrentClassStudent?.payDate).format(
-                        'DD/MM/YYYY HH:mm'
-                      )
-                    : 'Chưa nộp lần nào'}
+                  Hệ số lương:{' '}
+                  {currentSalaryFactor
+                    ? `${currentSalaryFactor?.factor}`
+                    : 'Không có thông tin'}
                 </h3>
                 <h3>
-                  Hạn nộp phần còn lại:{' '}
-                  {newestCurrentClassStudent?.expiryDatePayTuitionFee
-                    ? moment(
-                        newestCurrentClassStudent?.expiryDatePayTuitionFee
-                      ).format('DD/MM/YYYY HH:mm')
-                    : '---'}
+                  Phụ cấp:{' '}
+                  {currentSalaryFactor
+                    ? `${numberToVnd(currentSalaryFactor?.allowance)}`
+                    : 'Không có thông tin'}
+                </h3>
+                <h3>
+                  Lương tháng trước:{' '}
+                  {latestPaidSalary?._id
+                    ? numberToVnd(latestPaidSalary?.periodSalary)
+                    : 'Không có thông tin'}
+                </h3>
+                <h3>
+                  Ứng lương tháng này:{' '}
+                  {latestPaySalaryTime?.isAdvancePayment
+                    ? numberToVnd(latestPaySalaryTime?.advancePayment)
+                    : 'Chưa ứng'}
                 </h3>
               </Col>
 
@@ -634,16 +601,18 @@ const TuitionFeePage = () => {
               <Col span={24}>
                 <Row>
                   <Col span={12} style={{ display: 'flex' }}>
-                    <h3>Nộp học phí:</h3>
+                    <h3>Lĩnh lương:</h3>
                     {remainTuitionFee ? (
                       <Select
-                        placeholder="Chọn hình thức nộp"
+                        placeholder="Chọn hình thức lĩnh"
                         style={{ width: '260px', margin: '0 10px' }}
                         value={payAmountType || undefined}
                         onChange={setPayAmountType}
                       >
-                        <Select.Option value="partial">Nộp một phần</Select.Option>
-                        <Select.Option value="total">Nộp toàn bộ</Select.Option>
+                        {!latestPaySalaryTime?.isAdvancePayment && (
+                          <Select.Option value="partial">Ứng lương</Select.Option>
+                        )}
+                        <Select.Option value="total">Lĩnh toàn bộ</Select.Option>
                       </Select>
                     ) : (
                       <h3 style={{ marginLeft: '5px' }}>
@@ -652,7 +621,7 @@ const TuitionFeePage = () => {
                     )}
                     {payAmountType === 'total' && (
                       <Button onClick={() => setIsShowModalTotal(true)} type="primary">
-                        Nộp
+                        Lĩnh lương
                       </Button>
                     )}
                   </Col>
@@ -717,21 +686,42 @@ const TuitionFeePage = () => {
                 <Divider />
 
                 <Row>
+                  <Col span={8} style={{ display: 'flex' }}>
+                    <h4 style={{ lineHeight: '200%', marginRight: '10px' }}>
+                      Lịch sử lương:
+                    </h4>
+                    {/* <Select
+                      allowClear
+                      onClear={clearCourse}
+                      showSearch
+                      placeholder="Chọn kỳ lương"
+                      onChange={handleChangeCourse}
+                      onSearch={(e) => handleSearch(e, listCourses)}
+                      style={{ width: '75%' }}
+                      value={selectedCourse?._id || undefined}
+                      filterOption={false}
+                    ></Select> */}
+                  </Col>
                   <Table
                     style={{ width: '100%' }}
-                    dataSource={dataSource}
+                    dataSource={currentPaySalaries}
                     rowKey="_id"
                     pagination={{ pageSize: 20 }}
                   >
-                    <Table.Column title="Lần Nộp" dataIndex="payTime" />
+                    <Table.Column title="Kỳ Lương" dataIndex="period" />
                     <Table.Column
-                      title="Số Tiền Nộp"
-                      dataIndex="payAmount"
+                      title="Lương Nhận"
+                      dataIndex="paidSalary"
                       render={(text) => numberToVnd(text)}
                     />
                     <Table.Column
-                      title="Thời Gian"
-                      dataIndex="payDate"
+                      title="Ứng Trước"
+                      dataIndex="advancePayment"
+                      render={(text) => numberToVnd(text)}
+                    />
+                    <Table.Column
+                      title="Ngày Nhận"
+                      dataIndex="datePaidSalary"
                       render={(text) => moment(text).format('DD/MM/YYYY HH:mm')}
                     />
                   </Table>
@@ -742,31 +732,31 @@ const TuitionFeePage = () => {
         ) : (
           <Row>
             <Col span={24} style={{ display: 'flex', justifyContent: 'space-around' }}>
-              <h3>Hãy chọn một học viên!</h3>
+              <h3>Hãy chọn một giảng viên!</h3>
             </Col>
           </Row>
         )}
       </Card>
       <Modal
-        title="Nộp toàn bộ học phí"
+        title="Lĩnh lương tháng này"
         cancelText="Huỷ"
         open={isShowModalTotal}
         onOk={pay}
         onCancel={() => setIsShowModalTotal(false)}
       >
-        Xác nhận nộp toàn bộ học phí còn lại của lớp học này?
+        Xác nhận lĩnh toàn bộ lương tháng này?
       </Modal>
       <Modal
-        title="Nộp một phần học phí"
+        title="Ứng trước lương"
         cancelText="Huỷ"
         open={isShowModalPartial}
         onOk={pay}
         onCancel={() => setIsShowModalPartial(false)}
       >
-        Xác nhận nộp học phí cho học viên {currentStudent?.fullname}?
+        Xác nhận ứng lương cho giảng viên {currentTeacher?.fullname}?
       </Modal>
     </>
   );
 };
 
-export default TuitionFeePage;
+export default SalaryPage;

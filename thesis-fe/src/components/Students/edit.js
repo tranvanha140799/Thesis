@@ -1,4 +1,4 @@
-import { Card, Col, Row, Tabs } from 'antd';
+import { Card, Tabs } from 'antd';
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import AddStudent from './add';
@@ -11,7 +11,7 @@ const EditStudent = () => {
 
   return (
     <Tabs defaultActiveKey="1" style={{ width: '100%' }}>
-      <TabPane tab="Thông Tin Cá Nhân" key="1">
+      <TabPane tab="Thông Tin Học Viên" key="1">
         <Card hoverable={false}>
           <AddStudent id={studentId} />
         </Card>
