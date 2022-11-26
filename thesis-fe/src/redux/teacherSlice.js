@@ -1,5 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import * as api from '../api';
+import { changeStringToNormalizeString } from '../components/Common/utilities';
 
 export const teacherActions = {
   getTeachers: () => async (dispatch) => {
@@ -10,6 +11,12 @@ export const teacherActions = {
     } catch (error) {
       console.log(error);
     }
+  },
+
+  searchTeacher: (str) => (dispatch) => {
+    if (!str) dispatch(teacherActions.getTeachers());
+
+    dispatch(actions.searchTeacher({ str: str || '', dispatch }));
   },
 
   // getTeachersBySearch: (searchQuery) => async (dispatch) => {
@@ -24,38 +31,45 @@ export const teacherActions = {
   //   }
   // };
 
-  createTeacher: (teacher) => async (dispatch) => {
+  createTeacher: (teacher, meta) => async (dispatch) => {
     try {
-      const { data } = await api.createTeacher(teacher);
+      const response = await api.createTeacher(teacher);
 
-      dispatch(
-        actions.createTeacher({
-          payload: data,
-          newTeacher: teacher,
-        })
-      );
+      if (response.status === 200 || response.status === 201) {
+        dispatch(actions.createTeacher({ newTeacher: response.data }));
+        if (meta.onSuccess) meta.onSuccess();
+      }
     } catch (error) {
       console.log(error);
+      if (meta.onError) meta.onError();
     }
   },
 
-  updateTeacher: (id, teacher) => async (dispatch) => {
+  updateTeacher: (id, teacher, meta) => async (dispatch) => {
     try {
-      const { data } = await api.updateTeacher(id, teacher);
+      const response = await api.updateTeacher(id, teacher);
 
-      dispatch(actions.updateTeacher({ payload: data, id, teacher }));
+      if (response.status === 200 || response.status === 201) {
+        dispatch(actions.updateTeacher({ id, teacher: response.data }));
+        if (meta.onSuccess) meta.onSuccess();
+      }
     } catch (error) {
-      console.log(error.messsage);
+      console.log(error);
+      if (meta.onError) meta.onError();
     }
   },
 
-  deleteTeacher: (id) => async (dispatch) => {
+  deleteTeacher: (id, meta) => async (dispatch) => {
     try {
-      await api.deleteTeacher(id);
+      const response = await api.deleteTeacher(id);
 
-      dispatch(actions.deleteTeacher({ id }));
+      if (response.status === 200 || response.status === 201) {
+        dispatch(actions.deleteTeacher({ id }));
+        if (meta.onSuccess) meta.onSuccess();
+      }
     } catch (error) {
       console.log(error);
+      if (meta.onError) meta.onError();
     }
   },
 };
@@ -75,17 +89,31 @@ const teacherSlice = createSlice({
     },
     createTeacher: (state, action) => {
       state.teachers.push(action.payload.newTeacher);
+      ++state.totalTeachers;
     },
     updateTeacher: (state, action) => {
-      state.teachers.map((teacher) => {
-        if (teacher.id === action.payload.id) teacher = action.payload.teacher;
-      });
+      state.teachers = state.teachers.map((teacher) =>
+        teacher._id === action.payload.id
+          ? (teacher = action.payload.teacher)
+          : teacher
+      );
     },
     deleteTeacher: (state, action) => {
       state.teachers = state.teachers.filter(
         (teacher) => teacher._id !== action.payload.id
       );
       --state.totalTeachers;
+    },
+    searchTeacher: (state, action) => {
+      if (action.payload.str) {
+        const str = changeStringToNormalizeString(action.payload.str).toLowerCase();
+        state.teachers = state.teachers.filter(
+          (teacher) =>
+            teacher.teacherId.includes(str) ||
+            changeStringToNormalizeString(teacher.fullname).toLowerCase().includes(str)
+        );
+      }
+      state.totalTeachers = state.teachers.length;
     },
   },
 });

@@ -10,6 +10,7 @@ const studentSchema = mongoose.Schema({
   status: String,
   classId: String,
   exemptId: String,
+  image: String,
 });
 
 const Student = mongoose.model('Student', studentSchema);

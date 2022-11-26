@@ -10,9 +10,8 @@ import useStyles from './styles';
 
 import { Avatar, Button, Paper, Grid, Typography, Container } from '@material-ui/core';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
-import { signIn, signUp } from '../../actions/auth';
-// import { authActions } from '../../redux/authSlice';
-// const { signIn, signUp } = authActions;
+import { authActions } from '../../redux/authSlice';
+const { signIn, signUp } = authActions;
 
 const initState = {
   firstName: '',

@@ -14,13 +14,7 @@ export const authActions = {
     }
   },
 
-  isSignedIn: () => async (dispatch) => {
-    try {
-      dispatch(actions.isSignedIn());
-    } catch (error) {
-      console.log(error);
-    }
-  },
+  isSignedIn: () => async (dispatch) => dispatch(actions.isSignedIn()),
 
   signUp: (formData, navigate) => async (dispatch) => {
     console.log(formData);

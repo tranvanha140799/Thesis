@@ -1,8 +1,10 @@
+/* eslint-disable array-callback-return */
 import { createSlice } from '@reduxjs/toolkit';
 import * as api from '../api';
+import { changeStringToNormalizeString } from '../components/Common/utilities';
 
 export const classActions = {
-  getClass: () => async (dispatch) => {
+  getClasses: () => async (dispatch) => {
     try {
       const { data } = await api.getClasses();
 
@@ -23,14 +25,19 @@ export const classActions = {
   //     console.log(error);
   //   }
   // },
+  searchClass: (str) => (dispatch) => {
+    if (!str) dispatch(classActions.getClasses());
+
+    dispatch(actions.searchClass({ str: str || '', dispatch }));
+  },
 
   createClass: (clasS) => async (dispatch) => {
     try {
-      const { data } = await api.createClasses(clasS);
+      const { data } = await api.createClass(clasS);
 
       dispatch(
         actions.createClass({
-          newClass: clasS,
+          newClass: data,
         })
       );
     } catch (error) {
@@ -40,12 +47,12 @@ export const classActions = {
 
   updateClass: (id, clasS) => async (dispatch) => {
     try {
-      const { data } = await api.updateClasses(id, clasS);
+      const { data } = await api.updateClass(id, clasS);
 
       dispatch(
         actions.updateClass({
           id,
-          class: clasS,
+          class: data,
         })
       );
     } catch (error) {
@@ -81,15 +88,24 @@ const classSlice = createSlice({
       state.classes.push(action.payload.newClass);
     },
     updateClass: (state, action) => {
-      state.classes = state.classes.map((clasS) => {
-        if (clasS.id === action.payload.clasS.id) clasS = action.clasS;
-      });
+      state.classes = state.classes.map((clasS) =>
+        clasS._id === action.payload.id ? (clasS = action.payload.class) : clasS
+      );
     },
     deleteClass: (state, action) => {
-      state.classes = state.teachers.filter(
-        (clasS) => clasS._id !== action.payload.id
-      );
+      state.classes = state.classes.filter((clasS) => clasS._id !== action.payload.id);
       --state.totalClasses;
+    },
+    searchClass: (state, action) => {
+      if (action.payload.str) {
+        const str = changeStringToNormalizeString(action.payload.str).toLowerCase();
+        state.classes = state.classes.filter(
+          (clasS) =>
+            clasS.classId.includes(str) ||
+            changeStringToNormalizeString(clasS.name).toLowerCase().includes(str)
+        );
+      }
+      state.totalClasses = state.classes.length;
     },
   },
 });

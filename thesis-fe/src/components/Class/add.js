@@ -1,14 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import moment from 'moment';
 
 import 'antd/dist/antd.css';
 
-import { Form, Input, Select, Button, DatePicker } from 'antd';
+import { Form, Input, Select, Button, DatePicker, Col } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { classActions } from '../../redux/classSlice';
+import FormItem from 'antd/es/form/FormItem';
+import moment from 'moment';
+// import { getCourses } from "../../api";
+import { courseActions } from '../../redux/courseSlice';
 
-const { createClass, getClass, updateClass } = classActions;
+const { createClass, getClasses, updateClass } = classActions;
+const { getCourses } = courseActions;
 const { Option } = Select;
 
 const formItemLayout = {
@@ -47,55 +51,70 @@ const AddClass = ({ id }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [form] = Form.useForm();
-  const totalClasses = useSelector((state) => state.classesReducer.totalClasses);
+  const totalClasses = useSelector((state) => state.classReducer.totalClasses);
+  const courses = useSelector((state) => state.courseReducer.courses);
   const clasS = useSelector((state) =>
-    id ? state.classesReducer.classes.find((p) => p.classId === id) : null
+    id ? state.classReducer.classes.find((p) => p.classId === id) : null
   );
   const [_id, set_Id] = useState('');
   const [classId, setClassId] = useState('');
   const [classname, setClassname] = useState('');
   const [studentQuantity, setStudentQuantity] = useState('');
   const [status, setStatus] = useState('');
-  const [formTeacherId, setFromTeacherId] = useState('');
+  // const [formTeacherId, setFormTeacherId] = useState("");
+  const [minStu, setMinStu] = useState('');
+  const [maxStu, setMaxStu] = useState('');
+  const [discount, setDiscount] = useState('');
+  const [dateStart, setDateStart] = useState('');
+  const [dateEnd, setDateEnd] = useState('');
+  const [courseId, setCourseId] = useState('');
 
   useEffect(() => {
-    // if (totalStudents === 0) dispatch(getStudents());
+    if (totalClasses === 0) dispatch(getClasses());
     if (clasS) {
       set_Id(clasS._id);
       setClassId(clasS.classId);
       setClassname(clasS.name);
       setStudentQuantity(clasS.studentQuantity);
       setStatus(clasS.status);
-      setFromTeacherId(clasS.formTeacherId);
+      // setFormTeacherId(clasS.formTeacherId);
+      setMinStu(clasS.minStu);
+      setMaxStu(clasS.maxStu);
+      setDiscount(clasS.discount);
+      setDateStart(clasS.dateStart);
+      setDateEnd(clasS.dateEnd);
+      setCourseId(clasS.courseId);
     }
   }, [dispatch, clasS]);
+
+  useEffect(() => {
+    if (!courses.length) {
+      dispatch(getCourses());
+    }
+  });
 
   const onFinish = async (values) => {
     const clasS = {
       classId,
       name: classname,
       studentQuantity,
-      formTeacherId,
+      // formTeacherId,
       status,
+      minStudents: minStu,
+      maxStudents: maxStu,
+      discount,
+      dateStart,
+      dateEnd,
+      courseId,
     };
     if (typeof id === 'string') await dispatch(updateClass(_id, clasS));
     else await dispatch(createClass(clasS));
 
     navigate('/classes');
   };
-
-  const prefixSelector = (
-    <Form.Item name="prefix" noStyle>
-      <Select
-        style={{
-          width: 70,
-        }}
-      >
-        <Option value="84">+84</Option>
-        <Option value="1">+1</Option>
-      </Select>
-    </Form.Item>
-  );
+  const onChange1 = (date, dateString) => {
+    console.log(date, dateString);
+  };
 
   return (
     <Form
@@ -103,16 +122,17 @@ const AddClass = ({ id }) => {
       form={form}
       name="register"
       onFinish={onFinish}
-      initialValues={{
-        residence: [],
-        prefix: '84',
-      }}
       fields={[
         { name: ['classId'], value: classId },
         { name: ['classname'], value: classname },
         { name: ['studentQuantity'], value: studentQuantity },
-        { name: ['formTeacherId'], value: formTeacherId },
         { name: ['status'], value: status },
+        { name: ['dateStart'], value: dateStart },
+        { name: ['dateEnd'], value: dateEnd },
+        { name: ['minStudents'], value: minStu },
+        { name: ['maxStudents'], value: maxStu },
+        { name: ['discount'], value: discount },
+        { name: ['courseId'], value: courseId },
       ]}
       scrollToFirstError
     >
@@ -147,7 +167,39 @@ const AddClass = ({ id }) => {
       >
         <Input />
       </Form.Item>
-
+      <Form.Item
+        name="minStudents"
+        label="Số học sinh tối thiểu"
+        tooltip="Số học sinh tối thiểu là..?"
+        onChange={(e) => setMinStu(e.target.value)}
+      >
+        <Input />
+      </Form.Item>
+      <Form.Item
+        name="maxStudents"
+        label="Số học sinh tối đa"
+        tooltip="Số học sinh tối đa là..?"
+        onChange={(e) => setMaxStu(e.target.value)}
+      >
+        <Input />
+      </Form.Item>
+      <Form.Item
+        name="discount"
+        label="Giảm giá"
+        tooltip="% giảm giá..?"
+        onChange={(e) => setDiscount(e.target.value)}
+      >
+        <Input />
+      </Form.Item>
+      <Form.Item name="courseId" label="Khóa học">
+        <Select value={courseId} onChange={(e) => setCourseId(e)} allowClear>
+          {courses.map((course) => (
+            <Select.Option key={course._id} value={course._id}>
+              {course.name}
+            </Select.Option>
+          ))}
+        </Select>
+      </Form.Item>
       {/* <Form.Item
         name="studentQuantity"
         label="số lượng học sinh"
@@ -161,19 +213,63 @@ const AddClass = ({ id }) => {
       >
         <Input />
       </Form.Item> */}
-
-      <Form.Item
-        name="status"
-        label="Trạng Thái"
-        onChange={(e) => setStatus(e.target.value)}
-        rules={[
-          {
-            required: false,
-            message: '',
-          },
-        ]}
+      <FormItem label="Ngày bắt đầu" name="dateStart">
+        <DatePicker
+          // disabledDate={(current) =>
+          //   current && current < moment().startOf("day")
+          // }
+          style={{ width: '100%' }}
+          showTime={{
+            format: 'HH:mm',
+            minuteStep: 15,
+            defaultValue: moment('21:00', 'HH:mm'),
+            placeholder: 'Chọn giờ',
+          }}
+          format="DD-MM-YYYY HH:mm"
+          placeholder="Chọn thời gian ..."
+          onChange={(date, dateString) => {
+            // setDateStart(dateString);
+            console.log(new Date(dateString).toISOString());
+          }}
+        />
+      </FormItem>
+      <FormItem
+        label="Ngày kết thúc"
+        name="dateEnd"
+        onChange={(e) => setDateEnd(e.target.value)}
       >
-        <Input />
+        <DatePicker
+          disabledDate={(current) => current && current < moment().startOf('day')}
+          style={{ width: '100%' }}
+          showTime={{
+            format: 'HH:mm',
+            minuteStep: 15,
+            defaultValue: moment('21:00', 'HH:mm'),
+            placeholder: 'Chọn giờ',
+          }}
+          format="DD-MM-YYYY HH:mm"
+          placeholder="Chọn thời gian ..."
+        />
+      </FormItem>
+
+      <Form.Item name="status" label="Trạng Thái">
+        <Select
+          value={status}
+          onChange={(e) => {
+            setStatus(e);
+            console.log(e);
+          }}
+          rules={[
+            {
+              required: false,
+              message: '',
+            },
+          ]}
+        >
+          <Option value="active">Hoạt động</Option>
+          <Option value="paused">Tạm dừng</Option>
+          <Option value="closed">Đã đóng</Option>
+        </Select>
       </Form.Item>
 
       <Form.Item {...tailFormItemLayout}>

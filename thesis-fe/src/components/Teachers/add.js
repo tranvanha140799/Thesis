@@ -1,13 +1,15 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import moment from 'moment';
+import FileBase from 'react-file-base64';
+import { Form, Input, Select, Button, DatePicker, Row, Col, Avatar } from 'antd';
 
 import 'antd/dist/antd.css';
 import './index.css';
-
-import { Form, Input, Select, Button, DatePicker } from 'antd';
-import { useNavigate } from 'react-router-dom';
 import { teacherActions } from '../../redux/teacherSlice';
+import { showNotification, validatePhoneNumber } from '../Common/utilities';
 
 const { createTeacher, getTeachers, updateTeacher } = teacherActions;
 const { Option } = Select;
@@ -48,10 +50,9 @@ const AddTeacher = ({ id }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [form] = Form.useForm();
-  const salaryRank = useSelector((state) => state.salaryChartReducer.salaries);
-  const totalTeachers = useSelector((state) => state.teachersReducer.totalTeachers);
+  const totalTeachers = useSelector((state) => state.teacherReducer.totalTeachers);
   const teacher = useSelector((state) =>
-    id ? state.teachersReducer.teachers.find((p) => p.teacherId === id) : null
+    id ? state.teacherReducer.teachers.find((p) => p.teacherId === id) : null
   );
   const [_id, set_Id] = useState('');
   const [teacherId, setTeacherId] = useState('');
@@ -61,11 +62,11 @@ const AddTeacher = ({ id }) => {
   const [email, setEmail] = useState('');
   const [address, setAddress] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
-  const [degree, setDegree] = useState('');
   const [position, setPosition] = useState('');
-  const [subjectId, setSubjectId] = useState('');
+  const [workType, setWorkType] = useState('');
   const [status, setStatus] = useState('');
   const [salaryRankId, setSalaryRankId] = useState('');
+  const [image, setImage] = useState('');
 
   useEffect(() => {
     if (totalTeachers === 0) dispatch(getTeachers());
@@ -78,11 +79,11 @@ const AddTeacher = ({ id }) => {
       setEmail(teacher.email);
       setAddress(teacher.address);
       setPhoneNumber(teacher.phoneNumber);
-      setDegree(teacher.degree);
       setPosition(teacher.position);
-      setSubjectId(teacher.subjectId);
+      setWorkType(teacher.workType);
       setStatus(teacher.status);
       setSalaryRankId(teacher?.salaryRankId);
+      setImage(teacher.image);
     }
   }, [dispatch, teacher]);
 
@@ -95,30 +96,31 @@ const AddTeacher = ({ id }) => {
       email,
       address,
       phoneNumber,
-      degree,
       position,
-      subjectId,
+      workType,
       status,
       salaryRankId,
+      image,
     };
-    if (typeof id === 'string') await dispatch(updateTeacher(_id, teacher));
-    else await dispatch(createTeacher(teacher));
+    if (typeof id === 'string')
+      await dispatch(
+        updateTeacher(_id, teacher, {
+          onSuccess: () =>
+            showNotification('success', 'Sửa thông tin giảng viên thành công.'),
+          onError: () =>
+            showNotification('error', 'Sửa thông tin giảng viên thất bại!'),
+        })
+      );
+    else
+      await dispatch(
+        createTeacher(teacher, {
+          onSuccess: () => showNotification('success', 'Thêm giảng viên thành công.'),
+          onError: () => showNotification('error', 'Thêm giảng viên thất bại!'),
+        })
+      );
 
     navigate('/teachers');
   };
-
-  const prefixSelector = (
-    <Form.Item name="prefix" noStyle>
-      <Select
-        style={{
-          width: 70,
-        }}
-      >
-        <Option value="84">+84</Option>
-        <Option value="1">+1</Option>
-      </Select>
-    </Form.Item>
-  );
 
   return (
     <Form
@@ -126,300 +128,235 @@ const AddTeacher = ({ id }) => {
       form={form}
       name="register"
       onFinish={onFinish}
-      initialValues={{
-        residence: [],
-        prefix: '84',
-        // salaryRank: teacher?.salaryRankId ? teacher?.salaryRankId : '',
-      }}
       fields={[
         { name: ['teacherId'], value: teacherId },
         { name: ['fullname'], value: fullname },
         { name: ['gender'], value: gender },
-        {
-          name: ['birthday'],
-          value: birthday ? moment(birthday, 'YYYY-MM-DDTHH:00:00[Z]') : '',
-        },
+        { name: ['birthday'], value: birthday ? moment(birthday) : '' },
         { name: ['email'], value: email },
         { name: ['address'], value: address },
         { name: ['phoneNumber'], value: phoneNumber },
-        { name: ['degree'], value: degree },
         { name: ['position'], value: position },
-        { name: ['subjectId'], value: subjectId },
+        { name: ['workType'], value: workType },
         { name: ['status'], value: status },
-        { name: ['salaryRank'], value: salaryRankId },
+        { name: ['image'], value: image },
       ]}
       scrollToFirstError
     >
-      <Form.Item
-        name="teacherId"
-        label="Mã Giáo Viên"
-        tooltip="Giáo viên có mã là..?"
-        onChange={(e) => setTeacherId(e.target.value)}
-        rules={[
-          {
-            required: true,
-            message: 'Hãy nhập mã giáo viên!',
-            whitespace: false,
-          },
-        ]}
-      >
-        <Input />
-      </Form.Item>
+      <Row>
+        <Col span={12}>
+          <Form.Item
+            name="teacherId"
+            label="Mã Giảng Viên"
+            tooltip="Giảng viên có mã là..?"
+            onChange={(e) => setTeacherId(e.target.value)}
+            rules={[
+              {
+                required: true,
+                message: 'Hãy nhập mã giảng viên!',
+                whitespace: false,
+              },
+            ]}
+          >
+            <Input />
+          </Form.Item>
 
-      <Form.Item
-        name="fullname"
-        label="Họ và Tên"
-        tooltip="Giáo viên tên là..?"
-        onChange={(e) => setFullname(e.target.value)}
-        rules={[
-          {
-            required: true,
-            message: 'Hãy nhập tên giáo viên!',
-            whitespace: true,
-          },
-        ]}
-      >
-        <Input />
-      </Form.Item>
+          <Form.Item
+            name="fullname"
+            label="Họ và Tên"
+            tooltip="Giảng viên tên là..?"
+            onChange={(e) => setFullname(e.target.value)}
+            rules={[
+              {
+                required: true,
+                message: 'Hãy nhập tên giảng viên!',
+                whitespace: true,
+              },
+            ]}
+          >
+            <Input />
+          </Form.Item>
 
-      <Form.Item
-        name="gender"
-        label="Giới Tính"
-        onChange={(e) => setGender(e)}
-        rules={[
-          {
-            required: true,
-            message: 'Chọn giới tính của giáo viên!',
-          },
-        ]}
-      >
-        <Select placeholder="Chọn giới tính">
-          <Option value="male">Nam</Option>
-          <Option value="female">Nữ</Option>
-          <Option value="other">Khác</Option>
-        </Select>
-      </Form.Item>
+          <Form.Item
+            name="gender"
+            label="Giới Tính"
+            onChange={(e) => setGender(e)}
+            rules={[
+              {
+                required: true,
+                message: 'Chọn giới tính của giảng viên!',
+              },
+            ]}
+          >
+            <Select placeholder="Chọn giới tính">
+              <Option value="male">Nam</Option>
+              <Option value="female">Nữ</Option>
+              <Option value="other">Khác</Option>
+            </Select>
+          </Form.Item>
 
-      <Form.Item
-        name="birthday"
-        label="Ngày Sinh"
-        rules={[
-          {
-            required: true,
-            message: 'Nhập ngày sinh của giáo viên!',
-          },
-        ]}
-      >
-        <DatePicker
-          format="DD/MM/YYYY"
-          // onChange={(e) => {
-          // setBirtday(e);
-          // }}
-        />
-      </Form.Item>
+          <Form.Item
+            name="birthday"
+            label="Ngày Sinh"
+            rules={[
+              {
+                required: true,
+                message: 'Nhập ngày sinh của giảng viên!',
+              },
+            ]}
+          >
+            <DatePicker
+              format="DD/MM/YYYY"
+              // onChange={(e) => {
+              // setBirtday(e);
+              // }}
+            />
+          </Form.Item>
 
-      <Form.Item
-        name="email"
-        label="E-mail"
-        onChange={(e) => setEmail(e.target.value)}
-        rules={[
-          {
-            type: 'email',
-            message: 'Email chưa đúng định dạng!',
-          },
-          {
-            required: true,
-            message: 'Vui lòng nhập email của bạn!',
-          },
-        ]}
-      >
-        <Input />
-      </Form.Item>
+          <Form.Item
+            name="phoneNumber"
+            label="Số Điện Thoại"
+            onChange={(e) => setPhoneNumber(e.target.value)}
+            rules={[
+              {
+                required: true,
+                message: 'Nhập số điện thoại!',
+              },
+              { validator: validatePhoneNumber },
+            ]}
+          >
+            <Input style={{ width: '100%' }} />
+          </Form.Item>
 
-      <Form.Item
-        name="address"
-        label="Địa Chỉ"
-        onChange={(e) => setAddress(e.target.value)}
-        rules={[
-          {
-            required: true,
-            message: 'Nhập địa chỉ!',
-          },
-        ]}
-      >
-        <Input />
-      </Form.Item>
+          <Form.Item
+            name="email"
+            label="E-mail"
+            onChange={(e) => setEmail(e.target.value)}
+            rules={[
+              {
+                type: 'email',
+                message: 'Email chưa đúng định dạng!',
+              },
+              {
+                required: true,
+                message: 'Vui lòng nhập email của bạn!',
+              },
+            ]}
+          >
+            <Input />
+          </Form.Item>
 
-      <Form.Item
-        name="phoneNumber"
-        label="Số Điện Thoại"
-        onChange={(e) => setPhoneNumber(e.target.value)}
-        rules={[
-          {
-            required: true,
-            message: 'Nhập số điện thoại!',
-          },
-        ]}
-      >
-        <Input
-          addonBefore={prefixSelector}
-          style={{
-            width: '100%',
-          }}
-        />
-      </Form.Item>
+          <Form.Item
+            name="address"
+            label="Địa Chỉ"
+            onChange={(e) => setAddress(e.target.value)}
+            rules={[
+              {
+                required: true,
+                message: 'Nhập địa chỉ!',
+              },
+            ]}
+          >
+            <Input />
+          </Form.Item>
+        </Col>
 
-      <Form.Item
-        name="degree"
-        label="Học Vị"
-        rules={[
-          {
-            required: false,
-            message: '',
-          },
-        ]}
-      >
-        {/* <Input /> */}
-        <Select onChange={(e) => setDegree(e)}>
-          <Option key={0} value="Tiến sĩ khoa học">
-            Tiến sĩ khoa học
-          </Option>
-          <Option key={1} value="Tiến sĩ">
-            Tiến sĩ
-          </Option>
-          <Option key={2} value="Thạc sĩ">
-            Thạc sĩ
-          </Option>
-          <Option key={3} value="Cử nhân">
-            Cử nhân
-          </Option>
-        </Select>
-      </Form.Item>
+        <Col span={12}>
+          <Form.Item name="image" label="Ảnh">
+            {image && <Avatar src={image} size={200} />}
+            <FileBase
+              type="file"
+              multiple={false}
+              title="Chọn ảnh"
+              onDone={({ base64 }) => setImage(base64)}
+            />
+          </Form.Item>
 
-      <Form.Item
-        name="position"
-        label="Chức Vụ"
-        rules={[
-          {
-            required: false,
-            message: '',
-          },
-        ]}
-      >
-        {/* <Input /> */}
-        <Select onChange={(e) => setPosition(e)}>
-          <Option key={0} value="Hiệu trưởng">
-            Hiệu trưởng
-          </Option>
-          <Option key={1} value="Phó hiệu trưởng">
-            Phó hiệu trưởng
-          </Option>
-          <Option key={2} value="Tổ trưởng bộ môn">
-            Tổ trưởng bộ môn
-          </Option>
-          <Option key={3} value="Giáo viên">
-            Giáo viên
-          </Option>
-          <Option key={4} value="Trợ giảng">
-            Trợ giảng
-          </Option>
-        </Select>
-      </Form.Item>
-
-      <Form.Item
-        name="subjectId"
-        label="Môn Giảng Dạy"
-        rules={[
-          {
-            required: false,
-            message: '',
-          },
-        ]}
-      >
-        <Select onChange={(e) => setSubjectId(e)}>
-          <Option key={0} value="001">
-            Toán
-          </Option>
-          <Option key={1} value="002">
-            Vật Lý
-          </Option>
-          <Option key={2} value="003">
-            Hoá Học
-          </Option>
-          <Option key={3} value="004">
-            Sinh Học
-          </Option>
-          <Option key={4} value="005">
-            Ngữ Văn
-          </Option>
-          <Option key={5} value="006">
-            Lịch Sử
-          </Option>
-          <Option key={6} value="007">
-            Địa Lý
-          </Option>
-          <Option key={7} value="008">
-            Tiếng Anh
-          </Option>
-        </Select>
-      </Form.Item>
-
-      <Form.Item
-        name="status"
-        label="Trạng Thái"
-        rules={[
-          {
-            required: false,
-            message: '',
-          },
-        ]}
-      >
-        <Select onChange={(e) => setStatus(e)}>
-          <Option key={0} value="1">
-            Đang công tác
-          </Option>
-          <Option key={1} value="2">
-            Tạm nghỉ
-          </Option>
-          <Option key={2} value="3">
-            Đã nghỉ việc
-          </Option>
-        </Select>
-      </Form.Item>
-
-      <Form.Item
-        name="salaryRank"
-        label="Mức lương"
-        rules={[
-          {
-            required: false,
-            message: '',
-          },
-        ]}
-      >
-        <Select onChange={(e) => setSalaryRankId(e)}>
-          {salaryRank.map((rank) => {
-            return (
-              <Option key={rank.salaryRankId} value={rank.salaryRankId}>
-                {rank.salaryRankId}
+          <Form.Item
+            name="position"
+            label="Chức Vụ"
+            rules={[
+              {
+                required: true,
+                message: 'Đây là trường bắt buộc!',
+              },
+            ]}
+          >
+            <Select onChange={(e) => setPosition(e)}>
+              <Option key="teacher" value="teacher">
+                Giảng Viên
               </Option>
-            );
-          })}
-        </Select>
-      </Form.Item>
+              <Option key="tutor" value="tutor">
+                Trợ Giảng
+              </Option>
+            </Select>
+          </Form.Item>
 
-      <Form.Item {...tailFormItemLayout}>
-        <Button type="primary" htmlType="submit">
-          {id ? 'Sửa Thông Tin' : 'Thêm Giáo Viên'}
-        </Button>
-        <Button
-          type="ghost"
-          style={{ marginLeft: '10px' }}
-          onClick={() => navigate('/teachers')}
-        >
-          Huỷ Bỏ
-        </Button>
-      </Form.Item>
+          <Form.Item
+            name="workType"
+            label="Hình Thức Làm Việc"
+            rules={[
+              {
+                required: true,
+                message: 'Đây là trường bắt buộc!',
+              },
+            ]}
+          >
+            <Select onChange={(e) => setWorkType(e)}>
+              <Option key="fulltime" value="fulltime">
+                Toàn Thời Gian
+              </Option>
+              <Option key="parttime" value="parttime">
+                Bán Thời Gian
+              </Option>
+            </Select>
+          </Form.Item>
+
+          <Form.Item
+            name="status"
+            label="Trạng Thái"
+            rules={[
+              {
+                required: false,
+                message: '',
+              },
+            ]}
+          >
+            <Select onChange={(e) => setStatus(e)}>
+              <Option key="active" value="active">
+                Đang công tác
+              </Option>
+              <Option key="paused" value="paused">
+                Tạm nghỉ
+              </Option>
+              <Option key="leaved" value="leaved">
+                Đã nghỉ việc
+              </Option>
+            </Select>
+          </Form.Item>
+        </Col>
+      </Row>
+
+      <Row
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          flexDirection: 'column',
+        }}
+      >
+        <Form.Item {...tailFormItemLayout}>
+          <Button type="primary" htmlType="submit">
+            {id ? 'Sửa Thông Tin' : 'Thêm Giảng Viên'}
+          </Button>
+          <Button
+            type="ghost"
+            style={{ marginLeft: '10px' }}
+            onClick={() => navigate('/teachers')}
+          >
+            Huỷ Bỏ
+          </Button>
+        </Form.Item>
+      </Row>
     </Form>
   );
 };
