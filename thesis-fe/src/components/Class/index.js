@@ -2,29 +2,20 @@ import React, { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 
-<<<<<<< HEAD
-import { Table, Space } from "antd";
-=======
+
 import { Table, Space, Row, Col } from 'antd';
->>>>>>> 815f0a9907a42977bb657ab1a708be48bf7fc075
 // import ColumnGroup from 'antd/lib/table/ColumnGroup';
 import Column from "antd/lib/table/Column";
 
 import "antd/dist/antd.css";
 // import "./index.css";
-<<<<<<< HEAD
-import AddBtn from "../Common/AddBtn";
-import DeleteBtn from "../Common/DeleteBtn";
-import { classActions } from "../../redux/classSlice";
-import EditBtn from "../Common/EditBtn";
-=======
+
 
 import AddBtn from '../Common/AddBtn';
 import DeleteBtn from '../Common/DeleteBtn';
 import SearchBox from '../Common/SearchBox';
 import { classActions } from '../../redux/classSlice';
 import { courseActions } from '../../redux/courseSlice';
->>>>>>> 815f0a9907a42977bb657ab1a708be48bf7fc075
 
 const { getCourses } = courseActions;
 const { deleteClass, getClasses, searchClass } = classActions;
@@ -75,14 +66,7 @@ const ClassPage = () => {
             </Space>
           )}
         />
-<<<<<<< HEAD
-        <Column
-          title="Số lượng học sinh"
-          dataIndex="studentQuantity"
-          key="key"
-        />
-        <Column title="Giới Tính" dataIndex="formTeacherId" key="key" />
-=======
+
         <Column title="Số Lượng Học Viên" dataIndex="numberOfStudents" key="key" />
         <Column title="Mã Giáo Viên" dataIndex="formTeacherId" key="key" />
         <Column title="Thời Gian Bắt Đầu" dataIndex="dateStart" key="key" />
@@ -122,7 +106,6 @@ const ClassPage = () => {
               : '---'
           }
         />
->>>>>>> 815f0a9907a42977bb657ab1a708be48bf7fc075
         <Column
           title="Action"
           key="action"
@@ -131,12 +114,8 @@ const ClassPage = () => {
               {/* <Button onClick={() => dispatch(deleteStudent(record._id))}>
                 Xoá
               </Button> */}
-<<<<<<< HEAD
-              <DeleteBtn deletE={() => deleteStu(record._id)} />
-              <EditBtn edit={() => gotoEdit(record.classId)} />
-=======
+
               <DeleteBtn onDelete={() => deleteStu(record._id)} />
->>>>>>> 815f0a9907a42977bb657ab1a708be48bf7fc075
             </Space>
           )}
         />

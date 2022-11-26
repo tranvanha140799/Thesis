@@ -88,7 +88,7 @@ const AddTeacher = ({ id }) => {
   }, [dispatch, teacher]);
 
   const onFinish = async (values) => {
-    const teacher = {
+    const payload = {
       teacherId,
       fullname,
       gender: values.gender,
@@ -101,10 +101,11 @@ const AddTeacher = ({ id }) => {
       status,
       salaryRankId,
       image,
+      classId: teacher?.classId || '',
     };
     if (typeof id === 'string')
       await dispatch(
-        updateTeacher(_id, teacher, {
+        updateTeacher(_id, payload, {
           onSuccess: () =>
             showNotification('success', 'Sửa thông tin giảng viên thành công.'),
           onError: () =>
@@ -113,7 +114,7 @@ const AddTeacher = ({ id }) => {
       );
     else
       await dispatch(
-        createTeacher(teacher, {
+        createTeacher(payload, {
           onSuccess: () => showNotification('success', 'Thêm giảng viên thành công.'),
           onError: () => showNotification('error', 'Thêm giảng viên thất bại!'),
         })

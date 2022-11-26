@@ -137,7 +137,7 @@ const AddClass = ({ id }) => {
       scrollToFirstError
     >
       <Form.Item
-        name="studentId"
+        name="classId"
         label="Mã Lớp học"
         tooltip="Lớp học có mã là..?"
         onChange={(e) => setClassId(e.target.value)}
@@ -239,7 +239,7 @@ const AddClass = ({ id }) => {
         onChange={(e) => setDateEnd(e.target.value)}
       >
         <DatePicker
-          disabledDate={(current) => current && current < moment().startOf('day')}
+          // disabledDate={(current) => current && current < moment().startOf('day')}
           style={{ width: '100%' }}
           showTime={{
             format: 'HH:mm',
