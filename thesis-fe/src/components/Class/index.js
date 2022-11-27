@@ -1,15 +1,14 @@
-import React, { useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
-
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
 
 import { Table, Space, Row, Col } from 'antd';
 // import ColumnGroup from 'antd/lib/table/ColumnGroup';
-import Column from "antd/lib/table/Column";
+import Column from 'antd/lib/table/Column';
 
-import "antd/dist/antd.css";
+import 'antd/dist/antd.css';
 // import "./index.css";
-
 
 import AddBtn from '../Common/AddBtn';
 import DeleteBtn from '../Common/DeleteBtn';
@@ -32,7 +31,7 @@ const ClassPage = () => {
   }, []);
 
   const gotoAdd = () => {
-    navigate("./add");
+    navigate('./add');
   };
   const gotoEdit = (id) => {
     navigate(`./${id}`);

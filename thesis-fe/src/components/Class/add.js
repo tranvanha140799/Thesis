@@ -1,9 +1,10 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import 'antd/dist/antd.css';
 
-import { Form, Input, Select, Button, DatePicker, Col } from 'antd';
+import { Form, Input, Select, Button, DatePicker, Col, Row, InputNumber } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { classActions } from '../../redux/classSlice';
 import FormItem from 'antd/es/form/FormItem';
@@ -51,6 +52,7 @@ const AddClass = ({ id }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [form] = Form.useForm();
+
   const totalClasses = useSelector((state) => state.classReducer.totalClasses);
   const courses = useSelector((state) => state.courseReducer.courses);
   const clasS = useSelector((state) =>
@@ -58,10 +60,9 @@ const AddClass = ({ id }) => {
   );
   const [_id, set_Id] = useState('');
   const [classId, setClassId] = useState('');
-  const [classname, setClassname] = useState('');
+  const [name, setName] = useState('');
   const [studentQuantity, setStudentQuantity] = useState('');
   const [status, setStatus] = useState('');
-  // const [formTeacherId, setFormTeacherId] = useState("");
   const [minStu, setMinStu] = useState('');
   const [maxStu, setMaxStu] = useState('');
   const [discount, setDiscount] = useState('');
@@ -74,12 +75,11 @@ const AddClass = ({ id }) => {
     if (clasS) {
       set_Id(clasS._id);
       setClassId(clasS.classId);
-      setClassname(clasS.name);
+      setName(clasS.name);
       setStudentQuantity(clasS.studentQuantity);
       setStatus(clasS.status);
-      // setFormTeacherId(clasS.formTeacherId);
-      setMinStu(clasS.minStu);
-      setMaxStu(clasS.maxStu);
+      setMinStu(clasS.minStudents);
+      setMaxStu(clasS.maxStudents);
       setDiscount(clasS.discount);
       setDateStart(clasS.dateStart);
       setDateEnd(clasS.dateEnd);
@@ -88,17 +88,14 @@ const AddClass = ({ id }) => {
   }, [dispatch, clasS]);
 
   useEffect(() => {
-    if (!courses.length) {
-      dispatch(getCourses());
-    }
-  });
+    if (!courses.length) dispatch(getCourses());
+  }, []);
 
   const onFinish = async (values) => {
-    const clasS = {
+    const payload = {
       classId,
-      name: classname,
+      name,
       studentQuantity,
-      // formTeacherId,
       status,
       minStudents: minStu,
       maxStudents: maxStu,
@@ -107,13 +104,11 @@ const AddClass = ({ id }) => {
       dateEnd,
       courseId,
     };
-    if (typeof id === 'string') await dispatch(updateClass(_id, clasS));
-    else await dispatch(createClass(clasS));
+
+    if (typeof id === 'string') await dispatch(updateClass(_id, payload));
+    else await dispatch(createClass(payload));
 
     navigate('/classes');
-  };
-  const onChange1 = (date, dateString) => {
-    console.log(date, dateString);
   };
 
   return (
@@ -124,153 +119,145 @@ const AddClass = ({ id }) => {
       onFinish={onFinish}
       fields={[
         { name: ['classId'], value: classId },
-        { name: ['classname'], value: classname },
+        { name: ['classname'], value: name },
         { name: ['studentQuantity'], value: studentQuantity },
-        { name: ['status'], value: status },
-        { name: ['dateStart'], value: dateStart },
-        { name: ['dateEnd'], value: dateEnd },
         { name: ['minStudents'], value: minStu },
         { name: ['maxStudents'], value: maxStu },
+        { name: ['studentQuantity'], value: studentQuantity },
+        { name: ['status'], value: status },
         { name: ['discount'], value: discount },
         { name: ['courseId'], value: courseId },
       ]}
       scrollToFirstError
     >
-      <Form.Item
-        name="classId"
-        label="Mã Lớp học"
-        tooltip="Lớp học có mã là..?"
-        onChange={(e) => setClassId(e.target.value)}
-        rules={[
-          {
-            required: true,
-            message: 'Hãy nhập mã lớp học!',
-            whitespace: false,
-          },
-        ]}
-      >
-        <Input />
-      </Form.Item>
+      <Row>
+        <Col span={12}>
+          <Form.Item name="courseId" label="Khoá học">
+            <Select
+              value={courseId || undefined}
+              onChange={(e) => setCourseId(e)}
+              allowClear
+              placeholder="Chọn khoá học"
+            >
+              {courses.map((course) => (
+                <Select.Option key={course._id} value={course._id}>
+                  {course.name}
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+          <Form.Item
+            name="classId"
+            label="Mã Lớp học"
+            tooltip="Lớp học có mã là..?"
+            onChange={(e) => setClassId(e.target.value)}
+            rules={[
+              {
+                required: true,
+                message: 'Hãy nhập mã lớp học!',
+                whitespace: false,
+              },
+            ]}
+          >
+            <Input placeholder="Mã lớp học" />
+          </Form.Item>
 
-      <Form.Item
-        name="classname"
-        label="Tên lớp học"
-        tooltip="lớp học tên là..?"
-        onChange={(e) => setClassname(e.target.value)}
-        rules={[
-          {
-            required: true,
-            message: 'Hãy nhập tên lớp học!',
-            whitespace: true,
-          },
-        ]}
-      >
-        <Input />
-      </Form.Item>
-      <Form.Item
-        name="minStudents"
-        label="Số học sinh tối thiểu"
-        tooltip="Số học sinh tối thiểu là..?"
-        onChange={(e) => setMinStu(e.target.value)}
-      >
-        <Input />
-      </Form.Item>
-      <Form.Item
-        name="maxStudents"
-        label="Số học sinh tối đa"
-        tooltip="Số học sinh tối đa là..?"
-        onChange={(e) => setMaxStu(e.target.value)}
-      >
-        <Input />
-      </Form.Item>
-      <Form.Item
-        name="discount"
-        label="Giảm giá"
-        tooltip="% giảm giá..?"
-        onChange={(e) => setDiscount(e.target.value)}
-      >
-        <Input />
-      </Form.Item>
-      <Form.Item name="courseId" label="Khóa học">
-        <Select value={courseId} onChange={(e) => setCourseId(e)} allowClear>
-          {courses.map((course) => (
-            <Select.Option key={course._id} value={course._id}>
-              {course.name}
-            </Select.Option>
-          ))}
-        </Select>
-      </Form.Item>
-      {/* <Form.Item
-        name="studentQuantity"
-        label="số lượng học sinh"
-        onChange={(e) => setStudentQuantity(e.target.value)}
-        rules={[
-          {
-            required: true,
-            message: "Nhập số lượng học sinh!",
-          },
-        ]}
-      >
-        <Input />
-      </Form.Item> */}
-      <FormItem label="Ngày bắt đầu" name="dateStart">
-        <DatePicker
-          // disabledDate={(current) =>
-          //   current && current < moment().startOf("day")
-          // }
-          style={{ width: '100%' }}
-          showTime={{
-            format: 'HH:mm',
-            minuteStep: 15,
-            defaultValue: moment('21:00', 'HH:mm'),
-            placeholder: 'Chọn giờ',
-          }}
-          format="DD-MM-YYYY HH:mm"
-          placeholder="Chọn thời gian ..."
-          onChange={(date, dateString) => {
-            // setDateStart(dateString);
-            console.log(new Date(dateString).toISOString());
-          }}
-        />
-      </FormItem>
-      <FormItem
-        label="Ngày kết thúc"
-        name="dateEnd"
-        onChange={(e) => setDateEnd(e.target.value)}
-      >
-        <DatePicker
-          // disabledDate={(current) => current && current < moment().startOf('day')}
-          style={{ width: '100%' }}
-          showTime={{
-            format: 'HH:mm',
-            minuteStep: 15,
-            defaultValue: moment('21:00', 'HH:mm'),
-            placeholder: 'Chọn giờ',
-          }}
-          format="DD-MM-YYYY HH:mm"
-          placeholder="Chọn thời gian ..."
-        />
-      </FormItem>
+          <Form.Item
+            name="classname"
+            label="Tên lớp học"
+            tooltip="lớp học tên là..?"
+            onChange={(e) => setName(e.target.value)}
+            rules={[
+              {
+                required: true,
+                message: 'Hãy nhập tên lớp học!',
+                whitespace: true,
+              },
+            ]}
+          >
+            <Input placeholder="Tên lớp học" />
+          </Form.Item>
+          <Form.Item
+            name="minStudents"
+            label="Số học viên tối thiểu"
+            tooltip="Số học viên tối thiểu là..?"
+          >
+            <InputNumber
+              min={1}
+              value={minStu}
+              style={{ width: '100%' }}
+              placeholder="Số học viên tối thiểu"
+              onChange={(e) => setMinStu(e)}
+            />
+          </Form.Item>
+          <Form.Item
+            name="maxStudents"
+            label="Số học viên tối đa"
+            tooltip="Số học viên tối đa là..?"
+          >
+            <InputNumber
+              min={minStu}
+              value={maxStu}
+              style={{ width: '100%' }}
+              placeholder="Số học viên tối đa"
+              onChange={(e) => setMaxStu(e)}
+            />
+          </Form.Item>
+        </Col>
 
-      <Form.Item name="status" label="Trạng Thái">
-        <Select
-          value={status}
-          onChange={(e) => {
-            setStatus(e);
-            console.log(e);
-          }}
-          rules={[
-            {
-              required: false,
-              message: '',
-            },
-          ]}
-        >
-          <Option value="active">Hoạt động</Option>
-          <Option value="paused">Tạm dừng</Option>
-          <Option value="closed">Đã đóng</Option>
-        </Select>
-      </Form.Item>
+        <Col span={12}>
+          <Form.Item
+            name="discount"
+            label="Giảm giá (%)"
+            onChange={(e) => setDiscount(e.target.value)}
+          >
+            <Input placeholder="Giảm % học phí" />
+          </Form.Item>
+          <FormItem label="Ngày bắt đầu" name="dateStart">
+            <DatePicker
+              value={dateStart}
+              style={{ width: '100%' }}
+              showTime={{
+                format: 'DD/MM/YYYY',
+                placeholder: 'Chọn ngày',
+              }}
+              format="DD/MM/YYYY"
+              placeholder="Chọn thời gian..."
+              onChange={(date, dateString) =>
+                setDateStart(new Date(date).toISOString())
+              }
+            />
+          </FormItem>
+          <FormItem label="Ngày kết thúc" name="dateEnd">
+            <DatePicker
+              value={dateEnd}
+              style={{ width: '100%' }}
+              showTime={{
+                format: 'DD/MM/YYYY',
+                placeholder: 'Chọn ngày',
+              }}
+              format="DD/MM/YYYY"
+              placeholder="Chọn thời gian..."
+              onChange={(date, dateString) => setDateEnd(new Date(date).toISOString())}
+              disabledDate={(current) =>
+                current && current < moment(new Date(dateStart)).startOf('day')
+              }
+            />
+          </FormItem>
+          <Form.Item name="status" label="Trạng Thái">
+            <Select
+              value={status || undefined}
+              onChange={(e) => setStatus(e)}
+              rules={[{ required: false, message: '' }]}
+              placeholder="Chọn trạng thái lớp"
+            >
+              <Option value="active">Hoạt động</Option>
+              <Option value="paused">Tạm dừng</Option>
+              <Option value="closed">Đã đóng</Option>
+            </Select>
+          </Form.Item>
+        </Col>
+      </Row>
 
       <Form.Item {...tailFormItemLayout}>
         <Button type="primary" htmlType="submit">

@@ -1,24 +1,25 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { Button, Col, Divider, InputNumber, Row, Select, Table } from 'antd';
+import { Link, useNavigate } from 'react-router-dom';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import moment from 'moment';
 import { momentLocalizer } from 'react-big-calendar';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
-import { numberToVnd, showNotification } from '../Common/utilities';
-
-import { classActions } from '../../redux/classSlice';
-import { classTeacherActions } from '../../redux/classTeacherSlice';
-import { courseActions } from '../../redux/courseSlice';
-import { paySalaryActions } from '../../redux/paySalarySlice';
-import { salaryFactorActions } from '../../redux/salaryFactorSlice';
-import { teacherActions } from '../../redux/teacherSlice';
 import {
   CheckOutlined,
   CloseCircleOutlined,
   EditOutlined,
   MoneyCollectOutlined,
 } from '@ant-design/icons';
+
+import { numberToVnd, showNotification } from '../Common/utilities';
+import { classActions } from '../../redux/classSlice';
+import { classTeacherActions } from '../../redux/classTeacherSlice';
+import { courseActions } from '../../redux/courseSlice';
+import { paySalaryActions } from '../../redux/paySalarySlice';
+import { salaryFactorActions } from '../../redux/salaryFactorSlice';
+import { teacherActions } from '../../redux/teacherSlice';
 
 const { getCourses } = courseActions;
 const { getClasses } = classActions;
@@ -32,6 +33,7 @@ const localizer = momentLocalizer(moment);
 
 const Info = ({ id }) => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const allClassTeachers = useSelector(
     (state) => state.classTeacherReducer.allClassTeachers
@@ -286,21 +288,25 @@ const Info = ({ id }) => {
           {latestPaySalaryTime?.isAdvancePayment
             ? numberToVnd(latestPaySalaryTime?.advancePayment)
             : 'Chưa ứng'}
-          {!latestPaySalaryTime?.isAdvancePayment ? (
-            <Button
-              type="link"
-              icon={<MoneyCollectOutlined />}
-              style={{ border: 'none' }}
-              onClick={() => console.log('Alo alo')}
-            />
-          ) : null}
+          <Button
+            type="link"
+            icon={<MoneyCollectOutlined />}
+            style={{ border: 'none' }}
+            onClick={() => navigate(`/pay-salaries/${currentTeacher?.teacherId}`)}
+          />
         </h3>
       </Col>
       <Divider />
       <Col span={24}>
         <h3>Các lớp tham gia: {currentClassTeachers.length}</h3>
         <Table rowKey="_id" dataSource={dataSource}>
-          <Table.Column title="Lớp" dataIndex="name" />
+          <Table.Column
+            title="Lớp"
+            dataIndex="name"
+            render={(text, record) => (
+              <Link to={`/classes/${record?.classId}`}>{text}</Link>
+            )}
+          />
           <Table.Column title="Sĩ Số" dataIndex="numberOfStudents" />
           <Table.Column
             title="Trạng Thái"

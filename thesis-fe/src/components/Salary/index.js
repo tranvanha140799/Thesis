@@ -544,53 +544,6 @@ const SalaryPage = () => {
         {latestPaidSalary._id ? (
           <>
             <Row>
-              {/* <Col
-                span={24}
-                style={{ display: 'flex', justifyContent: 'space-around' }}
-              >
-                <h3>
-                  Khoá học:{' '}
-                  <Link to={`/courses/${currentCourse?.courseId}`}>
-                    {currentCourse?.name || '---'}
-                  </Link>
-                </h3>
-                <h3>
-                  Lớp đang giảng dạy:{' '}
-                  <Link to={`/classes/${currentClass?.classId}`}>
-                    {currentClass?.name || '---'}
-                  </Link>
-                </h3>
-                <h3>
-                  Sĩ số:{' '}
-                  {currentClass?.numberOfStudents
-                    ? `${currentClass?.numberOfStudents} học viên`
-                    : '--- giảng viên'}
-                </h3>
-                <h3>
-                  Trạng thái lớp:{' '}
-                  <h3
-                    style={{
-                      display: 'inline',
-                      color:
-                        currentClass?.status === 'closed'
-                          ? 'red'
-                          : currentClass?.status === 'paused'
-                          ? 'orange'
-                          : currentClass?.status === 'active'
-                          ? 'green'
-                          : 'black',
-                    }}
-                  >
-                    {currentClass?.status === 'closed'
-                      ? 'Đã kết thúc'
-                      : currentClass?.status === 'paused'
-                      ? 'Tạm dừng'
-                      : currentClass?.status === 'active'
-                      ? 'Đang hoạt động'
-                      : ''}
-                  </h3>
-                </h3>
-              </Col> */}
               <Col
                 span={24}
                 style={{ display: 'flex', justifyContent: 'space-around' }}
@@ -614,18 +567,6 @@ const SalaryPage = () => {
                     ? `${numberToVnd(currentSalaryFactor?.allowance)}`
                     : 'Không có thông tin'}
                 </h3>
-                {/* <h3>
-                  Lương tháng trước:{' '}
-                  {latestPaidSalary?._id
-                    ? numberToVnd(latestPaidSalary?.periodSalary)
-                    : 'Không có thông tin'}
-                </h3>
-                <h3>
-                  Ứng lương tháng này:{' '}
-                  {latestPaySalaryTime?.isAdvancePayment
-                    ? numberToVnd(latestPaySalaryTime?.advancePayment)
-                    : 'Chưa ứng'}
-                </h3> */}
               </Col>
 
               <Divider />
@@ -743,11 +684,6 @@ const SalaryPage = () => {
                     pagination={{ pageSize: 20 }}
                   >
                     <Table.Column title="Kỳ Lương" dataIndex="period" />
-                    {/* <Table.Column
-                      title="Lương Nhận"
-                      dataIndex="paidSalary"
-                      render={(text) => numberToVnd(text)}
-                    /> */}
                     <Table.Column
                       title="Hình Thức"
                       dataIndex="isAdvancePayment"

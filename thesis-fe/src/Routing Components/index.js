@@ -46,8 +46,9 @@ function Home() {
         <img className="logo" src={logo} alt="Logo" style={{ width: '70%' }} />
         <Menu
           theme="dark"
-          defaultSelectedKeys={[route.pathname.split('/')[1]]}
           mode="inline"
+          selectedKeys={[route.pathname.split('/')[1]]}
+          // defaultSelectedKeys={[route.pathname.split('/')[1]]}
         >
           <Menu.Item key="" icon={<HomeOutlined />}>
             <Link to="/">Trang Chủ</Link>
@@ -80,8 +81,8 @@ function Home() {
             <Link to="/tuition-fees">Thu Học Phí</Link>
           </Menu.Item>
           <SubMenu key="reports" icon={<BookOutlined />} title="Báo Cáo">
-            <Menu.Item key="pay-reports" icon={<SnippetsOutlined />}>
-              <Link to="/pay-reports">Chi Lương</Link>
+            <Menu.Item key="salary-reports" icon={<SnippetsOutlined />}>
+              <Link to="/salary-reports">Chi Lương</Link>
             </Menu.Item>
             <Menu.Item key="tuition-reports" icon={<SnippetsOutlined />}>
               <Link to="/tuition-reports">Thu Học Phí</Link>
