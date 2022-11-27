@@ -30,12 +30,9 @@ const ClassPage = () => {
     if (!courses.length) dispatch(getCourses());
   }, []);
 
-  const gotoAdd = () => {
-    navigate('./add');
-  };
-  const gotoEdit = (id) => {
-    navigate(`./${id}`);
-  };
+  const gotoAdd = () => navigate('./add');
+
+  const gotoEdit = (id) => navigate(`./${id}`);
 
   const deleteStu = (id) => dispatch(deleteClass(id));
 

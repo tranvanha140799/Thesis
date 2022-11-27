@@ -1,20 +1,18 @@
-import { Col, Modal, Select, Space, Table, Tabs } from "antd";
-import Column from "antd/lib/table/Column";
-import TabPane from "antd/lib/tabs/TabPane";
-import moment from "moment";
-import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { Link, useParams } from "react-router-dom";
-import { classActions } from "../../redux/classSlice";
-import { studentActions } from "../../redux/studentSlice";
-import { teacherActions } from "../../redux/teacherSlice";
-import AddBtn from "../Common/AddBtn";
-import {
-  changeStringToNormalizeString,
-  showNotification,
-} from "../Common/utilities";
-import AddStudent from "./add";
-import DeleteBtn from "../Common/DeleteBtn";
+/* eslint-disable react-hooks/exhaustive-deps */
+import { Col, Modal, Select, Space, Table, Tabs } from 'antd';
+import Column from 'antd/lib/table/Column';
+import TabPane from 'antd/lib/tabs/TabPane';
+import moment from 'moment';
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link, useParams } from 'react-router-dom';
+import { classActions } from '../../redux/classSlice';
+import { studentActions } from '../../redux/studentSlice';
+import { teacherActions } from '../../redux/teacherSlice';
+import AddBtn from '../Common/AddBtn';
+import { showNotification } from '../Common/utilities';
+import AddStudent from './add';
+import DeleteBtn from '../Common/DeleteBtn';
 
 const EditCLass = () => {
   const { classId } = useParams();
@@ -27,15 +25,9 @@ const EditCLass = () => {
   const allTeachers = useSelector((state) => state.teacherReducer.teachers);
   const dataClass = classes.find((clasS) => clasS?.classId === classId);
   const stuOfClass = allStu?.filter((stu) => stu?.classId === dataClass._id);
-  const teaOfClass = allTeachers?.filter(
-    (tea) => tea?.classId === dataClass._id
-  );
-  const stuNoClassId = allStu.filter(
-    (student) => student.classId === "" 
-  );
-  const teacherNoClassId = allTeachers.filter((tea) => tea.classId === "");
-  console.log(stuNoClassId);
-  // console.log(teacherNoClassId);
+  const teaOfClass = allTeachers?.filter((tea) => tea?.classId === dataClass._id);
+  const stuNoClassId = allStu.filter((student) => student.classId === '');
+  const teacherNoClassId = allTeachers.filter((tea) => tea.classId === '');
 
   const [openModal, setOpenModal] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState({});
@@ -71,9 +63,8 @@ const EditCLass = () => {
     dispatch(
       updateTeacher(selectedTeacher._id, payload, {
         onSuccess: () =>
-          showNotification("success", "Thêm giảng viên vào lớp thành công."),
-        onError: () =>
-          showNotification("error", "Thêm giảng viên vào lớp thất bại!"),
+          showNotification('success', 'Thêm giảng viên vào lớp thành công.'),
+        onError: () => showNotification('error', 'Thêm giảng viên vào lớp thất bại!'),
       })
     );
     setOpenModalTea(false);
@@ -93,7 +84,7 @@ const EditCLass = () => {
       status: record.status,
       salaryRankId: record.salaryRankId,
       image: record.image,
-      classId: "",
+      classId: '',
     };
     console.log(payload);
     console.log(record);
@@ -101,9 +92,8 @@ const EditCLass = () => {
     dispatch(
       updateTeacher(record._id, payload, {
         onSuccess: () =>
-          showNotification("success", "Xóa giảng viên khỏi lớp thành công."),
-        onError: () =>
-          showNotification("error", "Xóa giảng viên khỏi lớp thất bại!"),
+          showNotification('success', 'Xóa giảng viên khỏi lớp thành công.'),
+        onError: () => showNotification('error', 'Xóa giảng viên khỏi lớp thất bại!'),
       })
     );
   };
@@ -125,16 +115,14 @@ const EditCLass = () => {
     const dataStudent = allStu.find((student) => student?._id === value);
     setSelectedStudent(dataStudent);
     if (listStudents.length === allStu.length)
-      setListCurrentStudents(
-        allStu.filter((student) => student.classId === "")
-      );
+      setListCurrentStudents(allStu.filter((student) => student.classId === ''));
   };
 
   const handleChangeTeacher = (value) => {
     const dataTeacher = allTeachers.find((student) => student?._id === value);
     setSelectedTeacher(dataTeacher);
     if (listTeachers.length === allStu.length)
-      setListCurrentTeachers(allTeachers.filter((tea) => tea.classId === ""));
+      setListCurrentTeachers(allTeachers.filter((tea) => tea.classId === ''));
   };
 
   return (
@@ -164,9 +152,7 @@ const EditCLass = () => {
               key="key"
               render={(text, record) => (
                 <Space size="middle">
-                  <Link to={`/students/${record.studentId}`}>
-                    {record.fullname}
-                  </Link>
+                  <Link to={`/students/${record.studentId}`}>{record.fullname}</Link>
                 </Space>
               )}
             />
@@ -176,9 +162,9 @@ const EditCLass = () => {
               key="key"
               render={(birthday) => {
                 const date = new Date(birthday);
-                let string = "";
-                string += date.getDate().toString() + "/";
-                string += (date.getMonth() + 1).toString() + "/";
+                let string = '';
+                string += date.getDate().toString() + '/';
+                string += (date.getMonth() + 1).toString() + '/';
                 string += date.getFullYear().toString();
                 return string;
               }}
@@ -188,9 +174,9 @@ const EditCLass = () => {
               dataIndex="gender"
               key="key"
               render={(gender) => {
-                if (gender === "male") return "Nam";
-                else if (gender === "female") return "Nữ";
-                else return "Khác";
+                if (gender === 'male') return 'Nam';
+                else if (gender === 'female') return 'Nữ';
+                else return 'Khác';
               }}
             />
             <Column title="Địa Chỉ" dataIndex="address" key="key" />
@@ -201,14 +187,14 @@ const EditCLass = () => {
               key="key"
               render={(text) => {
                 switch (text) {
-                  case "learning":
-                    return "Đang học";
-                  case "paused":
-                    return "Bảo lưu";
-                  case "leaved":
-                    return "Đã nghỉ học";
+                  case 'learning':
+                    return 'Đang học';
+                  case 'paused':
+                    return 'Bảo lưu';
+                  case 'leaved':
+                    return 'Đã nghỉ học';
                   default:
-                    return "";
+                    return '';
                 }
               }}
             />
@@ -235,10 +221,8 @@ const EditCLass = () => {
             onOk={onOk}
             onCancel={() => setOpenModal(false)}
           >
-            <Col span={24} style={{ display: "flex" }}>
-              <h4 style={{ lineHeight: "200%", marginRight: "10px" }}>
-                Học viên:
-              </h4>
+            <Col span={24} style={{ display: 'flex' }}>
+              <h4 style={{ lineHeight: '200%', marginRight: '10px' }}>Học viên:</h4>
               <Select
                 allowClear
                 onClear={clearStudent}
@@ -246,7 +230,7 @@ const EditCLass = () => {
                 placeholder="Học viên"
                 onChange={handleChangeStudent}
                 // onSearch={(e) => handleSearch(e, listStudents)}
-                style={{ width: "75%" }}
+                style={{ width: '75%' }}
                 value={selectedStudent?._id || undefined}
                 filterOption={false}
               >
@@ -264,7 +248,7 @@ const EditCLass = () => {
           <Table
             dataSource={teaOfClass}
             rowKey="teacherId"
-            style={{ width: "100%" }}
+            style={{ width: '100%' }}
             // pagination={{
             //   pageSize,
             //   showTotal: (total, range) =>
@@ -287,9 +271,7 @@ const EditCLass = () => {
               key="fullname"
               render={(text, record) => (
                 <Space size="middle">
-                  <Link to={`/teachers/${record.teacherId}`}>
-                    {record.fullname}
-                  </Link>
+                  <Link to={`/teachers/${record.teacherId}`}>{record.fullname}</Link>
                 </Space>
               )}
             />
@@ -298,23 +280,19 @@ const EditCLass = () => {
               dataIndex="gender"
               key="gender"
               render={(gender) => {
-                if (gender === "male") return "Nam";
-                else if (gender === "female") return "Nữ";
-                else return "Khác";
+                if (gender === 'male') return 'Nam';
+                else if (gender === 'female') return 'Nữ';
+                else return 'Khác';
               }}
             />
             <Column
               title="Ngày Sinh"
               dataIndex="birthday"
               key="birthday"
-              render={(text) => moment(text).format("DD/MM/YYYY")}
+              render={(text) => moment(text).format('DD/MM/YYYY')}
             />
             <Column title="Địa Chỉ" dataIndex="address" key="address" />
-            <Column
-              title="Số Điện Thoại"
-              dataIndex="phoneNumber"
-              key="phoneNumber"
-            />
+            <Column title="Số Điện Thoại" dataIndex="phoneNumber" key="phoneNumber" />
             {/* <Column title="Học Vị" dataIndex="degree" key="degree" /> */}
             <Column
               title="Chức Vụ"
@@ -322,22 +300,18 @@ const EditCLass = () => {
               key="position"
               filters={[
                 {
-                  text: "Giảng Viên",
-                  value: "teacher",
+                  text: 'Giảng Viên',
+                  value: 'teacher',
                 },
                 {
-                  text: "Trợ Giảng",
-                  value: "tutor",
+                  text: 'Trợ Giảng',
+                  value: 'tutor',
                 },
               ]}
               onFilter={(value, record) => record.position === value}
               // filterSearch={true}
               render={(text) =>
-                text === "teacher"
-                  ? "Giảng Viên"
-                  : text === "tutor"
-                  ? "Trợ Giảng"
-                  : ""
+                text === 'teacher' ? 'Giảng Viên' : text === 'tutor' ? 'Trợ Giảng' : ''
               }
             />
             <Column
@@ -346,30 +320,30 @@ const EditCLass = () => {
               key="status"
               filters={[
                 {
-                  text: "Đang công tác",
-                  value: "active",
+                  text: 'Đang công tác',
+                  value: 'active',
                 },
                 {
-                  text: "Tạm nghỉ",
-                  value: "paused",
+                  text: 'Tạm nghỉ',
+                  value: 'paused',
                 },
                 {
-                  text: "Đã nghỉ việc",
-                  value: "leaved",
+                  text: 'Đã nghỉ việc',
+                  value: 'leaved',
                 },
               ]}
               onFilter={(value, record) => record.status === value}
               // filterSearch={true}
               render={(text) => {
                 switch (text) {
-                  case "active":
-                    return "Đang công tác";
-                  case "paused":
-                    return "Tạm nghỉ";
-                  case "leaved":
-                    return "Đã nghỉ việc";
+                  case 'active':
+                    return 'Đang công tác';
+                  case 'paused':
+                    return 'Tạm nghỉ';
+                  case 'leaved':
+                    return 'Đã nghỉ việc';
                   default:
-                    return "";
+                    return '';
                 }
               }}
             />
@@ -392,10 +366,8 @@ const EditCLass = () => {
             onOk={onOk}
             onCancel={() => setOpenModalTea(false)}
           >
-            <Col span={24} style={{ display: "flex" }}>
-              <h4 style={{ lineHeight: "200%", marginRight: "10px" }}>
-                Học viên:
-              </h4>
+            <Col span={24} style={{ display: 'flex' }}>
+              <h4 style={{ lineHeight: '200%', marginRight: '10px' }}>Học viên:</h4>
               <Select
                 allowClear
                 onClear={clearTeacher}
@@ -403,7 +375,7 @@ const EditCLass = () => {
                 placeholder="Học viên"
                 onChange={handleChangeTeacher}
                 // onSearch={(e) => handleSearch(e, listStudents)}
-                style={{ width: "75%" }}
+                style={{ width: '75%' }}
                 value={selectedTeacher?._id || undefined}
                 filterOption={false}
               >
