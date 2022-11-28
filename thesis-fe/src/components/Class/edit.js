@@ -27,7 +27,11 @@ const EditCLass = () => {
     changeCurrentClassTeachers,
     getAllClassTeachers,
   } = classTeacherActions;
-  const { getAllClassStudents, createClassStudent } = classStudentActions;
+  const {
+    getAllClassStudents,
+    createClassStudent,
+    changeCurrentClassStudents,
+  } = classStudentActions;
 
   const [openModal, setOpenModal] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState({});
@@ -43,48 +47,22 @@ const EditCLass = () => {
   const allTeachers = useSelector((state) => state.teacherReducer.teachers);
   const dataClass = classes.find((clasS) => clasS?.classId === classId);
   const stuOfClass = allStu?.filter((stu) => stu?.classId === dataClass?._id);
-  
+
   const stuNoClassId = allStu.filter((student) => student.classId === "");
   const teacherNoClassId = allTeachers.filter((tea) => tea.classId === "");
   const allClassTeachers = useSelector(
     (state) => state.classTeacherReducer.allClassTeachers
   );
-  const teacherClass = allClassTeachers.filter(
-    (tea) => tea?.class_id === dataClass?._id
-  );
 
   const allClassStu = useSelector(
     (state) => state.classStudentReducer.allClassStudents
   );
-  const stuClass = allClassStu.filter(
-    (stu) => stu?.class_id === dataClass?._id
-  )
-    console.log(stuClass)
-  useEffect(() => {
-    if (teacherClass.length && !dataSource.length) {
-      let temp = [];
-      teacherClass.forEach((record) => {
-        const foundTea = allTeachers.find(
-          (tea) => tea._id === record?.teacher_id
-        );
-        if (foundTea?._id) temp.push(foundTea);
-      });
-      setDataSource(temp);
-    }
-  }, [teacherClass]);
-
-  // useEffect(() => {
-  //   if (stuClass.length && !dataSourceStu.length) {
-  //     let temp = [];
-  //     stuClass.forEach((record) => {
-  //       const foundStu = allStu.find(
-  //         (tea) => tea._id === record?._id
-  //       );
-  //       if (foundStu?._id) temp.push(foundStu);
-  //     });
-  //     setDataSourceStu(temp);
-  //   }
-  // }, [stuClass]);
+  const currentClassTeachers =
+    useSelector((state) => state.classTeacherReducer.currentClassTeachers) ||
+    [];
+  const currentClassStudents =
+    useSelector((state) => state.classStudentReducer.currentClassStudents) ||
+    [];
   useEffect(() => {
     dispatch(getStudents());
     dispatch(getClasses());
@@ -94,7 +72,44 @@ const EditCLass = () => {
   useEffect(() => {
     if (!allClassTeachers.length) dispatch(getAllClassTeachers());
     if (!allClassStu.length) dispatch(getAllClassStudents());
+    if (!currentClassTeachers.length)
+      dispatch(changeCurrentClassTeachers(dataClass?._id));
   });
+
+  useEffect(() => {
+    if (
+      allTeachers.length &&
+      !dataSource.length &&
+      currentClassTeachers.length
+    ) {
+      let temp = [];
+      currentClassTeachers.forEach((record) => {
+        const foundClass = allTeachers.find(
+          (tea) => tea._id === record?.teacherId
+        );
+        if (foundClass._id) temp.push(foundClass);
+      });
+      setDataSource(temp);
+    }
+  }, [currentClassTeachers]);
+  console.log(dataSource);
+  useEffect(() => {
+    if (
+      allStu.length &&
+      !dataSource.length &&
+      currentClassStudents.length
+    ) {
+      let temp = [];
+      currentClassStudents.forEach((record) => {
+        const foundStu = allStu.find(
+          (tea) => tea._id === record?.student_id
+        );
+        if (foundStu._id) temp.push(foundStu);
+      });
+      setDataSourceStu(temp);
+    }
+  }, [currentClassStudents]);
+
   const onOk = () => {
     const payload = {
       teacher_id: selectedTeacher._id,
@@ -156,7 +171,7 @@ const EditCLass = () => {
         <TabPane tab="Danh sách sinh viên" key={2}>
           <AddBtn add={openModalAddStu} />
           <Table
-            dataSource={stuOfClass}
+            dataSource={dataSourceStu}
             rowKey="studentId"
             // pagination={{
             //   pageSize,
