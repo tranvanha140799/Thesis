@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import moment from 'moment';
-import { Calendar, momentLocalizer } from 'react-big-calendar';
+// import { Calendar, momentLocalizer } from 'react-big-calendar';
 import { EditOutlined } from '@ant-design/icons';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { numberToVnd } from '../Common/utilities';
@@ -21,7 +21,7 @@ const { getExempts } = exemptActions;
 const { getAllClassStudents, changeCurrentClassStudents, resetCurrentClassStudent } =
   classStudentActions;
 const { getStudents } = studentActions;
-const localizer = momentLocalizer(moment);
+// const localizer = momentLocalizer(moment);
 
 const Info = ({ id }) => {
   const dispatch = useDispatch();
@@ -221,10 +221,10 @@ const Info = ({ id }) => {
             : 'Đã nộp xong'}
         </h3>
       </Col>
-      <Divider />
+      {/* <Divider /> */}
       <Col span={24}>
-        <h3 style={{ textAlign: 'center' }}>Thời Khoá Biểu</h3>
-        <Calendar
+        {/* <h3 style={{ textAlign: 'center' }}>Thời Khoá Biểu</h3> */}
+        {/* <Calendar
           localizer={localizer}
           defaultDate={new Date()}
           defaultView="month"
@@ -242,7 +242,7 @@ const Info = ({ id }) => {
           // titleAccessor={(event) =>
           //   event.gift_code ? `${event.title}: ${event.gift_code}` : event.title
           // }
-        />
+        /> */}
       </Col>
     </Row>
   ) : (

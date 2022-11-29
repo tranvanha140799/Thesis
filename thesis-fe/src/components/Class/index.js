@@ -15,6 +15,7 @@ import DeleteBtn from '../Common/DeleteBtn';
 import SearchBox from '../Common/SearchBox';
 import { classActions } from '../../redux/classSlice';
 import { courseActions } from '../../redux/courseSlice';
+import moment from 'moment';
 
 const { getCourses } = courseActions;
 const { deleteClass, getClasses, searchClass } = classActions;
@@ -64,9 +65,18 @@ const ClassPage = () => {
         />
 
         <Column title="Số Lượng Học Viên" dataIndex="numberOfStudents" key="key" />
-        <Column title="Mã Giáo Viên" dataIndex="formTeacherId" key="key" />
-        <Column title="Thời Gian Bắt Đầu" dataIndex="dateStart" key="key" />
-        <Column title="Thời Gian Kết Thúc" dataIndex="dateEnd" key="key" />
+        <Column
+          title="Thời Gian Bắt Đầu"
+          dataIndex="dateStart"
+          key="key"
+          render={(text) => (text ? moment(text).format('DD/MM/YYYY') : '')}
+        />
+        <Column
+          title="Thời Gian Kết Thúc"
+          dataIndex="dateEnd"
+          key="key"
+          render={(text) => (text ? moment(text).format('DD/MM/YYYY') : '')}
+        />
         <Column title="Số Học Viên Tối Thiểu" dataIndex="minStudents" key="key" />
         <Column title="Số Học Viên Tối Đa" dataIndex="maxStudents" key="key" />
         <Column title="Khuyến Mãi (%)" dataIndex="discount" key="key" />
@@ -107,10 +117,6 @@ const ClassPage = () => {
           key="action"
           render={(text, record) => (
             <Space size="middle">
-              {/* <Button onClick={() => dispatch(deleteStudent(record._id))}>
-                Xoá
-              </Button> */}
-
               <DeleteBtn onDelete={() => deleteStu(record._id)} />
             </Space>
           )}

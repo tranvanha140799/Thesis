@@ -11,6 +11,7 @@ const classSchema = mongoose.Schema({
   discount: Number,
   status: String,
   courseId: String,
+  schedules: Array,
 });
 
 const Class = mongoose.model('Class', classSchema);

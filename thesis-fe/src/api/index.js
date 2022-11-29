@@ -44,6 +44,14 @@ export const updateCourse = (id, updateCourse) =>
   API.patch(`/courses/${id}`, updateCourse);
 export const deleteCourse = (id) => API.delete(`/courses/${id}`);
 
+//CLASS-SCHEDULE
+export const getAllClassSchedules = () => API.get('/class-schedule');
+export const createClassSchedule = (classSchedule) =>
+  API.post('/class-schedule', classSchedule);
+export const updateClassSchedule = (id, updateClassSchedule) =>
+  API.patch(`/class-schedule/${id}`, updateClassSchedule);
+export const deleteClassSchedule = (id) => API.delete(`/class-schedule/${id}`);
+
 //CLASS-STUDENT
 export const getAllClassStudents = () => API.get('/class-student');
 export const createClassStudent = (classStudent) =>

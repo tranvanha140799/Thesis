@@ -15,7 +15,6 @@ import {
   SnippetsOutlined,
   CopyrightOutlined,
   ClockCircleOutlined,
-  DollarCircleOutlined,
 } from '@ant-design/icons';
 
 import 'antd/dist/antd.css';
@@ -23,6 +22,7 @@ import 'antd/dist/antd.css';
 import Courses from './Course';
 import Classes from './Class';
 import HomePage from './Home';
+import Report from './Report';
 import SalaryFactor from './SalaryFactor';
 import Salary from './Salary';
 import Schedules from './Schedule';
@@ -68,9 +68,9 @@ function Home() {
           <Menu.Item key="schedules" icon={<ClockCircleOutlined />}>
             <Link to="/schedules">Khung Giờ Học</Link>
           </Menu.Item>
-          <Menu.Item key="discounts" icon={<DollarCircleOutlined />}>
+          {/* <Menu.Item key="discounts" icon={<DollarCircleOutlined />}>
             <Link to="/discounts">Khuyến Mãi</Link>
-          </Menu.Item>
+          </Menu.Item> */}
           <Menu.Item key="salary-factors" icon={<BookOutlined />}>
             <Link to="/salary-factors">Hệ Số Lương</Link>
           </Menu.Item>
@@ -101,6 +101,7 @@ function Home() {
           <Students />
           <Courses />
           <Classes />
+          <Report />
           <SalaryFactor />
           <Salary />
           <Schedules />

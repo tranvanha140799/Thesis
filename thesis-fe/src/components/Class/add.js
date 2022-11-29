@@ -1,19 +1,26 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import moment from 'moment';
+import { Form, Input, Select, Button, DatePicker, Col, Row, InputNumber } from 'antd';
 
 import 'antd/dist/antd.css';
 
-import { Form, Input, Select, Button, DatePicker, Col, Row, InputNumber } from 'antd';
-import { useNavigate } from 'react-router-dom';
-import { classActions } from '../../redux/classSlice';
 import FormItem from 'antd/es/form/FormItem';
-import moment from 'moment';
-// import { getCourses } from "../../api";
+import { classScheduleActions } from '../../redux/classScheduleSlice';
+import { classActions } from '../../redux/classSlice';
 import { courseActions } from '../../redux/courseSlice';
+import { scheduleActions } from '../../redux/scheduleSlice';
 
+const {
+  getAllClassSchedules,
+  changeCurrentClassSchedules,
+  resetCurrentClassSchedule,
+} = classScheduleActions;
 const { createClass, getClasses, updateClass } = classActions;
 const { getCourses } = courseActions;
+const { getSchedules } = scheduleActions;
 const { Option } = Select;
 
 const formItemLayout = {
@@ -55,6 +62,13 @@ const AddClass = ({ id }) => {
 
   const totalClasses = useSelector((state) => state.classReducer.totalClasses);
   const courses = useSelector((state) => state.courseReducer.courses);
+  const schedules = useSelector((state) => state.scheduleReducer.schedules);
+  const allClassSchedules = useSelector(
+    (state) => state.classScheduleReducer.allClassSchedules
+  );
+  const currentClassSchedules = useSelector(
+    (state) => state.classScheduleReducer.currentClassSchedules
+  );
   const clasS = useSelector((state) =>
     id ? state.classReducer.classes.find((p) => p.classId === id) : null
   );
@@ -69,6 +83,7 @@ const AddClass = ({ id }) => {
   const [dateStart, setDateStart] = useState('');
   const [dateEnd, setDateEnd] = useState('');
   const [courseId, setCourseId] = useState('');
+  const [selectedSchedules, setSelectedSchedules] = useState([]);
 
   useEffect(() => {
     if (totalClasses === 0) dispatch(getClasses());
@@ -84,12 +99,42 @@ const AddClass = ({ id }) => {
       setDateStart(clasS.dateStart);
       setDateEnd(clasS.dateEnd);
       setCourseId(clasS.courseId);
+      setSelectedSchedules(clasS.schedules);
     }
   }, [dispatch, clasS]);
 
   useEffect(() => {
     if (!courses.length) dispatch(getCourses());
   }, []);
+
+  useEffect(() => {
+    if (!schedules.length) dispatch(getSchedules());
+  }, [schedules.length]);
+
+  useEffect(() => {
+    if (!allClassSchedules.length) dispatch(getAllClassSchedules());
+    if (clasS && allClassSchedules.length)
+      dispatch(changeCurrentClassSchedules(clasS._id));
+
+    return () => dispatch(resetCurrentClassSchedule());
+  }, [id, clasS, allClassSchedules.length]);
+
+  useEffect(() => {
+    if (
+      schedules.length &&
+      !selectedSchedules.length &&
+      currentClassSchedules.length
+    ) {
+      let temp = [];
+      currentClassSchedules.forEach((record) => {
+        const foundSchedule = schedules.find(
+          (schedule) => schedule._id === record?.scheduleId
+        );
+        if (foundSchedule._id) temp.push(foundSchedule);
+      });
+      setSelectedSchedules(temp);
+    }
+  }, [currentClassSchedules]);
 
   const onFinish = async (values) => {
     const payload = {
@@ -103,6 +148,7 @@ const AddClass = ({ id }) => {
       dateStart,
       dateEnd,
       courseId,
+      schedules: selectedSchedules,
     };
 
     if (typeof id === 'string') await dispatch(updateClass(_id, payload));
@@ -123,10 +169,13 @@ const AddClass = ({ id }) => {
         { name: ['studentQuantity'], value: studentQuantity },
         { name: ['minStudents'], value: minStu },
         { name: ['maxStudents'], value: maxStu },
+        { name: ['dateStart'], value: moment(dateStart) },
+        { name: ['dateEnd'], value: moment(dateEnd) },
         { name: ['studentQuantity'], value: studentQuantity },
         { name: ['status'], value: status },
         { name: ['discount'], value: discount },
         { name: ['courseId'], value: courseId },
+        { name: ['schedules'], value: selectedSchedules },
       ]}
       scrollToFirstError
     >
@@ -206,12 +255,14 @@ const AddClass = ({ id }) => {
         </Col>
 
         <Col span={12}>
-          <Form.Item
-            name="discount"
-            label="Giảm giá (%)"
-            onChange={(e) => setDiscount(e.target.value)}
-          >
-            <Input placeholder="Giảm % học phí" />
+          <Form.Item name="discount" label="Giảm giá (%)">
+            <InputNumber
+              min={0}
+              value={discount}
+              style={{ width: '100%' }}
+              placeholder="Giảm % học phí"
+              onChange={(e) => setDiscount(e)}
+            />
           </Form.Item>
           <FormItem label="Ngày bắt đầu" name="dateStart">
             <DatePicker
@@ -254,6 +305,20 @@ const AddClass = ({ id }) => {
               <Option value="active">Hoạt động</Option>
               <Option value="paused">Tạm dừng</Option>
               <Option value="closed">Đã đóng</Option>
+            </Select>
+          </Form.Item>
+          <Form.Item name="schedules" label="Khung giờ học">
+            <Select
+              mode="multiple"
+              value={selectedSchedules}
+              onChange={(e) => setSelectedSchedules(e)}
+              placeholder="Chọn khung giờ học"
+            >
+              {schedules.map((schedule) => (
+                <Option value={schedule?._id} key={schedule?._id}>
+                  {schedule?.name}
+                </Option>
+              ))}
             </Select>
           </Form.Item>
         </Col>

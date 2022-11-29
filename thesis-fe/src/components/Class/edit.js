@@ -25,7 +25,7 @@ const EditCLass = () => {
   const allTeachers = useSelector((state) => state.teacherReducer.teachers);
   const dataClass = classes.find((clasS) => clasS?.classId === classId);
   const stuOfClass = allStu?.filter((stu) => stu?.classId === dataClass._id);
-  const teaOfClass = allTeachers?.filter((tea) => tea?.classId === dataClass._id);
+  const teaOfClass = allTeachers?.filter((tea) => tea?.classId === dataClass?._id);
   const stuNoClassId = allStu.filter((student) => student.classId === '');
   const teacherNoClassId = allTeachers.filter((tea) => tea.classId === '');
 
@@ -58,7 +58,6 @@ const EditCLass = () => {
       image: selectedTeacher.image,
       classId: dataClass._id,
     };
-    console.log(payload);
 
     dispatch(
       updateTeacher(selectedTeacher._id, payload, {
@@ -86,8 +85,6 @@ const EditCLass = () => {
       image: record.image,
       classId: '',
     };
-    console.log(payload);
-    console.log(record);
 
     dispatch(
       updateTeacher(record._id, payload, {
@@ -97,20 +94,15 @@ const EditCLass = () => {
       })
     );
   };
-  const openModalAddStu = () => {
-    setOpenModal(true);
-  };
-  const clearStudent = () => {
-    setSelectedStudent({});
-  };
-  const clearTeacher = () => {
-    setSelectedTeacher({});
-  };
 
-  const openModalAddTea = () => {
-    setOpenModalTea(true);
-  };
-  console.log(selectedTeacher);
+  const openModalAddStu = () => setOpenModal(true);
+
+  const clearStudent = () => setSelectedStudent({});
+
+  const clearTeacher = () => setSelectedTeacher({});
+
+  const openModalAddTea = () => setOpenModalTea(true);
+
   const handleChangeStudent = (value) => {
     const dataStudent = allStu.find((student) => student?._id === value);
     setSelectedStudent(dataStudent);
@@ -131,19 +123,15 @@ const EditCLass = () => {
         <TabPane tab="Sửa thông tin lớp học" key={1}>
           <AddStudent id={classId} />
         </TabPane>
-        <TabPane tab="Danh sách sinh viên" key={2}>
+        <TabPane tab="Danh sách học viên" key={2}>
           <AddBtn add={openModalAddStu} />
           <Table
             dataSource={stuOfClass}
             rowKey="studentId"
-            // pagination={{
-            //   pageSize,
-            //   showTotal: (total, range) =>
-            //     `${range[0]}-${range[1]} của ${total} học viên`,
-            //   showSizeChanger: true,
-            //   pageSizeOptions: ['10', '20', '50'],
-            // }}
-            // onChange={(e) => setPageSize(e?.pageSize)}
+            pagination={{
+              showTotal: (total, range) =>
+                `${range[0]}-${range[1]} của ${total} học viên`,
+            }}
           >
             <Column title="Mã Học Viên" dataIndex="studentId" key="key" />
             <Column
@@ -249,14 +237,10 @@ const EditCLass = () => {
             dataSource={teaOfClass}
             rowKey="teacherId"
             style={{ width: '100%' }}
-            // pagination={{
-            //   pageSize,
-            //   showTotal: (total, range) =>
-            //     `${range[0]}-${range[1]} của ${total} giảng viên`,
-            //   showSizeChanger: true,
-            //   pageSizeOptions: ['10', '20', '50'],
-            // }}
-            // onChange={(e) => setPageSize(e?.pageSize)}
+            pagination={{
+              showTotal: (total, range) =>
+                `${range[0]}-${range[1]} của ${total} giảng viên`,
+            }}
           >
             <Column
               title="Mã Giảng Viên"

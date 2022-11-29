@@ -28,3 +28,10 @@ export const showNotification = (status, msg) =>
     message: msg,
     placement: 'bottomRight',
   });
+
+export const ExcelFileTypes = [
+  'xlsx',
+  'xls',
+  // 'xlsb', 'xlsm', 'xml', 'csv', 'txt', 'ods', 'fods', 'uos',
+  // 'sylk', 'dif', 'dbf', 'prn', 'qpw', '123', 'wb*', 'wq*', 'html', 'htm',
+];
