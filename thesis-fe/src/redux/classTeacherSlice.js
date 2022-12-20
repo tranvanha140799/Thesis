@@ -32,11 +32,16 @@ export const classTeacherActions = {
     const currentClassTeachers = getState().classTeacherReducer.currentClassTeachers;
     const allClassTeachers = getState().classTeacherReducer.allClassTeachers;
     if (
+      !currentClassTeachers.length ||
       currentClassTeachers[0]?.teacherId !== id ||
       currentClassTeachers[0]?.classId !== id
     ) {
       const data = allClassTeachers.filter(
-        (record) => record.teacherId === id || record.classId === id
+        (record) =>
+          record.teacherId === id ||
+          record.teacher_id === id ||
+          record.classId === id ||
+          record.class_id === id
       );
 
       if (data?.length) dispatch(actions.changeCurrentClassTeachers({ data }));

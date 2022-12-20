@@ -3,8 +3,6 @@ import { Button, Col, Divider, InputNumber, Row, Select, Table } from 'antd';
 import { Link, useNavigate } from 'react-router-dom';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import moment from 'moment';
-import { momentLocalizer } from 'react-big-calendar';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import {
   CheckOutlined,
@@ -29,7 +27,6 @@ const { getAllPaySalaries, changeCurrentPaySalaries, resetCurrentPaySalary } =
   paySalaryActions;
 const { getSalaryFactors } = salaryFactorActions;
 const { getTeachers, updateTeacher } = teacherActions;
-const localizer = momentLocalizer(moment);
 
 const Info = ({ id }) => {
   const dispatch = useDispatch();
@@ -112,12 +109,16 @@ const Info = ({ id }) => {
     if (classes.length && !dataSource.length && currentClassTeachers.length) {
       let temp = [];
       currentClassTeachers.forEach((record) => {
-        const foundClass = classes.find((clasS) => clasS._id === record?.classId);
-        if (foundClass._id) temp.push(foundClass);
+        const foundClass = classes.find(
+          (clasS) => clasS._id === record?.classId || clasS._id === record?.class_id
+        );
+        if (foundClass?._id) temp.push(foundClass);
       });
+
+      temp = [...new Set(temp)];
       setDataSource(temp);
     }
-  }, [currentClassTeachers]);
+  }, [currentClassTeachers.length]);
 
   // Chỉnh sửa lương hợp đồng của giảng viên
   const handleChangeContractSalary = () => {
@@ -298,7 +299,7 @@ const Info = ({ id }) => {
       </Col>
       <Divider />
       <Col span={24}>
-        <h3>Các lớp tham gia: {currentClassTeachers.length}</h3>
+        <h3>Các lớp tham gia: {dataSource.length}</h3>
         <Table rowKey="_id" dataSource={dataSource}>
           <Table.Column
             title="Lớp"

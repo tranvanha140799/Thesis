@@ -1,56 +1,59 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
+import { Space, Table } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
+import 'react-big-calendar/lib/css/react-big-calendar.css';
 
-import { Table, Space, Row, Col } from 'antd';
-// import ColumnGroup from 'antd/lib/table/ColumnGroup';
-import Column from 'antd/lib/table/Column';
-
-import 'antd/dist/antd.css';
-// import "./index.css";
-
-import AddBtn from '../Common/AddBtn';
-import DeleteBtn from '../Common/DeleteBtn';
-import SearchBox from '../Common/SearchBox';
 import { classActions } from '../../redux/classSlice';
 import { courseActions } from '../../redux/courseSlice';
+import Column from 'antd/lib/table/Column';
+import AddBtn from '../Common/AddBtn';
 import moment from 'moment';
 
 const { getCourses } = courseActions;
-const { deleteClass, getClasses, searchClass } = classActions;
+const { getClasses } = classActions;
 
-const ClassPage = () => {
+const Info = ({ id }) => {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const data = useSelector((state) => state.classReducer.classes);
+
   const courses = useSelector((state) => state.courseReducer.courses);
+  const classes = useSelector((state) => state.classReducer.classes);
+  const [currentCourse, setCurrentCourse] = useState({});
+  const [listClassOfCourse, setListClassOfCourse] = useState([]);
+  const [openModal, setOpenModal] = useState(false);
 
+  // Lấy danh sách khoá học
   useEffect(() => {
-    dispatch(getClasses());
     if (!courses.length) dispatch(getCourses());
-  }, []);
+  }, [courses.length]);
 
-  const gotoAdd = () => navigate('./add');
+  // Lấy danh sách lớp học
+  useEffect(() => {
+    if (!classes.length) dispatch(getClasses());
+  }, [classes.length]);
 
-  const deleteStu = (id) => dispatch(deleteClass(id));
+  // Lấy thông tin khoá học hiện tại
+  useEffect(() => {
+    if (courses.length)
+      setCurrentCourse(courses.find((course) => course.courseId === id));
+  }, [id, courses.length]);
+
+  // Lấy danh sách lớp học thuộc khoá học
+  useEffect(() => {
+    if (currentCourse._id && classes.length)
+      setListClassOfCourse(
+        classes.filter((clasS) => clasS.courseId === currentCourse._id)
+      );
+  }, [currentCourse._id, classes.length]);
+
+  const openModalAddStudent = () => setOpenModal(true);
 
   return (
-    <div>
-      <Row>
-        <Col span={12}>
-          <SearchBox
-            style={{ width: '50%' }}
-            placeholder="Tên hoặc mã lớp học..."
-            onChange={(str) => dispatch(searchClass(str))}
-          />
-        </Col>
-        <Col span={12}>
-          <AddBtn add={gotoAdd} />
-        </Col>
-      </Row>
+    <>
+      <AddBtn add={openModalAddStudent} />
       <Table
-        dataSource={data}
+        dataSource={listClassOfCourse}
         rowKey="classId"
         pagination={{
           showTotal: (total, range) => `${range[0]}-${range[1]} của ${total} lớp học`,
@@ -116,18 +119,9 @@ const ClassPage = () => {
               : '---'
           }
         />
-        <Column
-          title="Action"
-          key="action"
-          render={(text, record) => (
-            <Space size="middle">
-              <DeleteBtn onDelete={() => deleteStu(record._id)} />
-            </Space>
-          )}
-        />
       </Table>
-    </div>
+    </>
   );
 };
 
-export default ClassPage;
+export default Info;

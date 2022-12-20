@@ -77,6 +77,21 @@ const tuitionFeeReport = () => {
         student: students.find((st) => st._id === record.student_id),
       }));
 
+    // Lọc trùng bản ghi học viên
+    for (let i = 0; i < temp.length; i++) {
+      const currentRecord = temp[i];
+      for (let j = i + 1; j < temp.length; j++) {
+        if (
+          temp[j].class_id === currentRecord.class_id &&
+          temp[j].student_id === currentRecord.student_id &&
+          temp[j].payTime > currentRecord.payTime
+        ) {
+          temp[i] = temp[j];
+          temp.splice(j, 1);
+        }
+      }
+    }
+
     setDataSource(temp);
   }, [
     selectedClass,

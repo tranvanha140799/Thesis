@@ -91,8 +91,8 @@ const SalaryPage = () => {
   const [listTeachers, setListCurrentTeachers] = useState([]); //
   const [selectedCourse, setSelectedCourse] = useState({}); //
   const [selectedClass, setSelectedClass] = useState({}); // Giá trị đang chọn của khung tìm kiếm
-  const [payAmount, setPayAmount] = useState(0); // Tiền nộp lần này (nhập)
-  const [payAmountType, setPayAmountType] = useState(''); // Kiểu nộp hp (toàn bộ/một phần)
+  const [payAmount, setPayAmount] = useState(0); // Tiền trả lần này (nhập)
+  const [payAmountType, setPayAmountType] = useState(''); // Kiểu trả lương (ứng/lĩnh)
   const [isShowModalTotal, setIsShowModalTotal] = useState(false);
   const [isShowModalPartial, setIsShowModalPartial] = useState(false);
   const [dataSource, setDataSource] = useState([]);
@@ -103,17 +103,12 @@ const SalaryPage = () => {
     if (!teachers.length) dispatch(getTeachers());
   }, []);
 
-  useEffect(() => {
-    if (courses.length) setListCurrentCourses(courses);
-  }, [courses.length]);
-
-  useEffect(() => {
-    if (classes.length) setListCurrentClasses(classes);
-  }, [classes.length]);
-
-  useEffect(() => {
-    if (teachers.length) setListCurrentTeachers(teachers);
-  }, [teachers.length]);
+  useEffect(() => courses.length && setListCurrentCourses(courses), [courses.length]);
+  useEffect(() => classes.length && setListCurrentClasses(classes), [classes.length]);
+  useEffect(
+    () => teachers.length && setListCurrentTeachers(teachers),
+    [teachers.length]
+  );
 
   // Chọn giảng viên mặc định (navigate từ trang thông tin giảng viên)
   useEffect(() => {
@@ -137,45 +132,6 @@ const SalaryPage = () => {
   useEffect(() => {
     if (!salaryFactors.length) dispatch(getSalaryFactors());
   }, [salaryFactors.length]);
-
-  // Tính tiền học phí sau cùng-------
-  // useEffect(() => {
-  //   if (currentClass && currentTeacher && Object.keys(latestPaidSalary)) {
-  //     if (
-  //       currentClass._id === latestPaidSalary.class_id ||
-  //       currentTeacher._id === latestPaidSalary.student_id
-  //     ) {
-  //       if (currentClass?.discount && currentSalaryFactor?.percent)
-  //         setFinalTuitionFee(
-  //           currentCourse?.tuitionFee -
-  //             (currentCourse?.tuitionFee *
-  //               (currentClass?.discount + currentSalaryFactor?.percent)) /
-  //               100
-  //         );
-  //       else if (currentClass?.discount)
-  //         setFinalTuitionFee(
-  //           currentCourse?.tuitionFee -
-  //             (currentCourse?.tuitionFee * currentClass?.discount) / 100
-  //         );
-  //       else if (currentSalaryFactor?.percent)
-  //         setFinalTuitionFee(
-  //           currentCourse?.tuitionFee -
-  //             (currentCourse?.tuitionFee * currentSalaryFactor?.percent) / 100
-  //         );
-  //       else setFinalTuitionFee(currentCourse?.tuitionFee);
-  //     }
-  //   }
-  // }, [latestPaidSalary, currentClass, currentTeacher]);
-
-  // useEffect(() => {
-  //   if (finalTuitionFee !== -1 && remainTuitionFee === -1)
-  //     setRemainTuitionFee(
-  //       finalTuitionFee <= latestPaidSalary?.paidTuitionFee
-  //         ? 0
-  //         : finalTuitionFee - latestPaidSalary?.paidTuitionFee
-  //     );
-  // }, [finalTuitionFee, remainTuitionFee]);
-  // ---------------------------------
 
   // Nạp lại dataSource cho table
   useEffect(() => {
@@ -319,23 +275,41 @@ const SalaryPage = () => {
         currentTeacher?.contractSalary * currentSalaryFactor?.factor +
         currentSalaryFactor?.allowance, // Continue...
       paidSalary:
-        payAmountType === 'total' ? latestPaidSalary?.periodSalary : payAmount,
+        payAmountType === 'total'
+          ? currentTeacher?.contractSalary * currentSalaryFactor?.factor +
+            currentSalaryFactor?.allowance
+          : payAmount,
       isPaidSalary: !!(payAmountType === 'total'),
       datePaidSalary: new Date().toISOString(),
       isAdvancePayment: !(payAmountType === 'total'),
       advancePayment:
-        payAmountType === 'total' ? latestPaidSalary?.advancePayment : payAmount,
+        payAmountType === 'total' && latestPaidSalary?.advancePayment
+          ? latestPaidSalary?.advancePayment || 0
+          : payAmount,
       teacherId: currentTeacher?._id,
     };
-    console.log(payload);
 
-    // dispatch(
-    //   createPaySalary(payload, {
-    //     onSuccess: () =>
-    //       showNotification('success', 'Lưu thông tin lĩnh lương thành công.'),
-    //     onError: () => showNotification('error', 'Lưu thông tin lĩnh lương thất bại!'),
-    //   })
-    // );
+    dispatch(
+      createPaySalary(payload, {
+        onSuccess: () => {
+          showNotification(
+            'success',
+            `Lưu thông tin ${
+              payAmountType === 'total' ? 'lĩnh' : 'ứng'
+            } lương thành công.`
+          );
+          setPayAmount(0);
+          setPayAmountType('');
+        },
+        onError: () =>
+          showNotification(
+            'error',
+            `Lưu thông tin ${
+              payAmountType === 'total' ? 'lĩnh' : 'ứng'
+            } lương thất bại!`
+          ),
+      })
+    );
 
     payAmountType === 'total'
       ? setIsShowModalTotal(false)
@@ -541,7 +515,7 @@ const SalaryPage = () => {
       <Divider />
 
       <Card hoverable={false}>
-        {latestPaidSalary._id ? (
+        {currentTeacher?.status === 'active' ? (
           <>
             <Row>
               <Col
@@ -588,25 +562,28 @@ const SalaryPage = () => {
                       <Select.Option value="total">Lĩnh toàn bộ</Select.Option>
                     </Select>
 
-                    {new Date().getDate() > 10 &&
-                    new Date().getDate() < 15 &&
-                    payAmountType === 'total' ? (
+                    {
+                      // new Date().getDate() > 10 &&
+                      // new Date().getDate() < 15 &&
+                      // payAmountType === 'total' ? (
                       <Button
                         shape="round"
                         type="primary"
                         onClick={() => setIsShowModalTotal(true)}
+                        disabled={payAmountType !== 'total'}
                       >
                         Lĩnh lương
                       </Button>
-                    ) : (
-                      <span style={{ color: 'red', lineHeight: '200%' }}>
-                        Ngày lĩnh lương là 10 - 15 hàng tháng!
-                      </span>
-                    )}
+                      // ) : (
+                      //   <span style={{ color: 'red', lineHeight: '200%' }}>
+                      //     Ngày lĩnh lương là 10 - 15 hàng tháng!
+                      //   </span>
+                      // )
+                    }
                   </Col>
                   {!latestPaySalaryTime?.isAdvancePayment &&
-                    new Date().getDate() > 10 &&
-                    new Date().getDate() < 15 &&
+                    // new Date().getDate() > 10 &&
+                    // new Date().getDate() < 15 &&
                     payAmountType === 'partial' && (
                       <Col span={12} style={{ display: 'flex' }}>
                         <Form

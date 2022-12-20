@@ -113,7 +113,7 @@ const AddStudent = ({ id }) => {
       email,
       address,
       phoneNumber,
-      status,
+      status: status || 'leaved',
       classId: classId || '',
       exemptId: exemptId || '',
       image,
@@ -289,7 +289,7 @@ const AddStudent = ({ id }) => {
               onDone={({ base64 }) => setImage(base64)}
             />
           </Form.Item>
-          <Form.Item
+          {/* <Form.Item
             name="classId"
             label="Lớp đang học"
             rules={[
@@ -298,17 +298,17 @@ const AddStudent = ({ id }) => {
                 message: '',
               },
             ]}
-          >
-            {/* <Input /> */}
-            <Select value={classId} onChange={(e) => setClassId(e)} allowClear>
+          > */}
+          {/* <Input /> */}
+          {/* <Select value={classId} onChange={(e) => setClassId(e)} allowClear>
               {classes.map((clasS) => (
                 <Select.Option key={clasS._id} value={clasS._id}>
                   {clasS.name}
                 </Select.Option>
               ))}
             </Select>
-          </Form.Item>
-          <Form.Item
+          </Form.Item> */}
+          {/* <Form.Item
             name="status"
             label="Trạng Thái"
             rules={[
@@ -317,9 +317,9 @@ const AddStudent = ({ id }) => {
                 message: '',
               },
             ]}
-          >
-            {/* <Input /> */}
-            <Select value={status} onChange={(e) => setStatus(e)}>
+          > */}
+          {/* <Input /> */}
+          {/* <Select value={status} onChange={(e) => setStatus(e)}>
               <Select.Option key="learning" value="learning">
                 Đang học
               </Select.Option>
@@ -330,7 +330,7 @@ const AddStudent = ({ id }) => {
                 Đã nghỉ học
               </Select.Option>
             </Select>
-          </Form.Item>
+          </Form.Item> */}
         </Col>
       </Row>
       <Row

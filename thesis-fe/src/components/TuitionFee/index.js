@@ -186,7 +186,7 @@ const TuitionFeePage = () => {
 
   // Nạp lại dataSource cho table
   useEffect(() => {
-    if (!dataSource.length && currentClassStudents.length) {
+    if (currentClassStudents.length) {
       let temp = [...currentClassStudents];
       temp = temp
         .filter((record) => record?.payTime !== 0)
@@ -194,7 +194,7 @@ const TuitionFeePage = () => {
 
       setDataSource(temp);
     }
-  }, [currentClassStudents]);
+  }, [currentClassStudents.length]);
 
   // Thay đổi khoá học
   const handleChangeCourse = (value) => {
@@ -343,7 +343,10 @@ const TuitionFeePage = () => {
       createClassStudent(payload, {
         onSuccess: () => {
           showNotification('success', 'Nộp học phí thành công.');
-          setRemainTuitionFee(remainTuitionFee - payAmount);
+          payAmountType === 'total'
+            ? setRemainTuitionFee(-1)
+            : setRemainTuitionFee(remainTuitionFee - payAmount);
+          setPayAmountType('');
         },
         onError: () => showNotification('error', 'Nộp học phí thất bại!'),
       })
